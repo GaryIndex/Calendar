@@ -41,9 +41,10 @@ jobs:
         id: check_changes
         run: |
           git diff --exit-code || echo "Changes detected"
+          echo "::set-output name=changes::$(git diff --exit-code || echo 'true')"
 
       - name: Commit and push the updated files
-        if: steps.check_changes.outputs.stdout != 'Changes detected'
+        if: steps.check_changes.outputs.changes == 'true'
         uses: EndBug/add-and-commit@v7
         with:
           author_name: 'GitHub Actions'
@@ -51,3 +52,7 @@ jobs:
           message: 'Update data.json and calendar.ics'
           push: true
           token: ${{ secrets.GITHUB_TOKEN }}  # 使用 GITHUB_TOKEN 进行推送
+
+      - name: Set commit status
+        if: steps.check_changes.outputs.changes != 'true'
+        run: echo "No changes to commit."
