@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const moment = require('moment-timezone');
 
-const DATA_PATH = './data/data.json';
+const DATA_PATH = './data/json'; // 存储目录路径
 const LOG_PATH = './data/error.log';
 const START_DATE = '2025-02-08'; // 初始抓取日期
 
@@ -30,24 +30,44 @@ process.on('uncaughtException', (error) => {
 
 // 📌 读取已存储数据，防止重复抓取
 const loadExistingData = () => {
-  if (!fs.existsSync(DATA_PATH)) return {};
-  try {
-    const rawData = fs.readFileSync(DATA_PATH, 'utf8');
-    return rawData ? JSON.parse(rawData) : {};
-  } catch (error) {
-    logMessage(`❌ 读取 data.json 失败: ${error.message}`);
-    return {};
-  }
+  const files = [
+    'calendar.json',
+    'astro.json',
+    'shichen.json',
+    'jieqi.json',
+    'holidays.json',
+  ];
+
+  const data = {};
+  files.forEach((file) => {
+    const filePath = `${DATA_PATH}/${file}`;
+    if (fs.existsSync(filePath)) {
+      try {
+        const rawData = fs.readFileSync(filePath, 'utf8');
+        data[file] = rawData ? JSON.parse(rawData) : {};
+      } catch (error) {
+        logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
+        data[file] = {};
+      }
+    } else {
+      data[file] = {};
+    }
+  });
+  return data;
 };
 
-// 📌 保存数据到 data.json
+// 📌 保存数据到文件
 const saveData = (data) => {
-  try {
-    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf8');
-    logMessage(`✅ 数据成功保存: ${Object.keys(data).length} 条记录`);
-  } catch (error) {
-    logMessage(`❌ 保存数据失败: ${error.message}`);
-  }
+  const files = Object.keys(data);
+  files.forEach((file) => {
+    const filePath = `${DATA_PATH}/${file}`;
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(data[file], null, 2), 'utf8');
+      logMessage(`✅ ${file} 成功保存: ${Object.keys(data[file]).length} 条记录`);
+    } catch (error) {
+      logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
+    }
+  });
 };
 
 // 📌 发送 API 请求
@@ -74,7 +94,9 @@ const fetchData = async () => {
     const dateStr = currentDate.format('YYYY-MM-DD');
 
     // 📌 跳过已存在数据
-    if (existingData[dateStr]) {
+    if (existingData['calendar.json'][dateStr] || existingData['astro.json'][dateStr] ||
+        existingData['shichen.json'][dateStr] || existingData['jieqi.json'][dateStr] ||
+        existingData['holidays.json'][dateStr]) {
       logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
       continue;
     }
@@ -95,14 +117,11 @@ const fetchData = async () => {
     }
 
     // 📌 存储数据
-    existingData[dateStr] = {
-      date: dateStr,
-      calendar: calendarData,
-      astro: astroData,
-      shichen: shichenData,
-      jieqi: jieqiData,
-      holidays: holidaysData,
-    };
+    existingData['calendar.json'][dateStr] = calendarData;
+    existingData['astro.json'][dateStr] = astroData;
+    existingData['shichen.json'][dateStr] = shichenData;
+    existingData['jieqi.json'][dateStr] = jieqiData;
+    existingData['holidays.json'][dateStr] = holidaysData;
 
     saveData(existingData);
     logMessage(`✅ 数据保存成功: ${dateStr}`);
