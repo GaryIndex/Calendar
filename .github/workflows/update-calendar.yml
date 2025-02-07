@@ -40,8 +40,9 @@ jobs:
       - name: Check for changes and commit
         id: check_changes
         run: |
-          git diff --exit-code || echo "Changes detected"
-          echo "::set-output name=changes::$(git diff --exit-code || echo 'true')"
+          git add data/data.json calendar.ics  # 确保文件被加入暂存区
+          git diff --cached --exit-code || echo "Changes detected"
+          echo "::set-output name=changes::$(git diff --cached --exit-code || echo 'true')"
 
       - name: Commit and push the updated files
         if: steps.check_changes.outputs.changes == 'true'
