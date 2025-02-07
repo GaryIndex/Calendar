@@ -2,22 +2,30 @@ const axios = require('axios');
 const fs = require('fs');
 const moment = require('moment-timezone');
 
-const DATA_PATH = './data/json'; // 存储目录路径
+const DATA_PATH = './data/json'; // 存储目录
 const LOG_PATH = './data/error.log';
 const START_DATE = '2025-02-08'; // 初始抓取日期
+
+// 📌 确保目录存在
+const ensureDirectoryExists = (path) => {
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path, { recursive: true });
+  }
+};
 
 // 📌 记录日志
 const logMessage = (message) => {
   const timestamp = moment().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
   const logEntry = `[${timestamp}] ${message}\n`;
   try {
+    ensureDirectoryExists(DATA_PATH);
     fs.appendFileSync(LOG_PATH, logEntry, 'utf8');
   } catch (error) {
     console.error(`[日志写入失败] ${error.message}`);
   }
 };
 
-// 📌 记录进程终止信息
+// 📌 监听异常退出
 process.on('exit', () => logMessage('🚨 进程已退出'));
 process.on('SIGINT', () => {
   logMessage('🚨 进程被手动终止 (SIGINT)');
@@ -30,15 +38,10 @@ process.on('uncaughtException', (error) => {
 
 // 📌 读取已存储数据，防止重复抓取
 const loadExistingData = () => {
-  const files = [
-    'calendar.json',
-    'astro.json',
-    'shichen.json',
-    'jieqi.json',
-    'holidays.json',
-  ];
-
+  ensureDirectoryExists(DATA_PATH);
+  const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
   const data = {};
+  
   files.forEach((file) => {
     const filePath = `${DATA_PATH}/${file}`;
     if (fs.existsSync(filePath)) {
@@ -53,17 +56,18 @@ const loadExistingData = () => {
       data[file] = {};
     }
   });
+  
   return data;
 };
 
 // 📌 保存数据到文件
 const saveData = (data) => {
-  const files = Object.keys(data);
-  files.forEach((file) => {
+  ensureDirectoryExists(DATA_PATH);
+  Object.keys(data).forEach((file) => {
     const filePath = `${DATA_PATH}/${file}`;
     try {
       fs.writeFileSync(filePath, JSON.stringify(data[file], null, 2), 'utf8');
-      logMessage(`✅ ${file} 成功保存: ${Object.keys(data[file]).length} 条记录`);
+      logMessage(`✅ ${file} 保存成功: ${Object.keys(data[file]).length} 条记录`);
     } catch (error) {
       logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
     }
@@ -74,18 +78,19 @@ const saveData = (data) => {
 const fetchDataFromApi = async (url, params = {}) => {
   try {
     const response = await axios.get(url, { params });
-    logMessage(`✅ SUCCESS API Call: ${url} | Params: ${JSON.stringify(params)}`);
+    logMessage(`✅ API 请求成功: ${url} | 参数: ${JSON.stringify(params)}`);
     return response.data;
   } catch (error) {
-    logMessage(`❌ FAILED API Call: ${url} | Params: ${JSON.stringify(params)} | Error: ${error.message}`);
-    return null; // 确保后续流程不会中断
+    logMessage(`❌ API 请求失败: ${url} | 参数: ${JSON.stringify(params)} | 错误: ${error.message}`);
+    return null; // 避免中断
   }
 };
 
-// 📌 处理数据抓取
+// 📌 数据抓取逻辑
 const fetchData = async () => {
   logMessage('🚀 开始数据抓取...');
-
+  ensureDirectoryExists(DATA_PATH);
+  
   const existingData = loadExistingData();
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
   const startDate = moment(START_DATE).tz('Asia/Shanghai');
@@ -94,8 +99,10 @@ const fetchData = async () => {
     const dateStr = currentDate.format('YYYY-MM-DD');
 
     // 📌 跳过已存在数据
-    if (existingData['calendar.json'][dateStr] || existingData['astro.json'][dateStr] ||
-        existingData['shichen.json'][dateStr] || existingData['jieqi.json'][dateStr] ||
+    if (existingData['calendar.json'][dateStr] || 
+        existingData['astro.json'][dateStr] ||
+        existingData['shichen.json'][dateStr] ||
+        existingData['jieqi.json'][dateStr] ||
         existingData['holidays.json'][dateStr]) {
       logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
       continue;
@@ -124,11 +131,11 @@ const fetchData = async () => {
     existingData['holidays.json'][dateStr] = holidaysData;
 
     saveData(existingData);
-    logMessage(`✅ 数据保存成功: ${dateStr}`);
+    logMessage(`✅ ${dateStr} 数据保存成功`);
   }
 
   logMessage('🎉 所有数据抓取完成！');
 };
 
-// 执行数据抓取
+// 📌 执行数据抓取
 fetchData();
