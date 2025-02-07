@@ -54,7 +54,7 @@ async function fetchData() {
     console.log('Starting to fetch data...');
     logBeijingTime();
 
-    const startDate = moment.tz('2020-01-01', 'Asia/Shanghai'); // 设定抓取起始时间
+    const startDate = moment.tz('2025-02-07', 'Asia/Shanghai'); // 设定抓取起始时间
     const today = moment.tz('now', 'Asia/Shanghai');
     const existingData = loadExistingData();
     const existingDates = new Set(existingData.map(item => item.date)); // 存在的数据日期
