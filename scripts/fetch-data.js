@@ -4,7 +4,7 @@ const moment = require('moment-timezone');
 
 const DATA_PATH = './data/data.json';
 const LOG_PATH = './data/error.log';
-const START_DATE = '2025-02-07'; // 初始抓取日期
+const START_DATE = '2025-02-08'; // 初始抓取日期
 
 // 📌 记录日志
 const logMessage = (message) => {
