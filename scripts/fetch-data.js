@@ -42,7 +42,7 @@ function initializeDataFile() {
   }
 }
 
-// 获取某一年的数据并保存
+// 获取数据并保存
 async function fetchAndSaveData(date, year) {
   const formattedDate = format(date, 'yyyy-MM-dd');
 
@@ -54,7 +54,15 @@ async function fetchAndSaveData(date, year) {
   const holidayData = await getHolidayData(year);
 
   // 读取现有数据
-  const data = JSON.parse(fs.readFileSync('data/data.json', 'utf-8'));
+  let data = {};
+  if (fs.existsSync('data/data.json') && fs.readFileSync('data/data.json', 'utf-8').trim()) {
+    try {
+      data = JSON.parse(fs.readFileSync('data/data.json', 'utf-8'));
+    } catch (error) {
+      console.error("Error parsing JSON data:", error);
+      return;
+    }
+  }
 
   // 如果该日期的数据已经存在，则跳过
   if (data[formattedDate]) {
