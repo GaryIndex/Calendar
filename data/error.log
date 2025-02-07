@@ -61,3 +61,24 @@
 [2025-02-08 07:38:05] 🚨 进程已退出
 2025-02-07T23:38:05.655Z - ⚠️ data.json 文件结构不符合预期！
 2025-02-07T23:38:05.655Z - ⚠️ 无效的 data.json 数据，无法生成 ICS！
+[2025-02-08 07:49:21] 🚀 开始数据抓取...
+[2025-02-08 07:49:21] 📅 处理日期: 2025-02-08
+[2025-02-08 07:49:22] ✅ SUCCESS API Call: https://api.timelessq.com/time | Params: {"datetime":"2025-02-08"}
+[2025-02-08 07:49:22] ✅ SUCCESS API Call: https://api.timelessq.com/time/astro | Params: {"keyword":"2025-02-08"}
+[2025-02-08 07:49:22] ✅ SUCCESS API Call: https://api.timelessq.com/time/shichen | Params: {"date":"2025-02-08"}
+[2025-02-08 07:49:22] ✅ SUCCESS API Call: https://api.timelessq.com/time/jieqi | Params: {"year":"2025"}
+[2025-02-08 07:49:22] ✅ SUCCESS API Call: https://api.jiejiariapi.com/v1/holidays/2025 | Params: {}
+[2025-02-08 07:49:22] ❌ 保存 calendar.json 失败: ENOENT: no such file or directory, open './data/json/calendar.json'
+[2025-02-08 07:49:22] ❌ 保存 astro.json 失败: ENOENT: no such file or directory, open './data/json/astro.json'
+[2025-02-08 07:49:22] ❌ 保存 shichen.json 失败: ENOENT: no such file or directory, open './data/json/shichen.json'
+[2025-02-08 07:49:22] ❌ 保存 jieqi.json 失败: ENOENT: no such file or directory, open './data/json/jieqi.json'
+[2025-02-08 07:49:22] ❌ 保存 holidays.json 失败: ENOENT: no such file or directory, open './data/json/holidays.json'
+[2025-02-08 07:49:22] ✅ 数据保存成功: 2025-02-08
+[2025-02-08 07:49:22] 🎉 所有数据抓取完成！
+[2025-02-08 07:49:22] 🚨 进程已退出
+2025-02-07T23:49:22.796Z - ⚠️ 文件 ./data/holidays.json 不存在，无法读取！
+2025-02-07T23:49:22.797Z - ⚠️ 文件 ./data/jieqi.json 不存在，无法读取！
+2025-02-07T23:49:22.797Z - ⚠️ 文件 ./data/astro.json 不存在，无法读取！
+2025-02-07T23:49:22.797Z - ⚠️ 文件 ./data/calendar.json 不存在，无法读取！
+2025-02-07T23:49:22.797Z - ⚠️ 文件 ./data/shichen.json 不存在，无法读取！
+2025-02-07T23:49:22.797Z - ⚠️ 无效的 JSON 数据，无法生成 ICS！
