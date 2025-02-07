@@ -11,11 +11,19 @@ const logError = (message) => {
   fs.appendFileSync(logPath, logMessage);
 };
 
+// 用于记录北京时间的函数
+const logBeijingTime = () => {
+  const beijingTime = moment.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
+  const logMessage = `[${beijingTime}] Beijing Time\n`;
+  fs.appendFileSync(logPath, logMessage);
+};
+
 // 用于存储数据的函数
 async function fetchData() {
   try {
     console.log('Starting to fetch data...');
-    
+    logBeijingTime();  // 打印当前北京时间到 error.log
+
     // 设置从 2025-02-07 到今天的日期范围，获取北京时间
     const startDate = moment.tz('2025-02-07', 'Asia/Shanghai');
     const today = moment.tz('now', 'Asia/Shanghai');
@@ -97,6 +105,7 @@ async function fetchData() {
     // 逐天抓取数据并实时保存
     for (const date of dates) {
       console.log(`Fetching data for ${date}...`);
+      logBeijingTime();  // 每次抓取数据时打印北京时间
 
       try {
         const calendarData = await fetchCalendarData(date);
