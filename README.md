@@ -36,5 +36,15 @@
 ├── calendar.ics                 # 生成的 `.ics` 订阅日历文件
 ├── package.json                 # Node.js 依赖配置
 ├── README.md                    # 项目说明
+
+目录 / 文件,说明
+.github/workflows/update-data.yml,GitHub Actions 工作流，支持手动触发数据更新
+scripts/fetch-data.js,通过 API 抓取 万年历、星座、十二时辰、二十四节气、假期 数据，并存储到 data.json
+scripts/generate-ics.js,读取 data.json 生成 .ics 订阅日历
+data/data.json,已获取的日历数据，存储每天的详细信息
+calendar.ics,生成的 .ics 日历文件，可直接订阅
+package.json,Node.js 依赖管理
+README.md,项目文档，介绍使用方式
+
 ## **📜 许可证**
 MIT
