@@ -1,6 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
-const { format, addDays, subDays } = require('date-fns');
+const { format, subYears } = require('date-fns');
 
 // 获取万年历数据
 async function getLunarData(date) {
@@ -35,44 +35,70 @@ async function getHolidayData(year) {
   return response.data;
 }
 
-// 逐年获取数据并存储
-async function getAllData() {
-  const startDate = subDays(new Date(), 5 * 365); // 从5年前开始
-  const endDate = new Date(); // 当前日期
-  const data = {};
-
-  // 遍历过去5年的每一天
-  let currentDate = startDate;
-  while (currentDate <= endDate) {
-    const formattedDate = format(currentDate, 'yyyy-MM-dd');
-    const year = format(currentDate, 'yyyy');
-
-    console.log(`Fetching data for ${formattedDate}`);
-
-    // 获取各类数据
-    const lunarData = await getLunarData(currentDate);
-    const horoscopeData = await getHoroscopeData(currentDate);
-    const shichenData = await getShichenData(currentDate);
-    const jieqiData = await getJieqiData(year);
-    const holidayData = await getHolidayData(year);
-
-    // 存储到数据对象
-    data[formattedDate] = {
-      lunar: lunarData,
-      horoscope: horoscopeData,
-      shichen: shichenData,
-      jieqi: jieqiData,
-      holidays: holidayData
-    };
-
-    // 将日期加1天
-    currentDate = addDays(currentDate, 1);
+// 检查数据文件是否存在，若不存在则初始化
+function initializeDataFile() {
+  if (!fs.existsSync('data/data.json')) {
+    fs.writeFileSync('data/data.json', JSON.stringify({}, null, 2), 'utf-8');
   }
-
-  // 将数据保存到文件
-  fs.writeFileSync('data/data.json', JSON.stringify(data, null, 2), 'utf-8');
-  console.log('Data for past 5 years has been saved to data/data.json');
 }
 
-// 执行数据抓取
-getAllData();
+// 获取某一年的数据并保存
+async function fetchAndSaveData(date, year) {
+  const formattedDate = format(date, 'yyyy-MM-dd');
+
+  // 获取各类数据
+  const lunarData = await getLunarData(date);
+  const horoscopeData = await getHoroscopeData(date);
+  const shichenData = await getShichenData(date);
+  const jieqiData = await getJieqiData(year);
+  const holidayData = await getHolidayData(year);
+
+  // 读取现有数据
+  const data = JSON.parse(fs.readFileSync('data/data.json', 'utf-8'));
+
+  // 如果该日期的数据已经存在，则跳过
+  if (data[formattedDate]) {
+    console.log(`Data for ${formattedDate} already exists. Skipping...`);
+    return;
+  }
+
+  // 将新数据添加到现有数据中
+  data[formattedDate] = {
+    lunar: lunarData,
+    horoscope: horoscopeData,
+    shichen: shichenData,
+    jieqi: jieqiData,
+    holidays: holidayData
+  };
+
+  // 保存更新后的数据
+  fs.writeFileSync('data/data.json', JSON.stringify(data, null, 2), 'utf-8');
+  console.log(`Data for ${formattedDate} has been saved to data/data.json`);
+}
+
+// 主函数：抓取五年数据并保存
+async function fetchData() {
+  initializeDataFile(); // 初始化数据文件（若不存在）
+
+  const currentDate = new Date();
+  const today = format(currentDate, 'yyyy-MM-dd');
+  const fiveYearsAgo = subYears(currentDate, 5);
+
+  let currentYear = format(currentDate, 'yyyy');
+  let currentDateIter = fiveYearsAgo;
+
+  console.log(`Starting to fetch data from ${fiveYearsAgo} to today (${today})`);
+
+  // 遍历过去五年到今天的每一天
+  while (format(currentDateIter, 'yyyy-MM-dd') <= today) {
+    await fetchAndSaveData(currentDateIter, currentYear);
+
+    // 递增日期
+    currentDateIter = new Date(currentDateIter.setDate(currentDateIter.getDate() + 1));
+  }
+
+  console.log("All data fetched and saved successfully!");
+}
+
+// 执行抓取数据
+fetchData();
