@@ -113,8 +113,23 @@ async function fetchData() {
         let existingData = [];
         if (fs.existsSync(path)) {
           const fileData = fs.readFileSync(path, 'utf8');
-          existingData = fileData ? JSON.parse(fileData) : [];
-          console.log('Existing data loaded.');
+          
+          // 检查文件内容是否有效
+          if (fileData) {
+            try {
+              existingData = JSON.parse(fileData);  // 解析JSON数据
+              console.log('Existing data loaded.');
+            } catch (error) {
+              console.error('Error parsing data.json:', error);
+              existingData = [];  // 如果解析失败，初始化为空数组
+            }
+          } else {
+            console.log('data.json is empty, initializing an empty array.');
+            existingData = [];  // 如果文件为空，初始化为空数组
+          }
+        } else {
+          console.log('data.json does not exist, initializing an empty array.');
+          existingData = [];  // 如果文件不存在，初始化为空数组
         }
 
         // 将新数据添加到现有数据中
