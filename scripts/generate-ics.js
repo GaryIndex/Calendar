@@ -1,10 +1,17 @@
 const fs = require('fs');
 const path = './data/data.json';
 const holidaysKey = 'holidays';  // 用来获取假期数据的键名
+const icsFilePath = './calendar.ics'; // 目标 ICS 文件路径
 
 // 生成日历文件的函数
 const generateICS = () => {
   try {
+    // 确保目标目录存在
+    const dirName = icsFilePath.substring(0, icsFilePath.lastIndexOf('/'));
+    if (dirName && !fs.existsSync(dirName)) {
+      fs.mkdirSync(dirName, { recursive: true });
+    }
+
     // 读取 data.json 中的数据
     const rawData = fs.readFileSync(path, 'utf8');
     const data = JSON.parse(rawData);
@@ -33,7 +40,7 @@ END:VEVENT
     icsContent += '\nEND:VCALENDAR';
 
     // 保存为 .ics 文件
-    fs.writeFileSync('./calendar.ics', icsContent);
+    fs.writeFileSync(icsFilePath, icsContent);
     console.log('ICS file generated successfully!');
   } catch (error) {
     console.error('Error generating ICS file:', error);
