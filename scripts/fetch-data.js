@@ -1,112 +1,74 @@
-const axios = require('axios');
-const fs = require('fs');
-const { format, subYears } = require('date-fns');
+const fs = require("fs");
+const path = require("path");
+const axios = require("axios");
+const { format, addDays } = require("date-fns");
 
-// 获取万年历数据
-async function getLunarData(date) {
-  const formattedDate = format(date, 'yyyy-MM-dd');
-  const response = await axios.get(`https://api.timelessq.com/time?datetime=${formattedDate}`);
-  return response.data;
+const dataFilePath = path.join(__dirname, "../data/data.json");
+
+// **确保 data.json 存在且有效**
+if (!fs.existsSync(dataFilePath) || fs.statSync(dataFilePath).size === 0) {
+  console.log("data.json 文件不存在或为空，创建空文件...");
+  fs.writeFileSync(dataFilePath, JSON.stringify({}, null, 2)); // 写入 {}
 }
 
-// 获取星座数据
-async function getHoroscopeData(date) {
-  const formattedDate = format(date, 'yyyy-MM-dd');
-  const response = await axios.get(`https://api.timelessq.com/time/astro?keyword=${formattedDate}`);
-  return response.data;
+// **读取 JSON 数据，处理空文件或解析错误**
+let data = {};
+try {
+  const fileContent = fs.readFileSync(dataFilePath, "utf-8").trim();
+  data = fileContent ? JSON.parse(fileContent) : {};
+} catch (error) {
+  console.error("data.json 解析失败，初始化为空对象:", error.message);
+  data = {};
 }
 
-// 获取十二时辰数据
-async function getShichenData(date) {
-  const formattedDate = format(date, 'yyyy-MM-dd');
-  const response = await axios.get(`https://api.timelessq.com/time/shichen?date=${formattedDate}`);
-  return response.data;
-}
+const startDate = new Date("2020-01-01"); // 从 2020-01-01 开始
+const endDate = new Date(); // 结束日期是今天
 
-// 获取二十四节气数据
-async function getJieqiData(year) {
-  const response = await axios.get(`https://api.timelessq.com/time/jieqi?year=${year}`);
-  return response.data;
-}
-
-// 获取假期数据
-async function getHolidayData(year) {
-  const response = await axios.get(`https://api.jiejiariapi.com/v1/holidays/${year}`);
-  return response.data;
-}
-
-// 检查数据文件是否存在，若不存在则初始化
-function initializeDataFile() {
-  if (!fs.existsSync('data/data.json')) {
-    fs.writeFileSync('data/data.json', JSON.stringify({}, null, 2), 'utf-8');
-  }
-}
-
-// 获取数据并保存
-async function fetchAndSaveData(date, year) {
-  const formattedDate = format(date, 'yyyy-MM-dd');
-
-  // 获取各类数据
-  const lunarData = await getLunarData(date);
-  const horoscopeData = await getHoroscopeData(date);
-  const shichenData = await getShichenData(date);
-  const jieqiData = await getJieqiData(year);
-  const holidayData = await getHolidayData(year);
-
-  // 读取现有数据
-  let data = {};
-  if (fs.existsSync('data/data.json') && fs.readFileSync('data/data.json', 'utf-8').trim()) {
-    try {
-      data = JSON.parse(fs.readFileSync('data/data.json', 'utf-8'));
-    } catch (error) {
-      console.error("Error parsing JSON data:", error);
-      return;
-    }
-  }
-
-  // 如果该日期的数据已经存在，则跳过
-  if (data[formattedDate]) {
-    console.log(`Data for ${formattedDate} already exists. Skipping...`);
+async function fetchAndSaveData(dateString) {
+  if (data[dateString]) {
+    console.log(`跳过 ${dateString}，数据已存在`);
     return;
   }
 
-  // 将新数据添加到现有数据中
-  data[formattedDate] = {
-    lunar: lunarData,
-    horoscope: horoscopeData,
-    shichen: shichenData,
-    jieqi: jieqiData,
-    holidays: holidayData
-  };
+  console.log(`获取数据: ${dateString}`);
 
-  // 保存更新后的数据
-  fs.writeFileSync('data/data.json', JSON.stringify(data, null, 2), 'utf-8');
-  console.log(`Data for ${formattedDate} has been saved to data/data.json`);
+  try {
+    const [lunarRes, astroRes, shichenRes, jieqiRes, holidaysRes] = await Promise.all([
+      axios.get("https://api.timelessq.com/time", { params: { datetime: dateString } }),
+      axios.get("https://api.timelessq.com/time/astro", { params: { keyword: dateString } }),
+      axios.get("https://api.timelessq.com/time/shichen", { params: { date: dateString } }),
+      axios.get("https://api.timelessq.com/time/jieqi", { params: { year: dateString.substring(0, 4) } }),
+      axios.get(`https://api.jiejiariapi.com/v1/holidays/${dateString.substring(0, 4)}`)
+    ]);
+
+    data[dateString] = {
+      lunar: lunarRes.data,
+      horoscope: astroRes.data,
+      shichen: shichenRes.data,
+      jieqi: jieqiRes.data,
+      holidays: holidaysRes.data
+    };
+
+    // **实时写入 JSON 文件**
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+    console.log(`已存储 ${dateString} 的数据`);
+
+  } catch (error) {
+    console.error(`获取 ${dateString} 失败:`, error.message);
+  }
 }
 
-// 主函数：抓取五年数据并保存
 async function fetchData() {
-  initializeDataFile(); // 初始化数据文件（若不存在）
+  console.log(`开始抓取数据: 从 ${format(startDate, "yyyy-MM-dd")} 到 ${format(endDate, "yyyy-MM-dd")}`);
 
-  const currentDate = new Date();
-  const today = format(currentDate, 'yyyy-MM-dd');
-  const fiveYearsAgo = subYears(currentDate, 5);
-
-  let currentYear = format(currentDate, 'yyyy');
-  let currentDateIter = fiveYearsAgo;
-
-  console.log(`Starting to fetch data from ${fiveYearsAgo} to today (${today})`);
-
-  // 遍历过去五年到今天的每一天
-  while (format(currentDateIter, 'yyyy-MM-dd') <= today) {
-    await fetchAndSaveData(currentDateIter, currentYear);
-
-    // 递增日期
-    currentDateIter = new Date(currentDateIter.setDate(currentDateIter.getDate() + 1));
+  let currentDate = startDate;
+  while (currentDate <= endDate) {
+    const dateString = format(currentDate, "yyyy-MM-dd");
+    await fetchAndSaveData(dateString);
+    currentDate = addDays(currentDate, 1);
   }
 
-  console.log("All data fetched and saved successfully!");
+  console.log("数据抓取完成");
 }
 
-// 执行抓取数据
 fetchData();
