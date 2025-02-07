@@ -34,6 +34,8 @@ async function fetchData() {
       dates.push(currentDate.format('YYYY-MM-DD'));  // 格式化为 YYYY-MM-DD
     }
 
+    console.log(`Dates to fetch: ${dates.join(', ')}`);  // 打印所有要抓取的日期
+
     // 获取万年历数据
     const fetchCalendarData = async (date) => {
       try {
@@ -124,12 +126,13 @@ async function fetchData() {
           holidays: holidaysData,
         };
 
-        // 读取现有的 data.json 文件，如果文件为空，则初始化为空数组
+        console.log(`Daily data for ${date}:`, dailyData); // 打印当前日期的数据
+
+        // 读取现有的 data.json 文件
         let existingData = [];
         if (fs.existsSync(path)) {
           const fileData = fs.readFileSync(path, 'utf8');
           
-          // 检查文件内容是否有效
           if (fileData) {
             try {
               existingData = JSON.parse(fileData);  // 解析JSON数据
