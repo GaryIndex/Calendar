@@ -1,50 +1,88 @@
 const fs = require('fs');
-const path = './data/data.json';
-const holidaysKey = 'holidays';  // 用来获取假期数据的键名
-const icsFilePath = './calendar.ics'; // 目标 ICS 文件路径
+const moment = require('moment-timezone');
 
-// 生成日历文件的函数
-const generateICS = () => {
-  try {
-    // 确保目标目录存在
-    const dirName = icsFilePath.substring(0, icsFilePath.lastIndexOf('/'));
-    if (dirName && !fs.existsSync(dirName)) {
-      fs.mkdirSync(dirName, { recursive: true });
-    }
+const dataPath = './data/data.json';
+const icsFilePath = './calendar.ics';
 
-    // 读取 data.json 中的数据
-    const rawData = fs.readFileSync(path, 'utf8');
-    const data = JSON.parse(rawData);
-
-    let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\n';
-
-    // 遍历数据并生成日历事件
-    data.forEach((entry) => {
-      const date = entry.date;
-      const holidays = entry[holidaysKey]; // 获取假期数据
-
-      // 确保 holidays 是一个数组
-      const holidayList = Array.isArray(holidays) 
-        ? holidays.map(holiday => `${holiday.name} - ${holiday.date}`).join('\n')
-        : '无假期';  // 如果 holidays 不是数组，使用 '无假期'
-
-      icsContent += `
-BEGIN:VEVENT
-SUMMARY:假期信息
-DTSTART:${date.replace(/-/g, '')}T000000
-DESCRIPTION:${holidayList}
-END:VEVENT
-      `;
-    });
-
-    icsContent += '\nEND:VCALENDAR';
-
-    // 保存为 .ics 文件
-    fs.writeFileSync(icsFilePath, icsContent);
-    console.log('ICS file generated successfully!');
-  } catch (error) {
-    console.error('Error generating ICS file:', error);
+// 确保ICS目录存在
+const ensureDirectoryExists = (filePath) => {
+  const dirName = filePath.substring(0, filePath.lastIndexOf('/'));
+  if (dirName && !fs.existsSync(dirName)) {
+    fs.mkdirSync(dirName, { recursive: true });
   }
+};
+
+// 读取 data.json 文件
+const readData = () => {
+  if (!fs.existsSync(dataPath)) {
+    console.error('⚠️ data.json 文件不存在，无法生成日历！');
+    return [];
+  }
+  try {
+    const rawData = fs.readFileSync(dataPath, 'utf8');
+    return JSON.parse(rawData);
+  } catch (error) {
+    console.error('⚠️ 解析 data.json 失败:', error);
+    return [];
+  }
+};
+
+// 生成 ICS 事件格式
+const generateICSEvent = (entry) => {
+  const date = moment(entry.date).format('YYYYMMDD');
+
+  // 处理标题（假期、节气、补班）
+  let summary = [];
+  if (entry.holidays && entry.holidays.length > 0) {
+    summary.push(entry.holidays.map(h => h.name).join('、'));
+  }
+  if (entry.jieqi && entry.jieqi.term) {
+    summary.push(entry.jieqi.term);
+  }
+  if (summary.length === 0) {
+    summary.push('日程提醒');
+  }
+
+  // 处理详细描述
+  const description = [
+    `📅 日期: ${entry.date}`,
+    `🌙 农历: ${entry.calendar.lunar}`,
+    `💫 星座: ${entry.astro.name} (${entry.astro.description})`,
+    `🕒 十二时辰: ${entry.shichen.periods.map(p => `${p.name} (${p.start}-${p.end})`).join('，')}`,
+    entry.holidays ? `🏖️ 假期: ${entry.holidays.map(h => `${h.name} (${h.date})`).join('，')}` : '',
+    entry.jieqi ? `☀️ 节气: ${entry.jieqi.term} (${entry.jieqi.date})` : '',
+  ].filter(Boolean).join('\\n');
+
+  return `
+BEGIN:VEVENT
+SUMMARY:${summary.join('、')}
+DTSTART;VALUE=DATE:${date}
+DESCRIPTION:${description}
+X-ALT-DESC;FMTTYPE=text/html:${description.replace(/\\n/g, '<br>')}
+END:VEVENT
+  `;
+};
+
+// 生成 ICS 文件
+const generateICS = () => {
+  ensureDirectoryExists(icsFilePath);
+  
+  const data = readData();
+  if (data.length === 0) {
+    console.error('⚠️ 没有数据，无法生成 ICS！');
+    return;
+  }
+
+  let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MyCalendar//EN\nCALSCALE:GREGORIAN\n';
+
+  data.forEach((entry) => {
+    icsContent += generateICSEvent(entry);
+  });
+
+  icsContent += '\nEND:VCALENDAR';
+
+  fs.writeFileSync(icsFilePath, icsContent);
+  console.log('✅ ICS 日历文件生成成功！');
 };
 
 generateICS();
