@@ -1,7 +1,12 @@
 name: Update Calendar
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # 允许手动触发工作流
+    inputs:
+      update:
+        description: 'Update calendar data'
+        required: true
+        default: 'true'
 
 jobs:
   update:
@@ -10,13 +15,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # 确保拉取完整历史
-
-      - name: Ensure data.json exists
-        run: |
-          mkdir -p data
-          touch data/data.json
 
       - name: Cache Node.js modules
         uses: actions/cache@v2
@@ -29,27 +27,40 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run data fetch and ICS generation
+      - name: Run the data fetch and ICS generation script
         run: |
-          node scripts/fetch-data.js
-          node scripts/generate-ics.js
-
-      - name: Check for changes
-        id: check_changes
-        run: |
-          git add .
-          if git diff --cached --exit-code; then
-            echo "No changes to commit"
-            echo "::set-output name=changes::false"
+          if [ "${{ github.event.inputs.update }}" == "true" ]; then
+            echo "Updating calendar data..."
+            node scripts/fetch-data.js
+            node scripts/generate-ics.js
           else
-            echo "Changes detected"
-            echo "::set-output name=changes::true"
+            echo "Skipping the update."
           fi
 
-      - name: Commit and push changes
+      - name: Check for changes and commit
+        id: check_changes
+        run: |
+          git diff --exit-code || echo "Changes detected"
+          echo "::set-output name=changes::$(git diff --exit-code || echo 'true')"
+
+      - name: Add files to Git
         if: steps.check_changes.outputs.changes == 'true'
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "github-actions@users.noreply.github.com"
-          git commit -m "Update data.json and calendar.ics"
-          git push origin main
+          # 添加数据文件到 Git 跟踪
+          git add ./data/data.json
+          git add ./calendar.ics
+          git add ./data/error.log  # 如果需要，也可以将 error.log 添加
+
+      - name: Commit and push the updated files
+        if: steps.check_changes.outputs.changes == 'true'
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_name: 'GitHub Actions'
+          author_email: 'github-actions@users.noreply.github.com'
+          message: 'Update data.json and calendar.ics'
+          push: true
+          token: ${{ secrets.GITHUB_TOKEN }}  # 使用 GITHUB_TOKEN 进行推送
+
+      - name: Set commit status
+        if: steps.check_changes.outputs.changes != 'true'
+        run: echo "No changes to commit."
