@@ -27,16 +27,20 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm ci  # 使用 npm ci 更加稳定，能保证依赖的版本准确
 
       - name: Run data fetch and ICS generation
         run: |
+          echo "Fetching data..."
           node scripts/fetch-data.js
+          echo "Generating ICS file..."
           node scripts/generate-ics.js
 
       - name: Check for changes
         id: check_changes
         run: |
+          git status  # 查看更改文件
           git add .
           if git diff --cached --exit-code; then
             echo "No changes to commit"
