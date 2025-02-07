@@ -170,5 +170,3 @@ async function fetchData() {
 
 // 执行数据抓取
 fetchData();
-
-改进这个代码
