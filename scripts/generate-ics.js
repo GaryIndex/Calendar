@@ -1,49 +1,39 @@
 const fs = require('fs');
-const { format } = require('date-fns');
+const path = './data/data.json';
+const holidaysKey = 'holidays';  // 用来获取假期数据的键名
 
-// 读取数据文件
-const data = JSON.parse(fs.readFileSync('data/data.json', 'utf-8'));
+// 生成日历文件的函数
+const generateICS = () => {
+  // 读取 data.json 中的数据
+  const rawData = fs.readFileSync(path, 'utf8');
+  const data = JSON.parse(rawData);
 
-// 生成 .ics 文件
-function generateICS(date) {
-  const formattedDate = format(date, 'yyyy-MM-dd');
-  const dailyData = data[formattedDate];
+  let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\n';
 
-  if (!dailyData) {
-    console.log(`No data found for ${formattedDate}`);
-    return;
-  }
+  // 遍历数据并生成日历事件
+  data.forEach((entry) => {
+    const date = entry.date;
+    const holidays = entry[holidaysKey]; // 获取假期数据
 
-  const lunar = dailyData.lunar;
-  const horoscope = dailyData.horoscope;
-  const shichen = dailyData.shichen;
-  const jieqi = dailyData.jieqi;
-  const holidays = dailyData.holidays;
+    // 确保 holidays 是一个数组
+    const holidayList = Array.isArray(holidays) 
+      ? holidays.map(holiday => `${holiday.name} - ${holiday.date}`).join('\n')
+      : '无假期';  // 如果 holidays 不是数组，使用 '无假期'
 
-  // 假期数据
-  const holidayList = holidays ? holidays.map(holiday => `${holiday.name} - ${holiday.date}`).join('\n') : '无假期';
-
-  const icsContent = `
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Apple Inc.//NONSGML iCal 4.0//EN
+    icsContent += `
 BEGIN:VEVENT
-SUMMARY:万年历 - ${lunar}
-DTSTART;VALUE=DATE:${formattedDate.replace(/-/g, '')}
-DTEND;VALUE=DATE:${formattedDate.replace(/-/g, '')}
-DESCRIPTION:
-  - 星座运势：${horoscope}
-  - 十二时辰：${shichen}
-  - 节气：${jieqi}
-  - 假期：\n${holidayList}
+SUMMARY:假期信息
+DTSTART:${date.replace(/-/g, '')}T000000
+DESCRIPTION:${holidayList}
 END:VEVENT
-END:VCALENDAR`;
+    `;
+  });
 
-  // 将 .ics 文件保存
-  fs.writeFileSync('calendar.ics', icsContent, 'utf-8');
-  console.log(`ICS file for ${formattedDate} has been generated.`);
-}
+  icsContent += '\nEND:VCALENDAR';
 
-// 生成一个指定日期的 .ics 文件
-const today = new Date();
-generateICS(today);
+  // 保存为 .ics 文件
+  fs.writeFileSync('./calendar.ics', icsContent);
+  console.log('ICS file generated successfully!');
+};
+
+generateICS();
