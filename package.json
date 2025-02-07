@@ -5,11 +5,15 @@
   "main": "index.js",
   "scripts": {
     "start": "node scripts/fetch-data.js",
-    "generate": "node scripts/generate-ics.js"
+    "generate": "node scripts/generate-ics.js",
+    "install-deps": "npm install",  // 安装依赖
+    "audit": "npm audit",           // 安全审计
+    "build": "npm run install-deps && npm audit"  // 安装依赖并进行审计
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "date-fns": "^2.28.0"
+    "date-fns": "^2.28.0",
+    "moment-timezone": "^0.5.34"    // 添加 moment-timezone 依赖
   },
   "devDependencies": {},
   "author": "",
