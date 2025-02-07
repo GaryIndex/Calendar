@@ -26,18 +26,26 @@ const readData = () => {
     const message = '⚠️ data.json 文件不存在，无法生成日历！';
     console.error(message);
     logToFile(message);
-    return [];
+    return null;
   }
   try {
     const rawData = fs.readFileSync(dataPath, 'utf8');
     const data = JSON.parse(rawData);
+
+    // 检查数据是否为数组
+    if (!Array.isArray(data)) {
+      const message = `⚠️ data.json 格式错误，数据不是数组！实际数据类型: ${typeof data}`;
+      console.error(message);
+      logToFile(message);
+      return null;
+    }
 
     // 检查数据是否为空
     if (data.length === 0) {
       const message = '⚠️ data.json 文件为空，无法生成日历！';
       console.error(message);
       logToFile(message);
-      return [];
+      return null;
     }
 
     return data;
@@ -45,25 +53,23 @@ const readData = () => {
     const message = `⚠️ 解析 data.json 失败: ${error.message}`;
     console.error(message);
     logToFile(message);
-    return [];
+    return null;
   }
+};
+
+// 读取现有的 ICS 文件，防止重复添加
+const readExistingICS = () => {
+  if (fs.existsSync(icsFilePath)) {
+    const icsContent = fs.readFileSync(icsFilePath, 'utf8');
+    const events = icsContent.match(/DTSTART;VALUE=DATE:(\d{8})/g);
+    return events ? events.map(event => event.split(':')[1]) : [];
+  }
+  return [];
 };
 
 // 生成 ICS 事件格式
 const generateICSEvent = (entry) => {
   const date = moment(entry.date).format('YYYYMMDD');
-
-  // 处理角标（如休、班）
-  let cornerMark = '';
-  if (entry.holidays && entry.holidays.length > 0) {
-    const holidayNames = entry.holidays.map(h => h.name);
-    if (holidayNames.some(name => name.includes('假期'))) {
-      cornerMark = '休';
-    }
-    if (holidayNames.some(name => name.includes('补班'))) {
-      cornerMark = '班';
-    }
-  }
 
   // 处理标题（假期、节气、补班）
   let summary = [];
@@ -89,7 +95,7 @@ const generateICSEvent = (entry) => {
 
   return `
 BEGIN:VEVENT
-SUMMARY:${cornerMark ? `[${cornerMark}] ` : ''}${summary.join('、')}
+SUMMARY:${summary.join('、')}
 DTSTART;VALUE=DATE:${date}
 DESCRIPTION:${description}
 X-ALT-DESC;FMTTYPE=text/html:${description.replace(/\\n/g, '<br>')}
@@ -97,34 +103,13 @@ END:VEVENT
   `;
 };
 
-// 从现有的 ICS 文件中读取事件，确保没有重复
-const readExistingICS = () => {
-  if (!fs.existsSync(icsFilePath)) {
-    return [];
-  }
-  const rawICS = fs.readFileSync(icsFilePath, 'utf8');
-  if (rawICS.trim() === '') {
-    const message = '⚠️ calendar.ics 文件为空，将重新生成日历文件！';
-    console.error(message);
-    logToFile(message);
-    return [];
-  }
-  
-  const events = rawICS.split('BEGIN:VEVENT').slice(1).map(event => {
-    const dateMatch = event.match(/DTSTART;VALUE=DATE:(\d{8})/);
-    return dateMatch ? dateMatch[1] : null;
-  }).filter(Boolean);
-
-  return events;
-};
-
 // 生成 ICS 文件
 const generateICS = () => {
   ensureDirectoryExists(icsFilePath);
   
   const data = readData();
-  if (data.length === 0) {
-    const message = '⚠️ 没有数据，无法生成 ICS！';
+  if (!data) {
+    const message = '⚠️ 没有有效的数据，无法生成 ICS！';
     logToFile(message);
     return;
   }
