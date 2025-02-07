@@ -16,7 +16,7 @@ async function fetchData() {
     console.log('Starting to fetch data...');
     
     // 设置从 2025-01-01 到今天的日期范围
-    const startDate = new Date('2025-01-01');
+    const startDate = new Date('2025-02-07');
     const today = new Date();
     const dates = [];
 
