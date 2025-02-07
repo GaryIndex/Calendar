@@ -25,12 +25,11 @@ const logToFile = (message) => {
 const validateDataStructure = (data) => {
   if (!Array.isArray(data)) return false;
   return data.every(entry => {
-    return entry.date &&
-      entry.holidays &&
-      entry.calendar &&
-      entry.astro &&
-      entry.shichen &&
-      entry.jieqi;
+    return entry.date && 
+           Array.isArray(entry.holidays) && 
+           entry.calendar && 
+           entry.astro && 
+           entry.shichen;
   });
 };
 
@@ -44,7 +43,7 @@ const readData = () => {
   }
   try {
     const rawData = fs.readFileSync(dataPath, 'utf8');
-    console.log("原始数据：", rawData);  // 输出 rawData 以帮助调试
+    console.log("读取到的 data.json 数据：", rawData);  // 输出 rawData 以帮助调试
     const data = JSON.parse(rawData);
 
     // 检查数据结构
