@@ -8,10 +8,12 @@ const logPath = './data/error.log';
 // 记录日志（成功或失败）
 const logMessage = (status, queryDate, category, errorMessage = '') => {
   const runTime = moment.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
-  let message = `[${runTime}] [查询日期: ${queryDate}] ${category} ${status}`;
+  let message = `[${runTime}] [查询日期: ${queryDate}] ${category} - ${status}`;
   if (errorMessage) message += ` - 错误: ${errorMessage}`;
-  fs.appendFileSync(logPath, message + '\n');
+  
+  // 终端输出 & 写入日志文件
   console.log(message);
+  fs.appendFileSync(logPath, message + '\n');
 };
 
 // 记录北京时间
@@ -52,7 +54,7 @@ async function fetchData() {
     console.log('Starting to fetch data...');
     logBeijingTime();
 
-    const startDate = moment.tz('2025-02-07', 'Asia/Shanghai');
+    const startDate = moment.tz('2020-01-01', 'Asia/Shanghai'); // 设定抓取起始时间
     const today = moment.tz('now', 'Asia/Shanghai');
     const existingData = loadExistingData();
     const existingDates = new Set(existingData.map(item => item.date)); // 存在的数据日期
@@ -88,8 +90,15 @@ async function fetchData() {
         fetchDataFromApi(`https://api.jiejiariapi.com/v1/holidays/${year}`, {}, date, '假期')
       ]);
 
-      // 如果所有 API 都失败，则跳过这个日期
-      if (!calendarData && !astroData && !shichenData && !jieqiData && !holidaysData) {
+      // 统计失败 API
+      const failedApis = [];
+      if (!calendarData) failedApis.push('万年历');
+      if (!astroData) failedApis.push('星座');
+      if (!shichenData) failedApis.push('十二时辰');
+      if (!jieqiData) failedApis.push('二十四节气');
+      if (!holidaysData) failedApis.push('假期');
+
+      if (failedApis.length === 5) {
         logMessage('数据存储失败', date, '所有 API 请求失败，跳过该日期');
         continue;
       }
@@ -98,6 +107,11 @@ async function fetchData() {
       const dailyData = { date, calendar: calendarData, astro: astroData, shichen: shichenData, jieqi: jieqiData, holidays: holidaysData };
       newData.push(dailyData);
       logMessage('数据存储成功', date, '写入 data.json');
+
+      // 记录失败 API
+      if (failedApis.length > 0) {
+        logMessage('部分数据获取失败', date, failedApis.join('，'));
+      }
     }
 
     // 只有新数据存在时，才更新 data.json
