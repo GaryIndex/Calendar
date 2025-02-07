@@ -40,9 +40,16 @@ jobs:
       - name: Check for changes and commit
         id: check_changes
         run: |
-          git add data/data.json calendar.ics  # 确保文件被加入暂存区
-          git diff --cached --exit-code || echo "Changes detected"
-          echo "::set-output name=changes::$(git diff --cached --exit-code || echo 'true')"
+          git diff --exit-code || echo "Changes detected"
+          echo "::set-output name=changes::$(git diff --exit-code || echo 'true')"
+
+      - name: Add files to Git
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          # 添加数据文件到 Git 跟踪
+          git add ./data/data.json
+          git add ./calendar.ics
+          git add ./data/error.log  # 如果需要，也可以将 error.log 添加
 
       - name: Commit and push the updated files
         if: steps.check_changes.outputs.changes == 'true'
