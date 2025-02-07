@@ -30,7 +30,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci  # 使用 npm ci 更加稳定，能保证依赖的版本准确
+          if [ ! -f package-lock.json ]; then
+            echo "package-lock.json not found, running npm install to generate it."
+            npm install  # 使用 npm install 来生成 package-lock.json
+          else
+            echo "Running npm ci to install dependencies."
+            npm ci  # 使用 npm ci 来安装依赖
+          fi
 
       - name: Run data fetch and ICS generation
         run: |
@@ -42,6 +48,7 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
+          git fetch origin  # 确保拉取最新的代码
           git status  # 查看更改文件
           git add .
           if git diff --cached --exit-code; then
