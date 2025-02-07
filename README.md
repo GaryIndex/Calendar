@@ -24,12 +24,19 @@
 - **iPhone / Mac**: 订阅 `calendar.ics` 链接
 
 ## **📂 项目结构**
-📂 Calendar
-├── 📂 .github/workflows/update-data.yml  # GitHub Actions 任务
+📦 Calendar
+├── 📂 .github
+│   ├── 📂 workflows
+│   │   ├── update-data.yml      # GitHub Actions 任务（手动触发）
 ├── 📂 scripts
-│   ├── fetch-data.js                     # 抓取数据
-│   ├── generate-ics.js                    # 生成 .ics
-├── 📂 data/data.json                      # 存储数据
-├── calendar.ics                           # 订阅日历文件
+│   ├── fetch-data.js            # 获取日历数据并存储到 data.json
+│   ├── generate-ics.js          # 生成 Apple 日历订阅 `.ics`
+├── 📂 data
+│   ├── data.json                # 存储已获取的日历数据
+├── calendar.ics                 # 生成的 `.ics` 订阅日历文件
+├── package.json                 # Node.js 依赖配置
+├── README.md                    # 项目说明
+
+
 ## **📜 许可证**
 MIT
