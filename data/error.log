@@ -8,3 +8,11 @@
 [2025-02-08 05:46:25] Beijing Time
 [2025-02-08 05:50:06] Beijing Time
 [2025-02-07T22:32:03.486Z] Current Beijing Time: 2025-02-08 06:32:03
+[2025-02-08 06:36:33] 开始数据抓取...
+[2025-02-08 06:36:33] 📅 处理日期: 2025-02-08
+[2025-02-08 06:36:34] ✅ SUCCESS API Call: https://api.timelessq.com/time | Params: {"datetime":"2025-02-08"}
+[2025-02-08 06:36:34] ✅ SUCCESS API Call: https://api.timelessq.com/time/astro | Params: {"keyword":"2025-02-08"}
+[2025-02-08 06:36:35] ✅ SUCCESS API Call: https://api.timelessq.com/time/shichen | Params: {"date":"2025-02-08"}
+[2025-02-08 06:36:35] ✅ SUCCESS API Call: https://api.timelessq.com/time/jieqi | Params: {"year":"2025"}
+[2025-02-08 06:36:35] ✅ SUCCESS API Call: https://api.jiejiariapi.com/v1/holidays/2025 | Params: {}
+[2025-02-08 06:36:35] ✅ 数据保存成功: 2025-02-08
