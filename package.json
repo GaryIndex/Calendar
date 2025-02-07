@@ -1,0 +1,17 @@
+{
+  "name": "apple-calendar-subscription",
+  "version": "1.0.0",
+  "description": "An Apple Calendar subscription that fetches lunar, horoscope, shichen, jieqi, and holiday data.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node scripts/fetch-data.js",
+    "generate": "node scripts/generate-ics.js"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "date-fns": "^2.28.0"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}
