@@ -1,6 +1,5 @@
 name: Update Calendar
 
-# 触发器修改为手动执行
 on:
   workflow_dispatch:  # 允许手动触发工作流
     inputs:
@@ -17,21 +16,38 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
         run: npm install
 
       - name: Run the data fetch and ICS generation script
         run: |
           if [ "${{ github.event.inputs.update }}" == "true" ]; then
+            echo "Updating calendar data..."
             node scripts/fetch-data.js
             node scripts/generate-ics.js
           else
             echo "Skipping the update."
           fi
 
+      - name: Check for changes and commit
+        id: check_changes
+        run: |
+          git diff --exit-code || echo "Changes detected"
+
       - name: Commit and push the updated files
+        if: steps.check_changes.outputs.stdout != 'Changes detected'
         uses: EndBug/add-and-commit@v7
         with:
           author_name: 'GitHub Actions'
           author_email: 'github-actions@users.noreply.github.com'
           message: 'Update data.json and calendar.ics'
+          push: true
+          token: ${{ secrets.GITHUB_TOKEN }}  # 使用 GITHUB_TOKEN 进行推送
