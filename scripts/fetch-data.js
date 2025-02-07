@@ -31,6 +31,7 @@ async function fetchData() {
         const response = await axios.get('https://api.timelessq.com/time', {
           params: { datetime: date }
         });
+        console.log(`Fetched calendar data for ${date}`);  // 调试输出
         return response.data;
       } catch (error) {
         logError(`Failed to fetch calendar data for ${date}: ${error.message}`);
@@ -44,6 +45,7 @@ async function fetchData() {
         const response = await axios.get('https://api.timelessq.com/time/astro', {
           params: { keyword: date }
         });
+        console.log(`Fetched astro data for ${date}`);  // 调试输出
         return response.data;
       } catch (error) {
         logError(`Failed to fetch astro data for ${date}: ${error.message}`);
@@ -57,6 +59,7 @@ async function fetchData() {
         const response = await axios.get('https://api.timelessq.com/time/shichen', {
           params: { date }
         });
+        console.log(`Fetched shichen data for ${date}`);  // 调试输出
         return response.data;
       } catch (error) {
         logError(`Failed to fetch shichen data for ${date}: ${error.message}`);
@@ -70,6 +73,7 @@ async function fetchData() {
         const response = await axios.get('https://api.timelessq.com/time/jieqi', {
           params: { year }
         });
+        console.log(`Fetched jieqi data for ${year}`);  // 调试输出
         return response.data;
       } catch (error) {
         logError(`Failed to fetch jieqi data for ${year}: ${error.message}`);
@@ -81,6 +85,7 @@ async function fetchData() {
     const fetchHolidaysData = async (year) => {
       try {
         const response = await axios.get(`https://api.jiejiariapi.com/v1/holidays/${year}`);
+        console.log(`Fetched holidays data for ${year}`);  // 调试输出
         return response.data;
       } catch (error) {
         logError(`Failed to fetch holidays data for ${year}: ${error.message}`);
