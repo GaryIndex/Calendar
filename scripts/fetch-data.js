@@ -1,5 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
+const moment = require('moment-timezone');
 const path = './data/data.json';
 const logPath = './data/error.log';  // 错误日志文件路径
 
@@ -15,14 +16,14 @@ async function fetchData() {
   try {
     console.log('Starting to fetch data...');
     
-    // 设置从 2025-01-01 到今天的日期范围
-    const startDate = new Date('2025-02-07');
-    const today = new Date();
+    // 设置从 2025-02-07 到今天的日期范围，获取北京时间
+    const startDate = moment.tz('2025-02-07', 'Asia/Shanghai');
+    const today = moment.tz('now', 'Asia/Shanghai');
     const dates = [];
 
     // 按天生成日期列表
-    for (let currentDate = startDate; currentDate <= today; currentDate.setDate(currentDate.getDate() + 1)) {
-      dates.push(currentDate.toISOString().split('T')[0]);  // 格式化为 YYYY-MM-DD
+    for (let currentDate = startDate; currentDate <= today; currentDate.add(1, 'days')) {
+      dates.push(currentDate.format('YYYY-MM-DD'));  // 格式化为 YYYY-MM-DD
     }
 
     // 获取万年历数据
@@ -31,7 +32,7 @@ async function fetchData() {
         const response = await axios.get('https://api.timelessq.com/time', {
           params: { datetime: date }
         });
-        console.log(`Fetched calendar data for ${date}`);  // 调试输出
+        console.log(`Fetched calendar data for ${date}`);
         return response.data;
       } catch (error) {
         logError(`Failed to fetch calendar data for ${date}: ${error.message}`);
@@ -45,7 +46,7 @@ async function fetchData() {
         const response = await axios.get('https://api.timelessq.com/time/astro', {
           params: { keyword: date }
         });
-        console.log(`Fetched astro data for ${date}`);  // 调试输出
+        console.log(`Fetched astro data for ${date}`);
         return response.data;
       } catch (error) {
         logError(`Failed to fetch astro data for ${date}: ${error.message}`);
@@ -59,7 +60,7 @@ async function fetchData() {
         const response = await axios.get('https://api.timelessq.com/time/shichen', {
           params: { date }
         });
-        console.log(`Fetched shichen data for ${date}`);  // 调试输出
+        console.log(`Fetched shichen data for ${date}`);
         return response.data;
       } catch (error) {
         logError(`Failed to fetch shichen data for ${date}: ${error.message}`);
@@ -73,7 +74,7 @@ async function fetchData() {
         const response = await axios.get('https://api.timelessq.com/time/jieqi', {
           params: { year }
         });
-        console.log(`Fetched jieqi data for ${year}`);  // 调试输出
+        console.log(`Fetched jieqi data for ${year}`);
         return response.data;
       } catch (error) {
         logError(`Failed to fetch jieqi data for ${year}: ${error.message}`);
@@ -85,7 +86,7 @@ async function fetchData() {
     const fetchHolidaysData = async (year) => {
       try {
         const response = await axios.get(`https://api.jiejiariapi.com/v1/holidays/${year}`);
-        console.log(`Fetched holidays data for ${year}`);  // 调试输出
+        console.log(`Fetched holidays data for ${year}`);
         return response.data;
       } catch (error) {
         logError(`Failed to fetch holidays data for ${year}: ${error.message}`);
