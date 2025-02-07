@@ -16,7 +16,9 @@ jobs:
       - name: Ensure data.json exists
         run: |
           mkdir -p data
-          touch data/data.json
+          if [ ! -f data/data.json ]; then
+            echo "[]" > data/data.json  # 如果 data.json 不存在，创建一个空数组
+          fi
 
       - name: Cache Node.js modules
         uses: actions/cache@v2
@@ -33,9 +35,9 @@ jobs:
       - name: Run data fetch and ICS generation
         run: |
           echo "Fetching data..."
-          node scripts/fetch-data.js
+          node scripts/fetch-data.js  # 运行数据抓取脚本
           echo "Generating ICS file..."
-          node scripts/generate-ics.js
+          node scripts/generate-ics.js  # 生成 .ics 文件
 
       - name: Check for changes
         id: check_changes
