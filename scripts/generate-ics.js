@@ -3,8 +3,9 @@ const moment = require('moment-timezone');
 
 const dataPath = './data/data.json';
 const icsFilePath = './calendar.ics';
+const logFilePath = './data/error.log';  // 错误日志文件
 
-// 确保ICS目录存在
+// 确保目录存在
 const ensureDirectoryExists = (filePath) => {
   const dirName = filePath.substring(0, filePath.lastIndexOf('/'));
   if (dirName && !fs.existsSync(dirName)) {
@@ -12,17 +13,38 @@ const ensureDirectoryExists = (filePath) => {
   }
 };
 
+// 写入日志文件
+const logToFile = (message) => {
+  const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+  const logMessage = `[${timestamp}] ${message}\n`;
+  fs.appendFileSync(logFilePath, logMessage, 'utf8');
+};
+
 // 读取 data.json 文件
 const readData = () => {
   if (!fs.existsSync(dataPath)) {
-    console.error('⚠️ data.json 文件不存在，无法生成日历！');
+    const message = '⚠️ data.json 文件不存在，无法生成日历！';
+    console.error(message);
+    logToFile(message);
     return [];
   }
   try {
     const rawData = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(rawData);
+    const data = JSON.parse(rawData);
+
+    // 检查数据是否为空
+    if (data.length === 0) {
+      const message = '⚠️ data.json 文件为空，无法生成日历！';
+      console.error(message);
+      logToFile(message);
+      return [];
+    }
+
+    return data;
   } catch (error) {
-    console.error('⚠️ 解析 data.json 失败:', error);
+    const message = `⚠️ 解析 data.json 失败: ${error.message}`;
+    console.error(message);
+    logToFile(message);
     return [];
   }
 };
@@ -30,6 +52,18 @@ const readData = () => {
 // 生成 ICS 事件格式
 const generateICSEvent = (entry) => {
   const date = moment(entry.date).format('YYYYMMDD');
+
+  // 处理角标（如休、班）
+  let cornerMark = '';
+  if (entry.holidays && entry.holidays.length > 0) {
+    const holidayNames = entry.holidays.map(h => h.name);
+    if (holidayNames.some(name => name.includes('假期'))) {
+      cornerMark = '休';
+    }
+    if (holidayNames.some(name => name.includes('补班'))) {
+      cornerMark = '班';
+    }
+  }
 
   // 处理标题（假期、节气、补班）
   let summary = [];
@@ -55,12 +89,26 @@ const generateICSEvent = (entry) => {
 
   return `
 BEGIN:VEVENT
-SUMMARY:${summary.join('、')}
+SUMMARY:${cornerMark ? `[${cornerMark}] ` : ''}${summary.join('、')}
 DTSTART;VALUE=DATE:${date}
 DESCRIPTION:${description}
 X-ALT-DESC;FMTTYPE=text/html:${description.replace(/\\n/g, '<br>')}
 END:VEVENT
   `;
+};
+
+// 从现有的 ICS 文件中读取事件，确保没有重复
+const readExistingICS = () => {
+  if (!fs.existsSync(icsFilePath)) {
+    return [];
+  }
+  const rawICS = fs.readFileSync(icsFilePath, 'utf8');
+  const events = rawICS.split('BEGIN:VEVENT').slice(1).map(event => {
+    const dateMatch = event.match(/DTSTART;VALUE=DATE:(\d{8})/);
+    return dateMatch ? dateMatch[1] : null;
+  }).filter(Boolean);
+
+  return events;
 };
 
 // 生成 ICS 文件
@@ -69,20 +117,28 @@ const generateICS = () => {
   
   const data = readData();
   if (data.length === 0) {
-    console.error('⚠️ 没有数据，无法生成 ICS！');
+    const message = '⚠️ 没有数据，无法生成 ICS！';
+    logToFile(message);
     return;
   }
+
+  const existingEvents = readExistingICS();
 
   let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MyCalendar//EN\nCALSCALE:GREGORIAN\n';
 
   data.forEach((entry) => {
-    icsContent += generateICSEvent(entry);
+    const date = moment(entry.date).format('YYYYMMDD');
+    if (!existingEvents.includes(date)) {
+      icsContent += generateICSEvent(entry);
+    }
   });
 
   icsContent += '\nEND:VCALENDAR';
 
   fs.writeFileSync(icsFilePath, icsContent);
-  console.log('✅ ICS 日历文件生成成功！');
+  const message = '✅ ICS 日历文件生成成功！';
+  console.log(message);
+  logToFile(message);
 };
 
 generateICS();
