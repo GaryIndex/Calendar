@@ -103,6 +103,13 @@ const readExistingICS = () => {
     return [];
   }
   const rawICS = fs.readFileSync(icsFilePath, 'utf8');
+  if (rawICS.trim() === '') {
+    const message = '⚠️ calendar.ics 文件为空，将重新生成日历文件！';
+    console.error(message);
+    logToFile(message);
+    return [];
+  }
+  
   const events = rawICS.split('BEGIN:VEVENT').slice(1).map(event => {
     const dateMatch = event.match(/DTSTART;VALUE=DATE:(\d{8})/);
     return dateMatch ? dateMatch[1] : null;
