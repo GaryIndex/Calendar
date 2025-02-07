@@ -4,121 +4,112 @@ const moment = require('moment-timezone');
 
 const DATA_PATH = './data/data.json';
 const LOG_PATH = './data/error.log';
+const START_DATE = '2025-02-07'; // 初始抓取日期
 
-// ✅ 记录日志到 error.log
+// 📌 记录日志
 const logMessage = (message) => {
   const timestamp = moment().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
   const logEntry = `[${timestamp}] ${message}\n`;
-  fs.appendFileSync(LOG_PATH, logEntry);
-  console.log(logEntry.trim());
-};
-
-// ✅ 记录 API 请求日志
-const logApiSuccess = (url, params) => {
-  logMessage(`✅ SUCCESS API Call: ${url} | Params: ${JSON.stringify(params)}`);
-};
-const logApiError = (url, params, error) => {
-  logMessage(`❌ ERROR API Call: ${url} | Params: ${JSON.stringify(params)} | Message: ${error.message}`);
-};
-
-// ✅ 获取需要抓取的日期列表
-const getDatesToFetch = () => {
-  const startDate = moment.tz('2025-02-07', 'Asia/Shanghai'); // 固定起始日期
-  const today = moment.tz('Asia/Shanghai'); // 当前时间
-
-  let existingData = [];
-  if (fs.existsSync(DATA_PATH)) {
-    try {
-      const fileData = fs.readFileSync(DATA_PATH, 'utf8');
-      existingData = fileData ? JSON.parse(fileData) : [];
-    } catch (error) {
-      logMessage(`❌ 解析 data.json 失败: ${error.message}`);
-    }
+  try {
+    fs.appendFileSync(LOG_PATH, logEntry, 'utf8');
+  } catch (error) {
+    console.error(`[日志写入失败] ${error.message}`);
   }
-
-  // 获取已保存数据的最后日期
-  const lastSavedDate = existingData.length > 0 
-    ? moment(existingData[existingData.length - 1].date) 
-    : startDate.clone().subtract(1, 'days'); // 避免跳过第1天
-
-  const dates = [];
-  for (let currentDate = lastSavedDate.add(1, 'days'); currentDate <= today; currentDate.add(1, 'days')) {
-    dates.push(currentDate.format('YYYY-MM-DD'));
-  }
-
-  if (dates.length === 0) {
-    logMessage('所有数据已是最新，无需更新。');
-  }
-
-  return dates;
 };
 
-// ✅ 抓取 API 数据
-const fetchDataFromApi = async (url, params) => {
+// 📌 记录进程终止信息
+process.on('exit', () => logMessage('🚨 进程已退出'));
+process.on('SIGINT', () => {
+  logMessage('🚨 进程被手动终止 (SIGINT)');
+  process.exit();
+});
+process.on('uncaughtException', (error) => {
+  logMessage(`🔥 未捕获异常: ${error.message}`);
+  process.exit(1);
+});
+
+// 📌 读取已存储数据，防止重复抓取
+const loadExistingData = () => {
+  if (!fs.existsSync(DATA_PATH)) return {};
+  try {
+    const rawData = fs.readFileSync(DATA_PATH, 'utf8');
+    return rawData ? JSON.parse(rawData) : {};
+  } catch (error) {
+    logMessage(`❌ 读取 data.json 失败: ${error.message}`);
+    return {};
+  }
+};
+
+// 📌 保存数据到 data.json
+const saveData = (data) => {
+  try {
+    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf8');
+    logMessage(`✅ 数据成功保存: ${Object.keys(data).length} 条记录`);
+  } catch (error) {
+    logMessage(`❌ 保存数据失败: ${error.message}`);
+  }
+};
+
+// 📌 发送 API 请求
+const fetchDataFromApi = async (url, params = {}) => {
   try {
     const response = await axios.get(url, { params });
-    logApiSuccess(url, params);
+    logMessage(`✅ SUCCESS API Call: ${url} | Params: ${JSON.stringify(params)}`);
     return response.data;
   } catch (error) {
-    logApiError(url, params, error);
-    return null; // 遇到错误返回 null
+    logMessage(`❌ FAILED API Call: ${url} | Params: ${JSON.stringify(params)} | Error: ${error.message}`);
+    return null; // 确保后续流程不会中断
   }
 };
 
-// ✅ 处理单个日期数据
-const fetchDailyData = async (date) => {
-  logMessage(`📅 处理日期: ${date}`);
-
-  const calendarData = await fetchDataFromApi('https://api.timelessq.com/time', { datetime: date });
-  const astroData = await fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: date });
-  const shichenData = await fetchDataFromApi('https://api.timelessq.com/time/shichen', { date });
-  const jieqiData = await fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: date.split('-')[0] });
-  const holidaysData = await fetchDataFromApi(`https://api.jiejiariapi.com/v1/holidays/${date.split('-')[0]}`, {});
-
-  // 如果任何一个 API 失败，跳过这个日期
-  if (!calendarData || !astroData || !shichenData || !jieqiData || !holidaysData) {
-    logMessage(`⚠️ 跳过 ${date}，因为部分 API 请求失败`);
-    return null;
-  }
-
-  return {
-    date,
-    calendar: calendarData,
-    astro: astroData,
-    shichen: shichenData,
-    jieqi: jieqiData,
-    holidays: holidaysData,
-  };
-};
-
-// ✅ 处理所有需要抓取的日期
+// 📌 处理数据抓取
 const fetchData = async () => {
   logMessage('🚀 开始数据抓取...');
 
-  const dates = getDatesToFetch();
-  if (dates.length === 0) return;
+  const existingData = loadExistingData();
+  const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
+  const startDate = moment(START_DATE).tz('Asia/Shanghai');
 
-  let existingData = [];
-  if (fs.existsSync(DATA_PATH)) {
-    try {
-      const fileData = fs.readFileSync(DATA_PATH, 'utf8');
-      existingData = fileData ? JSON.parse(fileData) : [];
-    } catch (error) {
-      logMessage(`❌ 读取 data.json 失败: ${error.message}`);
+  for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
+    const dateStr = currentDate.format('YYYY-MM-DD');
+
+    // 📌 跳过已存在数据
+    if (existingData[dateStr]) {
+      logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
+      continue;
     }
+
+    logMessage(`📅 处理日期: ${dateStr}`);
+
+    // 📌 获取各类数据
+    const calendarData = await fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr });
+    const astroData = await fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr });
+    const shichenData = await fetchDataFromApi('https://api.timelessq.com/time/shichen', { date: dateStr });
+    const jieqiData = await fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] });
+    const holidaysData = await fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0]);
+
+    // 📌 过滤无效数据，确保存储完整性
+    if (!calendarData || !astroData || !shichenData || !jieqiData || !holidaysData) {
+      logMessage(`⚠️ ${dateStr} 数据不完整，跳过存储`);
+      continue;
+    }
+
+    // 📌 存储数据
+    existingData[dateStr] = {
+      date: dateStr,
+      calendar: calendarData,
+      astro: astroData,
+      shichen: shichenData,
+      jieqi: jieqiData,
+      holidays: holidaysData,
+    };
+
+    saveData(existingData);
+    logMessage(`✅ 数据保存成功: ${dateStr}`);
   }
 
-  for (const date of dates) {
-    const dailyData = await fetchDailyData(date);
-    if (dailyData) {
-      existingData.push(dailyData);
-      fs.writeFileSync(DATA_PATH, JSON.stringify(existingData, null, 2));
-      logMessage(`✅ 数据保存成功: ${date}`);
-    }
-  }
-
-  logMessage('🎯 数据抓取完成！');
+  logMessage('🎉 所有数据抓取完成！');
 };
 
-// ✅ 运行程序
+// 执行数据抓取
 fetchData();
