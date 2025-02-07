@@ -1,170 +1,120 @@
 const axios = require('axios');
 const fs = require('fs');
 const moment = require('moment-timezone');
+
 const path = './data/data.json';
-const logPath = './data/error.log';  // 错误日志文件路径
+const logPath = './data/error.log';
 
-// 用于记录错误日志的函数
-const logError = (message) => {
-  const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] ${message}\n`;
-  fs.appendFileSync(logPath, logMessage);
+// 记录普通日志
+const logMessage = (message) => {
+  const timestamp = moment.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
+  const log = `[${timestamp}] ${message}\n`;
+  fs.appendFileSync(logPath, log);
+  console.log(log.trim());
 };
 
-// 用于记录北京时间的函数
-const logBeijingTime = () => {
-  const beijingTime = moment.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
-  const logMessage = `[${beijingTime}] Beijing Time\n`;
-  fs.appendFileSync(logPath, logMessage);
+// 记录错误日志
+const logError = (message, error) => {
+  const timestamp = moment.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
+  const log = `[${timestamp}] ERROR: ${message} - ${error.message || error}\n`;
+  fs.appendFileSync(logPath, log);
+  console.error(log.trim());
 };
 
-// 用于存储数据的函数
+// 读取现有数据，防止重复抓取
+const loadExistingData = () => {
+  if (fs.existsSync(path)) {
+    try {
+      const fileData = fs.readFileSync(path, 'utf8');
+      return fileData ? JSON.parse(fileData) : [];
+    } catch (error) {
+      logError('Error parsing data.json', error);
+      return [];
+    }
+  }
+  return [];
+};
+
+// 通用 API 请求方法
+const fetchDataFromApi = async (url, params, category, date) => {
+  try {
+    const response = await axios.get(url, { params });
+    logMessage(`成功获取 ${category} 数据 - ${date}`);
+    return response.data;
+  } catch (error) {
+    logError(`获取 ${category} 数据失败 - ${date}`, error);
+    return null;
+  }
+};
+
+// 主函数：抓取数据
 async function fetchData() {
   try {
-    console.log('Starting to fetch data...');
-    logBeijingTime();  // 打印当前北京时间到 error.log
+    logMessage('开始数据抓取...');
+    const existingData = loadExistingData();
+    const existingDates = new Set(existingData.map(item => item.date));
 
-    // 设置从 2025-02-07 到今天的日期范围，获取北京时间
     const startDate = moment.tz('2025-02-07', 'Asia/Shanghai');
     const today = moment.tz('now', 'Asia/Shanghai');
+
     const dates = [];
-
-    // 按天生成日期列表
     for (let currentDate = startDate; currentDate <= today; currentDate.add(1, 'days')) {
-      dates.push(currentDate.format('YYYY-MM-DD'));  // 格式化为 YYYY-MM-DD
+      const dateStr = currentDate.format('YYYY-MM-DD');
+      if (!existingDates.has(dateStr)) {
+        dates.push(dateStr);
+      }
     }
 
-    console.log(`Dates to fetch: ${dates.join(', ')}`);  // 打印所有要抓取的日期
+    if (dates.length === 0) {
+      logMessage('所有数据已是最新，无需更新。');
+      return;
+    }
 
-    // 获取万年历数据
-    const fetchCalendarData = async (date) => {
-      try {
-        const response = await axios.get('https://api.timelessq.com/time', {
-          params: { datetime: date }
-        });
-        console.log(`Fetched calendar data for ${date}`);
-        return response.data;
-      } catch (error) {
-        logError(`Failed to fetch calendar data for ${date}: ${error.message}`);
-        throw new Error(`Calendar API error for ${date}`);
-      }
-    };
+    logMessage(`即将抓取 ${dates.length} 天的数据: ${dates.join(', ')}`);
 
-    // 获取星座数据
-    const fetchAstroData = async (date) => {
-      try {
-        const response = await axios.get('https://api.timelessq.com/time/astro', {
-          params: { keyword: date }
-        });
-        console.log(`Fetched astro data for ${date}`);
-        return response.data;
-      } catch (error) {
-        logError(`Failed to fetch astro data for ${date}: ${error.message}`);
-        throw new Error(`Astro API error for ${date}`);
-      }
-    };
-
-    // 获取十二时辰数据
-    const fetchShichenData = async (date) => {
-      try {
-        const response = await axios.get('https://api.timelessq.com/time/shichen', {
-          params: { date }
-        });
-        console.log(`Fetched shichen data for ${date}`);
-        return response.data;
-      } catch (error) {
-        logError(`Failed to fetch shichen data for ${date}: ${error.message}`);
-        throw new Error(`Shichen API error for ${date}`);
-      }
-    };
-
-    // 获取二十四节气数据
-    const fetchJieqiData = async (year) => {
-      try {
-        const response = await axios.get('https://api.timelessq.com/time/jieqi', {
-          params: { year }
-        });
-        console.log(`Fetched jieqi data for ${year}`);
-        return response.data;
-      } catch (error) {
-        logError(`Failed to fetch jieqi data for ${year}: ${error.message}`);
-        throw new Error(`Jieqi API error for ${year}`);
-      }
-    };
-
-    // 获取假期数据
-    const fetchHolidaysData = async (year) => {
-      try {
-        const response = await axios.get(`https://api.jiejiariapi.com/v1/holidays/${year}`);
-        console.log(`Fetched holidays data for ${year}`);
-        return response.data;
-      } catch (error) {
-        logError(`Failed to fetch holidays data for ${year}: ${error.message}`);
-        throw new Error(`Holidays API error for ${year}`);
-      }
-    };
-
-    // 逐天抓取数据并实时保存
+    let newData = [];
     for (const date of dates) {
-      console.log(`Fetching data for ${date}...`);
-      logBeijingTime();  // 每次抓取数据时打印北京时间
+      logMessage(`正在抓取 ${date} 的数据...`);
+      const year = date.split('-')[0];
 
-      try {
-        const calendarData = await fetchCalendarData(date);
-        const astroData = await fetchAstroData(date);
-        const shichenData = await fetchShichenData(date);
-        const jieqiData = await fetchJieqiData(date.split('-')[0]);  // 使用年份
-        const holidaysData = await fetchHolidaysData(date.split('-')[0]);
+      // 并行请求所有 API
+      const results = await Promise.allSettled([
+        fetchDataFromApi('https://api.timelessq.com/time', { datetime: date }, '万年历', date),
+        fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: date }, '星座', date),
+        fetchDataFromApi('https://api.timelessq.com/time/shichen', { date }, '十二时辰', date),
+        fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year }, '二十四节气', date),
+        fetchDataFromApi(`https://api.jiejiariapi.com/v1/holidays/${year}`, {}, '假期', date),
+      ]);
 
-        // 格式化当天的数据
-        const dailyData = {
-          date,
-          calendar: calendarData,
-          astro: astroData,
-          shichen: shichenData,
-          jieqi: jieqiData,
-          holidays: holidaysData,
-        };
+      // 处理返回的数据
+      const dailyData = {
+        date,
+        calendar: results[0].status === 'fulfilled' ? results[0].value : null,
+        astro: results[1].status === 'fulfilled' ? results[1].value : null,
+        shichen: results[2].status === 'fulfilled' ? results[2].value : null,
+        jieqi: results[3].status === 'fulfilled' ? results[3].value : null,
+        holidays: results[4].status === 'fulfilled' ? results[4].value : null,
+      };
 
-        console.log(`Daily data for ${date}:`, dailyData); // 打印当前日期的数据
-
-        // 读取现有的 data.json 文件
-        let existingData = [];
-        if (fs.existsSync(path)) {
-          const fileData = fs.readFileSync(path, 'utf8');
-          
-          if (fileData) {
-            try {
-              existingData = JSON.parse(fileData);  // 解析JSON数据
-              console.log('Existing data loaded.');
-            } catch (error) {
-              console.error('Error parsing data.json:', error);
-              existingData = [];  // 如果解析失败，初始化为空数组
-            }
-          } else {
-            console.log('data.json is empty, initializing an empty array.');
-            existingData = [];  // 如果文件为空，初始化为空数组
-          }
-        } else {
-          console.log('data.json does not exist, initializing an empty array.');
-          existingData = [];  // 如果文件不存在，初始化为空数组
-        }
-
-        // 将新数据添加到现有数据中
-        existingData.push(dailyData);
-
-        // 将合并后的数据实时保存到 data.json
-        fs.writeFileSync(path, JSON.stringify(existingData, null, 2));
-        console.log(`Data for ${date} saved to data.json`);
-
-      } catch (error) {
-        logError(`Skipping data for ${date} due to previous error.`);
+      // 检查是否所有 API 都失败
+      if (!dailyData.calendar && !dailyData.astro && !dailyData.shichen && !dailyData.jieqi && !dailyData.holidays) {
+        logError(`所有 API 请求均失败，跳过日期 ${date}`, '数据获取失败');
+        continue;
       }
+
+      newData.push(dailyData);
+      logMessage(`成功获取并存储 ${date} 的数据`);
     }
-    
+
+    // 只有新数据时才写入
+    if (newData.length > 0) {
+      const updatedData = [...existingData, ...newData];
+      fs.writeFileSync(path, JSON.stringify(updatedData, null, 2));
+      logMessage(`数据已成功更新，共 ${newData.length} 条新数据`);
+    }
+
   } catch (error) {
-    console.error('Error while fetching data:', error);
-    logError(`Failed to fetch data: ${error.message}`);
+    logError('数据抓取过程中发生错误', error);
   }
 }
 
