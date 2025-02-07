@@ -25,11 +25,12 @@ const logToFile = (message) => {
 const validateDataStructure = (data) => {
   if (!Array.isArray(data)) return false;
   return data.every(entry => {
-    return entry.date && 
-           (entry.holidays instanceof Array) && 
-           entry.calendar && 
-           entry.astro && 
-           entry.shichen;
+    return entry.date &&
+      entry.holidays &&
+      entry.calendar &&
+      entry.astro &&
+      entry.shichen &&
+      entry.jieqi;
   });
 };
 
