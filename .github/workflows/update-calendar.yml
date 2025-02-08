@@ -13,11 +13,27 @@ jobs:
         with:
           fetch-depth: 0  # 确保拉取完整历史
 
-      - name: Ensure data.json exists
+      - name: Ensure data directory exists
         run: |
           mkdir -p data
-          if [ ! -f data/data.json ]; then
-            echo "[]" > data/data.json  # 如果 data.json 不存在，创建一个空数组
+          if [ ! -d data ]; then
+            echo "Directory 'data' does not exist, creating it."
+            mkdir data
+          fi
+          if [ ! -f data/Document/calendar.json ]; then
+            echo "[]" > data/Document/calendar.json  # 如果 calendar.json 不存在，创建一个空数组
+          fi
+          if [ ! -f data/Document/astro.json ]; then
+            echo "[]" > data/Document/astro.json  # 如果 astro.json 不存在，创建一个空数组
+          fi
+          if [ ! -f data/Document/shichen.json ]; then
+            echo "[]" > data/Document/shichen.json  # 如果 shichen.json 不存在，创建一个空数组
+          fi
+          if [ ! -f data/Document/jieqi.json ]; then
+            echo "[]" > data/Document/jieqi.json  # 如果 jieqi.json 不存在，创建一个空数组
+          fi
+          if [ ! -f data/Document/holidays.json ]; then
+            echo "[]" > data/Document/holidays.json  # 如果 holidays.json 不存在，创建一个空数组
           fi
 
       - name: Cache Node.js modules
@@ -64,5 +80,5 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
-          git commit -m "Update data.json and calendar.ics"
+          git commit -m "Update data and calendar.ics"
           git push origin main
