@@ -37,11 +37,11 @@ const readJsonReconstruction = (filePath) => {
     }
     const data = JSON.parse(rawData);
 
-    // 检查数据结构，日志前200字符
-    logToFile(`📂 读取文件: ${filePath}，数据结构: ${JSON.stringify(data).slice(0, 200)}`, 'INFO');
+    // 完整打印数据结构，避免截断
+    logToFile(`📂 读取文件: ${filePath}，数据结构: ${JSON.stringify(data, null, 2)}`, 'INFO');
 
-    // 返回 Reconstruction 中的有效数据
-    return Array.isArray(data.Reconstruction) ? data.Reconstruction : [];
+    // 返回 Reconstruction 中的所有数据（数组）
+    return data.Reconstruction || [];
   } catch (error) {
     logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
     return [];
@@ -55,14 +55,21 @@ const readJsonReconstruction = (filePath) => {
  */
 const filterValidData = (data) => {
   const filteredData = {};
-  for (const [date, record] of Object.entries(data)) {
-    if (record && typeof record === 'object' && !Array.isArray(record)) {
-      const { errno, errmsg, ...validFields } = record;
+  // 遍历数据，确保每一项都是有效的
+  data.forEach((item) => {
+    if (item && typeof item === 'object' && !Array.isArray(item)) {
+      const { errno, errmsg, ...validFields } = item;
+
+      // 保证 validFields 里面至少包含一些有效数据
       if (Object.keys(validFields).length > 0) {
-        filteredData[date] = validFields;
+        for (const [date, record] of Object.entries(validFields)) {
+          if (record && typeof record === 'object') {
+            filteredData[date] = record;
+          }
+        }
       }
     }
-  }
+  });
   return filteredData;
 };
 
@@ -140,7 +147,7 @@ const generateICS = () => {
       continue;
     }
 
-    dataByCategory[key] = jsonData.map((item) => filterValidData(item));
+    dataByCategory[key] = jsonData.map((item) => filterValidData([item]));
   }
 
   // 📌 获取所有日期
