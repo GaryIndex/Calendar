@@ -5,7 +5,6 @@ const moment = require('moment-timezone');
 const DATA_PATH = './data/Document'; // 存储目录
 const LOG_PATH = './data/error.log';
 const START_DATE = '2025-02-08'; // 初始抓取日期
-const FILES = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
 
 // 📌 确保目录存在
 const ensureDirectoryExists = (path) => {
@@ -37,18 +36,19 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
-// 📌 读取 JSON 数据
+// 📌 读取已存储数据，防止重复抓取
 const loadExistingData = () => {
   ensureDirectoryExists(DATA_PATH);
+  const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
   const data = {};
 
-  FILES.forEach((file) => {
+  files.forEach((file) => {
     const filePath = `${DATA_PATH}/${file}`;
     if (fs.existsSync(filePath)) {
       try {
         const rawData = fs.readFileSync(filePath, 'utf8');
         const parsedData = JSON.parse(rawData);
-        data[file] = parsedData || {}; // 确保数据为对象
+        data[file] = parsedData || {}; // 确保数据是对象
       } catch (error) {
         logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
         data[file] = {};
@@ -61,30 +61,37 @@ const loadExistingData = () => {
   return data;
 };
 
-// 📌 统一 `holidays.json` 的 `isOffDay` 逻辑
-const normalizeHolidays = (holidaysData) => {
-  const result = {};
-  for (const date in holidaysData) {
-    const holiday = holidaysData[date];
-    result[date] = {
-      ...holiday,
-      isOffDay: holiday.isOffDay !== undefined ? holiday.isOffDay : false, // 默认 false
-    };
+// 📌 解析 API 响应数据，仅保留 `data` 层
+const extractDataLayer = (response) => {
+  if (response && typeof response === 'object' && 'data' in response) {
+    return response.data || {};
   }
-  return result;
+  return {}; // 避免数据缺失
 };
 
-// 📌 保存数据（合并存储，避免覆盖）
+// 📌 处理 `holidays.json`，确保 `isOffDay` 逻辑一致
+const normalizeHolidays = (holidaysData) => {
+  if (!holidaysData || typeof holidaysData !== 'object') return {};
+
+  Object.keys(holidaysData).forEach((date) => {
+    if (holidaysData[date] && typeof holidaysData[date] === 'object') {
+      holidaysData[date].isOffDay = !!holidaysData[date].isOffDay; // 强制转换为 true/false
+    }
+  });
+
+  return holidaysData;
+};
+
+// 📌 保存数据到文件（合并数据，防止覆盖）
 const saveData = (data) => {
   ensureDirectoryExists(DATA_PATH);
-
   Object.keys(data).forEach((file) => {
     const filePath = `${DATA_PATH}/${file}`;
 
     let existingContent = {};
     if (fs.existsSync(filePath)) {
       try {
-        existingContent = JSON.parse(fs.readFileSync(filePath, 'utf8')) || {};
+        existingContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       } catch (error) {
         logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
         existingContent = {};
@@ -112,14 +119,14 @@ const fetchDataFromApi = async (url, params = {}) => {
   try {
     const response = await axios.get(url, { params });
     logMessage(`✅ API 请求成功: ${url} | 参数: ${JSON.stringify(params)}`);
-    return response.data;
+    return extractDataLayer(response.data);
   } catch (error) {
     logMessage(`❌ API 请求失败: ${url} | 参数: ${JSON.stringify(params)} | 错误: ${error.message}`);
-    return null;
+    return null; // 避免中断
   }
 };
 
-// 📌 抓取数据
+// 📌 数据抓取逻辑
 const fetchData = async () => {
   logMessage('🚀 开始数据抓取...');
   ensureDirectoryExists(DATA_PATH);
@@ -131,8 +138,14 @@ const fetchData = async () => {
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD');
 
-    // 📌 跳过已存在的数据
-    if (FILES.some((file) => existingData[file][dateStr])) {
+    // 📌 跳过已存在数据
+    if (
+      existingData['calendar.json'][dateStr] ||
+      existingData['astro.json'][dateStr] ||
+      existingData['shichen.json'][dateStr] ||
+      existingData['jieqi.json'][dateStr] ||
+      existingData['holidays.json'][dateStr]
+    ) {
       logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
       continue;
     }
@@ -145,7 +158,7 @@ const fetchData = async () => {
       fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr }),
       fetchDataFromApi('https://api.timelessq.com/time/shichen', { date: dateStr }),
       fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
-      fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0]),
+      fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
     ]);
 
     // 📌 过滤无效数据
