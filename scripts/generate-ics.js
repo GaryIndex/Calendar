@@ -1,20 +1,21 @@
 const fs = require('fs');
 const path = require('path');
-const validateDataStructure = require('./utils/validateDataStructure');
-const { logToFile, readJson, ensureDirectoryExists } = require('./utils/utils');
+const validateDataStructure = require('./scripts/utils/validateDataStructure');
+const { logToFile, readJson, ensureDirectoryExists } = require('./scripts/utils/utils');
 
 // 配置 JSON 数据路径
 const dataPaths = {
-  holidays: './data/holidays.json',
-  jieqi: './data/jieqi.json',
-  astro: './data/astro.json',
-  calendar: './data/calendar.json',
-  shichen: './data/shichen.json',
+  holidays: './data/Document/holidays.json',
+  jieqi: './data/Document/jieqi.json',
+  astro: './data/Document/astro.json',
+  calendar: './data/Document/calendar.json',
+  shichen: './data/Document/shichen.json',
 };
 
 // ICS 输出路径
-const icsFilePath = path.join(__dirname, '../output/calendar.ics');
+const icsFilePath = path.join(__dirname, './calendar.ics');
 
+// 生成 ICS 事件
 const generateICSEvent = (date, holidays, jieqi, astro, calendar, shichen) => {
   let summary = [];
   let description = [];
@@ -46,6 +47,7 @@ END:VEVENT
 `;
 };
 
+// 生成 ICS 日历
 const generateICS = () => {
   ensureDirectoryExists(icsFilePath);
 
