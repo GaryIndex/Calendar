@@ -1,6 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const moment = require('moment-timezone');
+const deepmerge = require('deepmerge'); // 用于深度合并对象
 
 const DATA_PATH = './data/Document';
 const LOG_PATH = './data/error.log';
@@ -88,7 +89,8 @@ const saveData = (data) => {
       }
     }
 
-    const mergedData = { ...existingContent, ...content };
+    // 使用 deepmerge 来深度合并已有的数据和新抓取的数据
+    const mergedData = deepmerge(existingContent, content);
 
     try {
       fs.writeFileSync(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
@@ -228,4 +230,3 @@ fetchData().catch((error) => {
   logMessage(`🔥 任务失败: ${error.message}`);
   process.exit(1);
 });
-
