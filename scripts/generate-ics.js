@@ -84,7 +84,8 @@ const extractValidData = (reconstructionData, existingData) => {
   logInfo(`🔍 处理 Reconstruction 数据，共 ${reconstructionData.length} 条`);
 
   reconstructionData.forEach(record => {
-    const date = record["data.date"] || null;  // 获取日期字段
+    // 获取日期（直接使用 "2025-02-08" 作为键）
+    const date = record.date || record["data.date"] || null;
     if (!date) {
       logError(`⚠️ 无效记录（无日期）: ${JSON.stringify(record)}`);
       return;
@@ -97,7 +98,7 @@ const extractValidData = (reconstructionData, existingData) => {
     
     // 提取所有字段并构建描述
     Object.entries(record).forEach(([key, value]) => {
-      if (key !== "data.date" && key !== "data.name" && key !== "data.isOffDay") {
+      if (key !== "date" && key !== "data.date" && key !== "data.name" && key !== "data.isOffDay") {
         description += `${key}: ${value} | `;
       }
     });
