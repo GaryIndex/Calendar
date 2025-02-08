@@ -21,9 +21,6 @@ jobs:
           for file in calendar.json astro.json shichen.json jieqi.json holidays.json; do
             if [ ! -f "data/Document/$file" ]; then
               echo "[]" > "data/Document/$file"
-              echo "$file created with an empty array."
-            else
-              echo "$file already exists."
             fi
           done
 
@@ -45,9 +42,7 @@ jobs:
           fi
 
       - name: Install dependencies
-        run: |
-          echo "Installing dependencies..."
-          npm ci
+        run: npm ci
 
       - name: Run data fetch and ICS generation
         run: |
@@ -67,6 +62,7 @@ jobs:
           else
             echo "No changes to commit."
             echo "changes=false" >> $GITHUB_ENV
+          fi
 
       - name: Commit and push changes
         if: env.changes == 'true'
