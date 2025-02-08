@@ -41,13 +41,14 @@ const loadExistingData = () => {
   ensureDirectoryExists(DATA_PATH);
   const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
   const data = {};
-  
+
   files.forEach((file) => {
     const filePath = `${DATA_PATH}/${file}`;
     if (fs.existsSync(filePath)) {
       try {
         const rawData = fs.readFileSync(filePath, 'utf8');
-        data[file] = rawData ? JSON.parse(rawData) : {};
+        const parsedData = JSON.parse(rawData);
+        data[file] = Array.isArray(parsedData) ? {} : parsedData; // 确保数据是对象
       } catch (error) {
         logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
         data[file] = {};
@@ -56,18 +57,32 @@ const loadExistingData = () => {
       data[file] = {};
     }
   });
-  
+
   return data;
 };
 
-// 📌 保存数据到文件
+// 📌 保存数据到文件（合并数据，防止覆盖）
 const saveData = (data) => {
   ensureDirectoryExists(DATA_PATH);
   Object.keys(data).forEach((file) => {
     const filePath = `${DATA_PATH}/${file}`;
+
+    let existingContent = {};
+    if (fs.existsSync(filePath)) {
+      try {
+        existingContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        if (Array.isArray(existingContent)) existingContent = {}; // 确保数据是对象
+      } catch (error) {
+        logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
+        existingContent = {};
+      }
+    }
+
+    const mergedData = { ...existingContent, ...data[file] }; // 合并新旧数据
+
     try {
-      fs.writeFileSync(filePath, JSON.stringify(data[file], null, 2), 'utf8');
-      logMessage(`✅ ${file} 保存成功: ${Object.keys(data[file]).length} 条记录`);
+      fs.writeFileSync(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
+      logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData).length} 条记录`);
     } catch (error) {
       logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
     }
@@ -90,7 +105,7 @@ const fetchDataFromApi = async (url, params = {}) => {
 const fetchData = async () => {
   logMessage('🚀 开始数据抓取...');
   ensureDirectoryExists(DATA_PATH);
-  
+
   const existingData = loadExistingData();
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
   const startDate = moment(START_DATE).tz('Asia/Shanghai');
@@ -99,11 +114,13 @@ const fetchData = async () => {
     const dateStr = currentDate.format('YYYY-MM-DD');
 
     // 📌 跳过已存在数据
-    if (existingData['calendar.json'][dateStr] || 
-        existingData['astro.json'][dateStr] ||
-        existingData['shichen.json'][dateStr] ||
-        existingData['jieqi.json'][dateStr] ||
-        existingData['holidays.json'][dateStr]) {
+    if (
+      existingData['calendar.json'][dateStr] ||
+      existingData['astro.json'][dateStr] ||
+      existingData['shichen.json'][dateStr] ||
+      existingData['jieqi.json'][dateStr] ||
+      existingData['holidays.json'][dateStr]
+    ) {
       logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
       continue;
     }
@@ -111,24 +128,26 @@ const fetchData = async () => {
     logMessage(`📅 处理日期: ${dateStr}`);
 
     // 📌 获取各类数据
-    const calendarData = await fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr });
-    const astroData = await fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr });
-    const shichenData = await fetchDataFromApi('https://api.timelessq.com/time/shichen', { date: dateStr });
-    const jieqiData = await fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] });
-    const holidaysData = await fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0]);
+    const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
+      fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr }),
+      fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr }),
+      fetchDataFromApi('https://api.timelessq.com/time/shichen', { date: dateStr }),
+      fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
+      fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
+    ]);
 
     // 📌 过滤无效数据，确保存储完整性
-    if (!calendarData || !astroData || !shichenData || !jieqiData || !holidaysData) {
-      logMessage(`⚠️ ${dateStr} 数据不完整，跳过存储`);
+    if (!calendarData && !astroData && !shichenData && !jieqiData && !holidaysData) {
+      logMessage(`⚠️ ${dateStr} 数据全部缺失，跳过存储`);
       continue;
     }
 
-    // 📌 存储数据
-    existingData['calendar.json'][dateStr] = calendarData;
-    existingData['astro.json'][dateStr] = astroData;
-    existingData['shichen.json'][dateStr] = shichenData;
-    existingData['jieqi.json'][dateStr] = jieqiData;
-    existingData['holidays.json'][dateStr] = holidaysData;
+    // 📌 存储已有数据（缺少的字段保持为空）
+    if (calendarData) existingData['calendar.json'][dateStr] = calendarData;
+    if (astroData) existingData['astro.json'][dateStr] = astroData;
+    if (shichenData) existingData['shichen.json'][dateStr] = shichenData;
+    if (jieqiData) existingData['jieqi.json'][dateStr] = jieqiData;
+    if (holidaysData) existingData['holidays.json'][dateStr] = holidaysData;
 
     saveData(existingData);
     logMessage(`✅ ${dateStr} 数据保存成功`);
