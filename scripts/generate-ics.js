@@ -53,6 +53,7 @@ const readJsonReconstruction = (filePath) => {
     }
 
     const data = JSON.parse(rawData);
+    console.log(`✅ 读取文件 ${filePath} 成功，包含 ${Object.keys(data).length} 条数据`);
     return Object.values(data).flatMap(entry => entry.Reconstruction || []);
   } catch (error) {
     const message = `❌ 读取文件失败: ${filePath} - 错误: ${error.message}`;
@@ -85,6 +86,8 @@ const extractValidData = (data, category, existingData) => {
       .filter(([key, value]) => !key.includes('date') && !key.includes('name') && !key.includes('isOffDay') && value)
       .map(([_, value]) => value)
       .join(' ');
+
+    console.log(`提取数据 - 日期: ${date}, 名称: ${name}, 描述: ${description}`);
 
     if (!existingData[date]) {
       existingData[date] = {
@@ -166,15 +169,21 @@ const generateICS = () => {
   icsContent += 'END:VCALENDAR\r\n';
 
   // 📌 写入 ICS 文件
-  try {
-    fs.writeFileSync(icsFilePath, icsContent);
-    const message = `✅ ICS 日历文件生成成功！共 ${eventCount} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`;
+  if (eventCount === 0) {
+    const message = `⚠️ 未生成任何 ICS 事件，检查数据处理和提取过程。`;
     console.log(message);
     logError(message);
-  } catch (error) {
-    const message = `❌ 生成 ICS 文件失败: ${error.message}`;
-    console.log(message);
-    logError(message);
+  } else {
+    try {
+      fs.writeFileSync(icsFilePath, icsContent);
+      const message = `✅ ICS 日历文件生成成功！共 ${eventCount} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`;
+      console.log(message);
+      logError(message);
+    } catch (error) {
+      const message = `❌ 生成 ICS 文件失败: ${error.message}`;
+      console.log(message);
+      logError(message);
+    }
   }
 };
 
