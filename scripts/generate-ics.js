@@ -10,7 +10,7 @@ const dataPaths = {
 };
 
 // 🏆 **设定多个优先级文件**
-const prioritySources = ["holidays", "jieqi"];  // 先尝试 `holidays`，再尝试 `jieqi`
+const prioritySources = ["holidays", "jieqi"];
 
 const icsFilePath = path.join(__dirname, './calendar.ics');
 
@@ -62,7 +62,7 @@ const extractValidData = (data, category, existingData) => {
     if (!existingData[date]) {
       existingData[date] = {
         category,
-        name: null, // 先不设置 `name`
+        name: null,
         isOffDay,
         description: workStatus + description
       };
@@ -70,7 +70,6 @@ const extractValidData = (data, category, existingData) => {
       existingData[date].description += ` | ${workStatus}${description}`;
     }
 
-    // 🏆 **如果当前文件是优先级文件，且 `name` 未赋值，则赋值**
     if (prioritySources.includes(category) && !existingData[date].name && name) {
       existingData[date].name = name;
     }
@@ -116,11 +115,15 @@ const generateICS = () => {
     extractValidData(jsonData, key, allEvents);
   }
 
+  // **📌 按日期升序排序**
+  const sortedDates = Object.keys(allEvents).sort();
+
   // 📌 生成 ICS 内容
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
   let eventCount = 0;
 
-  for (const [date, eventData] of Object.entries(allEvents)) {
+  for (const date of sortedDates) {
+    const eventData = allEvents[date];
     const event = generateICSEvent(date, eventData);
     if (event.trim()) {
       icsContent += event;
