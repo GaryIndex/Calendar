@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const moment = require('moment-timezone');
 
-// 配置常量
+// 📌 目录路径配置
 const DATA_PATH = './data/Document'; 
 const LOG_PATH = './data/error.log';
 const START_DATE = '2025-02-08'; 
@@ -48,7 +48,7 @@ const loadExistingData = () => {
     if (fs.existsSync(filePath)) {
       try {
         const rawData = fs.readFileSync(filePath, 'utf8');
-        data[file] = JSON.parse(rawData) || {}; 
+        data[file] = JSON.parse(rawData)?.Reconstruction || {};  
       } catch (error) {
         logMessage(`❌ 读取 ${file} 失败: ${error.message}\n堆栈: ${error.stack}`);
         data[file] = {};
@@ -59,19 +59,6 @@ const loadExistingData = () => {
   });
 
   return data;
-};
-
-// 📌 处理节假日数据
-const normalizeHolidays = (holidaysData) => {
-  if (!holidaysData || typeof holidaysData !== 'object') return { data: {} };
-
-  Object.keys(holidaysData).forEach((date) => {
-    if (holidaysData[date] && typeof holidaysData[date] === 'object') {
-      holidaysData[date].isOffDay = !!holidaysData[date].isOffDay; 
-    }
-  });
-
-  return { data: holidaysData };
 };
 
 // 📌 保存数据到文件
@@ -86,18 +73,18 @@ const saveData = (data) => {
         existingContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       } catch (error) {
         logMessage(`❌ 读取 ${file} 失败: ${error.message}\n堆栈: ${error.stack}`);
-        existingContent = { data: {} };
+        existingContent = { Reconstruction: {} };
       }
     }
 
     let mergedData;
     try {
-      mergedData = file === 'holidays.json' 
-        ? normalizeHolidays({ ...existingContent.data, ...data[file].data })
-        : { data: { ...existingContent.data, ...data[file].data } };
+      mergedData = {
+        Reconstruction: { ...existingContent.Reconstruction, ...data[file].Reconstruction }
+      };
 
       fs.writeFileSync(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
-      logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData.data).length} 条记录`);
+      logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData.Reconstruction).length} 条记录`);
     } catch (error) {
       logMessage(`❌ 保存 ${file} 失败: ${error.message}\n堆栈: ${error.stack}`);
     }
@@ -109,14 +96,14 @@ const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
     const response = await axios.get(url, { params });
     logMessage(`✅ API 请求成功: ${url} | 参数: ${JSON.stringify(params)}`);
-    return response.data; // 直接返回响应数据对象，不再提取 data 层
+    return response.data; 
   } catch (error) {
     if (retries > 0) {
       logMessage(`❌ API 请求失败，重试中... 剩余重试次数: ${retries} | 错误: ${error.message}`);
       return fetchDataFromApi(url, params, retries - 1); 
     }
     logMessage(`❌ API 请求失败: ${url} | 参数: ${JSON.stringify(params)} | 错误: ${error.message}\n堆栈: ${error.stack}`);
-    return {}; // 返回空对象作为默认值
+    return {}; 
   }
 };
 
@@ -134,11 +121,11 @@ const fetchData = async () => {
 
     // 📌 跳过已存在数据
     if (
-      existingData['calendar.json']?.data[dateStr] ||
-      existingData['astro.json']?.data[dateStr] ||
-      existingData['shichen.json']?.data[dateStr] ||
-      existingData['jieqi.json']?.data[dateStr] ||
-      existingData['holidays.json']?.data[dateStr]
+      existingData['calendar.json']?.Reconstruction[dateStr] ||
+      existingData['astro.json']?.Reconstruction[dateStr] ||
+      existingData['shichen.json']?.Reconstruction[dateStr] ||
+      existingData['jieqi.json']?.Reconstruction[dateStr] ||
+      existingData['holidays.json']?.Reconstruction[dateStr]
     ) {
       logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
       continue;
@@ -162,11 +149,11 @@ const fetchData = async () => {
     }
 
     // 📌 存储数据
-    existingData['calendar.json'].data[dateStr] = calendarData;
-    existingData['astro.json'].data[dateStr] = astroData;
-    existingData['shichen.json'].data[dateStr] = shichenData;
-    existingData['jieqi.json'].data[dateStr] = jieqiData;
-    existingData['holidays.json'].data[dateStr] = holidaysData;
+    existingData['calendar.json'].Reconstruction[dateStr] = calendarData;
+    existingData['astro.json'].Reconstruction[dateStr] = astroData;
+    existingData['shichen.json'].Reconstruction[dateStr] = shichenData;
+    existingData['jieqi.json'].Reconstruction[dateStr] = jieqiData;
+    existingData['holidays.json'].Reconstruction[dateStr] = holidaysData;
 
     saveData(existingData);
     logMessage(`✅ ${dateStr} 数据保存成功`);
