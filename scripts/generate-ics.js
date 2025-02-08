@@ -84,20 +84,20 @@ const extractValidData = (reconstructionData, existingData) => {
   logInfo(`🔍 处理 Reconstruction 数据，共 ${reconstructionData.length} 条`);
 
   reconstructionData.forEach(record => {
-    const date = record.date || record.day || null;
+    const date = record["data.date"] || null;  // 获取日期字段
     if (!date) {
       logError(`⚠️ 无效记录（无日期）: ${JSON.stringify(record)}`);
       return;
     }
 
-    // 遍历对象的所有键并提取
+    // 提取必要的字段
     let description = '';
-    let name = record.name || '(无标题)';
-    let isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
+    let name = record["data.name"] || '(无标题)';
+    let isOffDay = record["data.isOffDay"] !== undefined ? record["data.isOffDay"] : null;
     
-    // 提取所有字段
+    // 提取所有字段并构建描述
     Object.entries(record).forEach(([key, value]) => {
-      if (key !== 'date' && key !== 'day' && key !== 'isOffDay') {
+      if (key !== "data.date" && key !== "data.name" && key !== "data.isOffDay") {
         description += `${key}: ${value} | `;
       }
     });
