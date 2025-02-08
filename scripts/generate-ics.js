@@ -35,8 +35,10 @@ const readJsonReconstruction = (filePath) => {
       return {};
     }
     const data = JSON.parse(rawData);
-    // Log the structure to check if `Reconstruction` exists
+
+    // 检查数据结构
     logToFile(`📂 读取文件: ${filePath}，数据结构: ${JSON.stringify(data).slice(0, 200)}`, 'INFO');
+
     return data.Reconstruction || {};
   } catch (error) {
     logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
