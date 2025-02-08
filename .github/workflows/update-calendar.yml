@@ -2,6 +2,8 @@ name: Update Calendar
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 14 * * *"  # 每天 22:00 自动运行
 
 jobs:
   update:
@@ -9,17 +11,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 确保拉取完整历史，以便 diff 变更
+          fetch-depth: 0
 
       - name: Ensure data directory and files exist
         run: |
-          mkdir -p data/Document  # 先确保目录存在
-
+          mkdir -p data/Document
           for file in calendar.json astro.json shichen.json jieqi.json holidays.json; do
             if [ ! -f "data/Document/$file" ]; then
-              echo "Creating empty JSON file: data/Document/$file"
               echo "[]" > "data/Document/$file"
             fi
           done
@@ -33,32 +33,26 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            echo "Using npm ci to install dependencies."
-            npm ci
-          else
-            echo "package-lock.json not found, using npm install."
-            npm install
-          fi
+        run: npm ci
 
       - name: Run data fetch and ICS generation
         run: |
+          set -e
           echo "Fetching data..."
-          node scripts/fetch-data.js  # 运行数据抓取脚本
+          node scripts/fetch-data.js
           echo "Generating ICS file..."
-          node scripts/generate-ics.js  # 生成 .ics 文件
+          node scripts/generate-ics.js
 
       - name: Check for changes
         id: check_changes
         run: |
-          git add .
-          if git diff --quiet --staged; then
-            echo "No changes to commit."
-            echo "changes=false" >> $GITHUB_ENV
-          else
+          git status --porcelain
+          if [[ -n "$(git status --porcelain)" ]]; then
             echo "Changes detected."
             echo "changes=true" >> $GITHUB_ENV
+          else
+            echo "No changes to commit."
+            echo "changes=false" >> $GITHUB_ENV
           fi
 
       - name: Commit and push changes
@@ -66,5 +60,15 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
+          git pull --rebase origin main
           git commit -m "Update data and calendar.ics"
           git push origin main
+
+      - name: Create Pull Request
+        if: env.changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: "Update data and calendar.ics"
+          branch: "update-calendar"
+          commit-message: "Update data and calendar.ics"
+          delete-branch: true
