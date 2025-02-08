@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const validateDataStructure = require('./scripts/utils/validateDataStructure.js');
-const { logToFile, readJson, ensureDirectoryExists } = require('./scripts/utils/utils.js');
+const validateDataStructure = require('./scripts/utils/validateDataStructure');
+const { logToFile, readJson, ensureDirectoryExists } = require('./scripts/utils/utils');
 
 // 配置 JSON 数据路径
 const dataPaths = {
