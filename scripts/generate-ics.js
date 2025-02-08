@@ -31,9 +31,16 @@ const ensureDirectoryExists = (filePath) => {
  */
 const readJsonReconstruction = (filePath) => {
   try {
-    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-    console.log(`读取文件: ${filePath}, 数据:`, data.Reconstruction); // 记录读取的内容
-    return data.Reconstruction || {}; 
+    const rawData = fs.readFileSync(filePath, 'utf-8');
+    const data = JSON.parse(rawData);
+    
+    if (!data.Reconstruction || Object.keys(data.Reconstruction).length === 0) {
+      console.log(`⚠️ ${filePath} 中的 Reconstruction 为空`);
+      return {};  // 返回空对象，避免 undefined
+    }
+    
+    console.log(`✅ 成功读取 ${filePath}, Reconstruction 数据:`, Object.keys(data.Reconstruction));
+    return data.Reconstruction;
   } catch (error) {
     logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
     return null;
@@ -63,7 +70,6 @@ const generateICSEvent = (date, dataByCategory) => {
 
   for (const [category, records] of Object.entries(dataByCategory)) {
     if (records[date]) {
-      // 提取所有字段，并格式化输出
       const record = records[date];
       summary.push(record.name || category);
       description.push(`${category.toUpperCase()} 信息:`);
@@ -74,20 +80,18 @@ const generateICSEvent = (date, dataByCategory) => {
     }
   }
 
-  // 确保 `SUMMARY` 不为空，避免 ICS 格式错误
-  if (summary.length === 0) summary.push('日历事件');
+  if (summary.length === 0) {
+    console.log(`⚠️ 跳过 ${date}，没有可用的事件`);
+    return ''; // 避免返回空事件
+  }
 
-  const event = `
+  return `
 BEGIN:VEVENT
 DTSTART;VALUE=DATE:${date.replace(/-/g, '')}
 SUMMARY:${summary.join(' ')}
 DESCRIPTION:${description.join('\\n')}
 END:VEVENT
 `;
-
-  console.log(`生成事件: ${date}`, event); // 日志记录生成的事件
-
-  return event;
 };
 
 /**
@@ -118,25 +122,34 @@ const generateICS = () => {
       .flatMap((categoryData) => Object.keys(categoryData))
   );
 
-  console.log('所有日期:', [...allDates]); // 确认日期集合
+  console.log('📅 所有日期:', [...allDates]); // 确认日期集合
 
   if (allDates.size === 0) {
-    logToFile('⚠️ 没有找到任何日期，跳过生成 ICS！', 'ERROR');
+    logToFile('⚠️ 没有找到任何日期，ICS 文件不会被生成！', 'ERROR');
     return;
   }
 
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
 
-  // 📌 遍历日期，生成 ICS 事件
+  let eventCount = 0;
   allDates.forEach(date => {
-    icsContent += generateICSEvent(date, dataByCategory);
+    const event = generateICSEvent(date, dataByCategory);
+    if (event.trim()) {
+      icsContent += event;
+      eventCount++;
+    }
   });
 
   icsContent += 'END:VCALENDAR\r\n';
 
+  if (eventCount === 0) {
+    logToFile('⚠️ 没有生成任何事件，ICS 文件将不会被写入！', 'ERROR');
+    return;
+  }
+
   try {
     fs.writeFileSync(icsFilePath, icsContent);
-    logToFile(`✅ ICS 日历文件生成成功！ (跳过无效 JSON: ${invalidFiles.join(', ')})`, 'INFO');
+    logToFile(`✅ ICS 日历文件生成成功！ 共 ${eventCount} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`, 'INFO');
   } catch (error) {
     logToFile(`❌ 生成 ICS 文件失败: ${error.message}`, 'ERROR');
   }
