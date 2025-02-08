@@ -1,7 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const validateDataStructure = require('./utils/validateDataStructure.js');
-const { logToFile, readJson, ensureDirectoryExists } = require('./utils/utils.js');
 
 // 配置 JSON 数据路径
 const dataPaths = {
@@ -15,7 +13,65 @@ const dataPaths = {
 // ICS 输出路径
 const icsFilePath = path.join(__dirname, './calendar.ics');
 
-// 生成 ICS 事件
+/**
+ * 确保目录存在
+ * @param {string} filePath
+ */
+const ensureDirectoryExists = (filePath) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+/**
+ * 读取 JSON 文件
+ * @param {string} filePath
+ * @returns {Object|null}
+ */
+const readJson = (filePath) => {
+  try {
+    const data = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
+    return null;
+  }
+};
+
+/**
+ * 日志记录
+ * @param {string} message
+ * @param {string} level
+ */
+const logToFile = (message, level = 'INFO') => {
+  const logMessage = `[${new Date().toISOString()}] [${level}] ${message}\n`;
+  fs.appendFileSync('calendar.log', logMessage);
+};
+
+/**
+ * 验证 JSON 数据是否包含指定字段
+ * @param {Object} data
+ * @param {Array<string>} requiredFields
+ * @returns {boolean}
+ */
+const validateDataStructure = (data, requiredFields) => {
+  if (typeof data !== 'object' || data === null) return false;
+  return Object.values(data).some((entry) =>
+    requiredFields.every((field) => field in entry)
+  );
+};
+
+/**
+ * 生成 ICS 事件
+ * @param {string} date
+ * @param {Object} holidays
+ * @param {Object} jieqi
+ * @param {Object} astro
+ * @param {Object} calendar
+ * @param {Object} shichen
+ * @returns {string}
+ */
 const generateICSEvent = (date, holidays, jieqi, astro, calendar, shichen) => {
   let summary = [];
   let description = [];
@@ -47,7 +103,9 @@ END:VEVENT
 `;
 };
 
-// 生成 ICS 日历
+/**
+ * 生成 ICS 日历
+ */
 const generateICS = () => {
   ensureDirectoryExists(icsFilePath);
 
