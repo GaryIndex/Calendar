@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const moment = require('moment-timezone');
 
-const DATA_PATH = './data/json'; // 存储目录
+const DATA_PATH = './data/Document'; // 存储目录
 const LOG_PATH = './data/error.log';
 const START_DATE = '2025-02-08'; // 初始抓取日期
 
