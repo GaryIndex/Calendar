@@ -32,7 +32,7 @@ process.on('SIGINT', () => {
   process.exit();
 });
 process.on('uncaughtException', (error) => {
-  logMessage(`🔥 未捕获异常: ${error.message}`);
+  logMessage(`🔥 未捕获异常: ${error.message}\n堆栈: ${error.stack}`);
   process.exit(1);
 });
 
@@ -50,7 +50,7 @@ const loadExistingData = () => {
         const parsedData = JSON.parse(rawData);
         data[file] = parsedData || {}; // 确保数据是对象
       } catch (error) {
-        logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
+        logMessage(`❌ 读取 ${file} 失败: ${error.message}\n堆栈: ${error.stack}`);
         data[file] = {};
       }
     } else {
@@ -63,10 +63,15 @@ const loadExistingData = () => {
 
 // 📌 解析 API 响应数据，保留 `data` 层，去除 `errno`、`errmsg`
 const extractDataLayer = (response) => {
-  if (response && typeof response === 'object' && 'data' in response) {
-    return { data: response.data || {} }; // 确保 `data` 存在，并包裹在 `data` 层
+  try {
+    if (response && typeof response === 'object' && 'data' in response) {
+      return { data: response.data || {} }; // 确保 `data` 存在，并包裹在 `data` 层
+    }
+    throw new Error('无效的响应格式，没有data层');
+  } catch (error) {
+    logMessage(`❌ 解析 API 响应失败: ${error.message}\n堆栈: ${error.stack}`);
+    return { data: {} }; // 避免数据缺失
   }
-  return { data: {} }; // 避免数据缺失
 };
 
 // 📌 处理 `holidays.json`，确保 `isOffDay` 逻辑一致
@@ -93,23 +98,23 @@ const saveData = (data) => {
       try {
         existingContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       } catch (error) {
-        logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
+        logMessage(`❌ 读取 ${file} 失败: ${error.message}\n堆栈: ${error.stack}`);
         existingContent = { data: {} };
       }
     }
 
     let mergedData;
-    if (file === 'holidays.json') {
-      mergedData = normalizeHolidays({ ...existingContent.data, ...data[file].data });
-    } else {
-      mergedData = { data: { ...existingContent.data, ...data[file].data } };
-    }
-
     try {
+      if (file === 'holidays.json') {
+        mergedData = normalizeHolidays({ ...existingContent.data, ...data[file].data });
+      } else {
+        mergedData = { data: { ...existingContent.data, ...data[file].data } };
+      }
+
       fs.writeFileSync(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
       logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData.data).length} 条记录`);
     } catch (error) {
-      logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
+      logMessage(`❌ 保存 ${file} 失败: ${error.message}\n堆栈: ${error.stack}`);
     }
   });
 };
@@ -121,7 +126,7 @@ const fetchDataFromApi = async (url, params = {}) => {
     logMessage(`✅ API 请求成功: ${url} | 参数: ${JSON.stringify(params)}`);
     return extractDataLayer(response.data);
   } catch (error) {
-    logMessage(`❌ API 请求失败: ${url} | 参数: ${JSON.stringify(params)} | 错误: ${error.message}`);
+    logMessage(`❌ API 请求失败: ${url} | 参数: ${JSON.stringify(params)} | 错误: ${error.message}\n堆栈: ${error.stack}`);
     return { data: {} }; // 避免中断
   }
 };
