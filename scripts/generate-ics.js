@@ -103,12 +103,21 @@ const generateICS = () => {
 
   // 📌 读取所有 JSON 文件
   const data = {};
+  let allFilesValid = true;  // 用于标记所有文件是否有效
+
   for (const [key, path] of Object.entries(paths)) {
-    data[key] = readJson(path);
-    if (data[key] === null) {
-      logToFile(`⚠️ 文件 ${key}.json 读取失败，无法继续生成 ICS！`, 'ERROR');
-      return;
+    const jsonData = readJson(path);
+    if (jsonData === null) {
+      logToFile(`⚠️ 文件 ${key}.json 读取失败，跳过该文件！`, 'ERROR');
+      allFilesValid = false;
+    } else {
+      data[key] = jsonData;
     }
+  }
+
+  if (!allFilesValid) {
+    logToFile('❌ 有文件读取失败，无法继续生成 ICS 文件！', 'ERROR');
+    return;  // 如果有文件读取失败，终止生成 ICS
   }
 
   // 📌 验证数据结构
@@ -116,7 +125,7 @@ const generateICS = () => {
   for (const key of Object.keys(data)) {
     if (!validateDataStructure(data[key], requiredFields)) {
       logToFile(`⚠️ 无效的 ${key}.json 数据结构，无法生成 ICS！`, 'ERROR');
-      return;
+      return; // 如果数据结构无效，终止生成 ICS
     }
   }
 
