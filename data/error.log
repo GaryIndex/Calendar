@@ -40,3 +40,24 @@
 [2025-02-08T07:31:32.224Z] [ERROR] ⚠️ calendar.json 读取失败或数据为空，跳过！
 [2025-02-08T07:31:32.224Z] [ERROR] ⚠️ shichen.json 读取失败或数据为空，跳过！
 [2025-02-08T07:31:32.225Z] [INFO] ✅ ICS 日历文件生成成功！ 共 0 个事件 (跳过无效 JSON: holidays, jieqi, astro, calendar, shichen)
+[2025-02-08 15:37:35] 🚀 开始数据抓取...
+[2025-02-08 15:37:35] 📅 处理日期: 2025-02-08
+[2025-02-08 15:37:36] ✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025
+[2025-02-08 15:37:36] ✅ API 请求成功: https://api.timelessq.com/time/astro
+[2025-02-08 15:37:36] ✅ API 请求成功: https://api.timelessq.com/time
+[2025-02-08 15:37:36] ✅ API 请求成功: https://api.timelessq.com/time/jieqi
+[2025-02-08 15:37:36] ✅ API 请求成功: https://api.timelessq.com/time/shichen
+[2025-02-08 15:37:36] ✅ calendar.json 保存成功: 1 条记录
+[2025-02-08 15:37:36] ✅ astro.json 保存成功: 1 条记录
+[2025-02-08 15:37:36] ✅ shichen.json 保存成功: 1 条记录
+[2025-02-08 15:37:36] ✅ jieqi.json 保存成功: 1 条记录
+[2025-02-08 15:37:36] ✅ holidays.json 保存成功: 1 条记录
+[2025-02-08 15:37:36] ✅ 2025-02-08 数据保存成功
+[2025-02-08 15:37:36] 🎉 所有数据抓取完成！
+[2025-02-08 15:37:36] 🚨 进程已退出
+[2025-02-08T07:37:36.583Z] [ERROR] ⚠️ holidays.json 读取失败或数据为空，跳过！
+[2025-02-08T07:37:36.589Z] [ERROR] ⚠️ jieqi.json 读取失败或数据为空，跳过！
+[2025-02-08T07:37:36.590Z] [ERROR] ⚠️ astro.json 读取失败或数据为空，跳过！
+[2025-02-08T07:37:36.590Z] [ERROR] ⚠️ calendar.json 读取失败或数据为空，跳过！
+[2025-02-08T07:37:36.590Z] [ERROR] ⚠️ shichen.json 读取失败或数据为空，跳过！
+[2025-02-08T07:37:36.590Z] [INFO] ✅ ICS 日历文件生成成功！ 共 0 个事件 (跳过无效 JSON: holidays, jieqi, astro, calendar, shichen)
