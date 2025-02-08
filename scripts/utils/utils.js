@@ -1,13 +1,33 @@
-const validateDataStructure = (data, requiredFields) => {
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    console.log("无效的结构: ", data); // 输出无效结构数据
-    return false;
-  }
+const fs = require('fs');
+const path = require('path');
 
-  return Object.values(data).every(entry => {
-    console.log("验证条目: ", entry); // 打印每个条目的内容
-    return requiredFields.every(field => entry[field] !== undefined && typeof entry[field] === 'string');
-  });
+// 确保目录存在
+const ensureDirectoryExists = (filePath) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
 };
 
-module.exports = validateDataStructure;
+// 读取 JSON 文件
+const readJson = (filePath) => {
+  try {
+    const data = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
+    return null;
+  }
+};
+
+// 日志记录
+const logToFile = (message, level = 'INFO') => {
+  const logMessage = `[${new Date().toISOString()}] [${level}] ${message}\n`;
+  fs.appendFileSync('calendar.log', logMessage);
+};
+
+module.exports = {
+  ensureDirectoryExists,  // 确保这里正确导出
+  logToFile,
+  readJson
+};
