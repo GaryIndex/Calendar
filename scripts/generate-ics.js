@@ -3,7 +3,6 @@ const path = require('path');
 
 // 日志文件路径
 const errorLogPath = path.join(__dirname, './data/error.log');
-const icsFilePath = path.join(__dirname, './calendar.ics');
 
 // 确保日志目录存在
 const ensureDirectoryExistence = (filePath) => {
@@ -12,15 +11,20 @@ const ensureDirectoryExistence = (filePath) => {
     fs.mkdirSync(dir, { recursive: true });
   }
 };
+
+// 创建日志目录
 ensureDirectoryExistence(errorLogPath);
 
-// 记录错误日志
+/**
+ * 写入错误日志到 error.log
+ * @param {string} message
+ */
 const logError = (message) => {
   const timestamp = new Date().toISOString();
   fs.appendFileSync(errorLogPath, `[${timestamp}] ${message}\n`, 'utf8');
 };
 
-// JSON 文件路径
+// 数据路径
 const dataPaths = {
   holidays: './data/Document/holidays.json',
   jieqi: './data/Document/jieqi.json',
@@ -28,53 +32,82 @@ const dataPaths = {
   calendar: './data/Document/calendar.json',
   shichen: './data/Document/shichen.json',
 };
+
+// 设定多个优先级文件
 const prioritySources = ["holidays", "jieqi"];
+
+// ICS 输出路径
+const icsFilePath = path.join(__dirname, './calendar.ics');
 
 /**
  * 读取 JSON 并解析 Reconstruction 层
+ * @param {string} filePath
+ * @returns {Array}
  */
 const readJsonReconstruction = (filePath) => {
   try {
+    console.log(`📂 读取文件: ${filePath}`);
     const rawData = fs.readFileSync(filePath, 'utf-8');
+    
     if (!rawData.trim()) {
       console.log(`⚠️ 文件 ${filePath} 为空，跳过！`);
+      logError(`⚠️ 文件 ${filePath} 为空，跳过！`);
       return [];
     }
 
     const data = JSON.parse(rawData);
-    console.log("🔍 [调试] 读取的 JSON 数据:", data);
+    console.log(`✅ 成功解析 JSON: ${filePath}`);
+    console.log("🔍 [调试] JSON 内容:", JSON.stringify(data, null, 2));
 
     if (!data || typeof data !== "object") {
       console.log(`⚠️ ${filePath} 解析 JSON 失败！`);
+      logError(`⚠️ ${filePath} 解析 JSON 失败！`);
       return [];
     }
 
-    return Object.values(data).flatMap(entry => entry.Reconstruction || []);
+    const reconstructionData = Object.values(data).flatMap(entry => entry.Reconstruction || []);
+    console.log("🔍 [调试] 提取 Reconstruction:", reconstructionData);
+    return reconstructionData;
   } catch (error) {
-    logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
+    const message = `❌ 读取 JSON 失败: ${filePath} - ${error.message}`;
+    console.log(message);
+    logError(message);
     return [];
   }
 };
 
 /**
  * 处理数据，提取关键字段
+ * @param {Array} data
+ * @param {string} category
+ * @param {Object} existingData
  */
 const extractValidData = (data, category, existingData) => {
   data.forEach(record => {
-    const date = record.date || record.Date || null;
-    if (!date) return;
+    console.log("🔍 [调试] 当前记录:", record);
+    
+    const dateEntry = Object.entries(record).find(([key]) => key.includes('date'));
+    const date = dateEntry ? dateEntry[1] : null;
 
-    const name = record.name || record.event || record.title || null;
-    const isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
+    if (!date) {
+      console.log("⚠️ 跳过无效记录，缺少日期:", record);
+      return;
+    }
+
+    console.log("✅ 解析到有效日期:", date);
+
+    const nameEntry = Object.entries(record).find(([key]) => key.includes('name'));
+    const name = nameEntry ? nameEntry[1] : null;
+
+    const isOffDayEntry = Object.entries(record).find(([key]) => key.includes('isOffDay'));
+    const isOffDay = isOffDayEntry ? isOffDayEntry[1] : null;
     const workStatus = isOffDay !== null ? `[${isOffDay ? '休' : '班'}] ` : '';
 
-    // 过滤掉不必要的键
     const description = Object.entries(record)
-      .filter(([key, value]) => !["date", "name", "title", "event", "isOffDay"].includes(key) && value)
+      .filter(([key, value]) => !key.includes('date') && !key.includes('name') && !key.includes('isOffDay') && value)
       .map(([_, value]) => value)
       .join(' ');
 
-    // 记录数据
     if (!existingData[date]) {
       existingData[date] = {
         category,
@@ -86,29 +119,32 @@ const extractValidData = (data, category, existingData) => {
       existingData[date].description += ` | ${workStatus}${description}`;
     }
 
+    // **优先级文件处理**
     if (prioritySources.includes(category) && !existingData[date].name && name) {
       existingData[date].name = name;
     }
   });
 
-  console.log("🔍 [调试] 提取的事件数据:", existingData);
+  console.log(`📊 处理 ${category} 数据，共 ${Object.keys(existingData).length} 个日期`);
 };
 
 /**
  * 生成 ICS 事件
+ * @param {string} date
+ * @param {Object} eventData
+ * @returns {string}
  */
 const generateICSEvent = (date, eventData) => {
-  const formattedDate = date.replace(/-/g, ''); // 转换为 YYYYMMDD 格式
   const summary = eventData.name || '(无标题)';
   const description = eventData.description ? eventData.description : '';
 
   return `
 BEGIN:VEVENT
-DTSTART;VALUE=DATE:${formattedDate}
+DTSTART;VALUE=DATE:${date.replace(/-/g, '')}
 SUMMARY:${summary}
 DESCRIPTION:${description}
 END:VEVENT
-  `.trim();
+`;
 };
 
 /**
@@ -118,10 +154,13 @@ const generateICS = () => {
   let allEvents = {};
   let invalidFiles = [];
 
+  // 📌 读取并解析所有 JSON 数据
   for (const [key, filePath] of Object.entries(dataPaths)) {
     const jsonData = readJsonReconstruction(filePath);
     if (jsonData.length === 0) {
-      logError(`⚠️ ${key}.json 读取失败或数据为空，跳过！`);
+      const message = `⚠️ ${key}.json 读取失败或数据为空，跳过！`;
+      console.log(message);
+      logError(message);
       invalidFiles.push(key);
       continue;
     }
@@ -129,47 +168,43 @@ const generateICS = () => {
     extractValidData(jsonData, key, allEvents);
   }
 
-  // 确保有事件数据
   if (Object.keys(allEvents).length === 0) {
+    console.log("⚠️ 没有可用的事件数据，ICS 文件未生成！");
     logError("⚠️ 没有可用的事件数据，ICS 文件未生成！");
     return;
   }
 
-  // 按日期排序
+  // **📌 按日期升序排序**
   const sortedDates = Object.keys(allEvents).sort();
-  console.log("🔍 [调试] 所有事件:", allEvents);
 
+  // 📌 生成 ICS 内容
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
   let eventCount = 0;
 
-  // 生成 ICS 事件
+  // **按日期生成 ICS 事件**
   for (const date of sortedDates) {
     const eventData = allEvents[date];
     const event = generateICSEvent(date, eventData);
     if (event.trim()) {
-      icsContent += `\n${event}\n`;
+      icsContent += event;
       eventCount++;
     }
   }
 
   icsContent += 'END:VCALENDAR\r\n';
 
-  console.log("🔍 [调试] 生成的 ICS 内容:\n", icsContent);
-
-  // 确保 ICS 事件数量大于 0
-  if (eventCount === 0) {
-    logError("⚠️ ICS 文件生成失败，没有有效事件！");
-    return;
-  }
-
-  // 写入 ICS 文件
+  // 📌 写入 ICS 文件
   try {
     fs.writeFileSync(icsFilePath, icsContent);
-    console.log(`✅ ICS 文件生成成功！共 ${eventCount} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`);
+    const message = `✅ ICS 日历文件生成成功！共 ${eventCount} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`;
+    console.log(message);
+    logError(message);
   } catch (error) {
-    logError(`❌ 生成 ICS 文件失败: ${error.message}`);
+    const message = `❌ 生成 ICS 文件失败: ${error.message}`;
+    console.log(message);
+    logError(message);
   }
 };
 
-// 运行 ICS 生成
+// 📌 执行 ICS 生成
 generateICS();
