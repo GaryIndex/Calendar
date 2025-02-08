@@ -1,3 +1,55 @@
+const fs = require('fs');
+const path = require('path');
+
+// 📌 JSON 数据路径
+const dataPaths = {
+  holidays: './data/Document/holidays.json',
+  jieqi: './data/Document/jieqi.json',
+  astro: './data/Document/astro.json',
+  calendar: './data/Document/calendar.json',
+  shichen: './data/Document/shichen.json',
+};
+
+// 📌 ICS 输出路径
+const icsFilePath = path.join(__dirname, './calendar.ics');
+
+/**
+ * 确保目录存在
+ * @param {string} filePath
+ */
+const ensureDirectoryExists = (filePath) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+/**
+ * 读取 JSON 文件并解析 Reconstruction 层
+ * @param {string} filePath
+ * @returns {Object|null}
+ */
+const readJsonReconstruction = (filePath) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    return data.Reconstruction || {}; 
+  } catch (error) {
+    logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
+    return null;
+  }
+};
+
+/**
+ * 日志记录
+ * @param {string} message
+ * @param {string} level
+ */
+const logToFile = (message, level = 'INFO') => {
+  const logMessage = `[${new Date().toISOString()}] [${level}] ${message}`;
+  console.log(logMessage);
+  fs.appendFileSync('./data/error.log', logMessage + '\n');
+};
+
 /**
  * 生成 ICS 事件
  * @param {string} date
@@ -8,9 +60,9 @@ const generateICSEvent = (date, dataByCategory) => {
   let summary = [];
   let description = [];
 
-  // 确保有数据可以生成 ICS 事件
   for (const [category, records] of Object.entries(dataByCategory)) {
     if (records[date]) {
+      // 提取所有字段，并格式化输出
       const record = records[date];
       summary.push(record.name || category);
       description.push(`${category.toUpperCase()} 信息:`);
@@ -21,6 +73,7 @@ const generateICSEvent = (date, dataByCategory) => {
     }
   }
 
+  // 确保 `SUMMARY` 不为空，避免 ICS 格式错误
   if (summary.length === 0) summary.push('日历事件');
 
   return `
@@ -59,9 +112,6 @@ const generateICS = () => {
     Object.values(dataByCategory)
       .flatMap((categoryData) => Object.keys(categoryData))
   );
-
-  // Debug: 打印所有日期，确保加载了数据
-  logToFile(`所有日期: ${[...allDates].join(', ')}`, 'INFO');
 
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
 
