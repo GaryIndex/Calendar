@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// 配置 JSON 数据路径
+// 📌 JSON 数据路径
 const dataPaths = {
   holidays: './data/Document/holidays.json',
   jieqi: './data/Document/jieqi.json',
@@ -10,7 +10,7 @@ const dataPaths = {
   shichen: './data/Document/shichen.json',
 };
 
-// ICS 输出路径
+// 📌 ICS 输出路径
 const icsFilePath = path.join(__dirname, './calendar.ics');
 
 /**
@@ -25,14 +25,14 @@ const ensureDirectoryExists = (filePath) => {
 };
 
 /**
- * 读取 JSON 文件
+ * 读取 JSON 文件并解析 Reconstruction 层
  * @param {string} filePath
  * @returns {Object|null}
  */
-const readJson = (filePath) => {
+const readJsonReconstruction = (filePath) => {
   try {
-    const data = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(data);
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    return data.Reconstruction || {}; 
   } catch (error) {
     logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
     return null;
@@ -46,69 +46,34 @@ const readJson = (filePath) => {
  */
 const logToFile = (message, level = 'INFO') => {
   const logMessage = `[${new Date().toISOString()}] [${level}] ${message}`;
-  console.log(logMessage);  // ✅ 同时输出到终端
+  console.log(logMessage);
   fs.appendFileSync('./data/error.log', logMessage + '\n');
-};
-
-/**
- * 验证 JSON 数据是否包含指定字段
- * @param {Object} data
- * @param {Array<string>} requiredFields
- * @returns {boolean}
- */
-const validateDataStructure = (data, requiredFields) => {
-  if (typeof data !== 'object' || data === null) {
-    logToFile(`⚠️ JSON 数据无效（不是对象或为空）: ${JSON.stringify(data)}`, 'ERROR');
-    return false;
-  }
-
-  const missingFields = [];
-  const isValid = Object.values(data).some((entry) => {
-    const hasAllFields = requiredFields.every((field) => field in entry);
-    if (!hasAllFields) missingFields.push(JSON.stringify(entry));
-    return hasAllFields;
-  });
-
-  if (!isValid) {
-    logToFile(`⚠️ JSON 结构错误，缺少字段: ${requiredFields.join(', ')} -> 错误数据示例: ${missingFields.slice(0, 3).join('; ')}`, 'ERROR');
-  }
-
-  return isValid;
 };
 
 /**
  * 生成 ICS 事件
  * @param {string} date
- * @param {Object} holidays
- * @param {Object} jieqi
- * @param {Object} astro
- * @param {Object} calendar
- * @param {Object} shichen
+ * @param {Object} dataByCategory
  * @returns {string}
  */
-const generateICSEvent = (date, holidays, jieqi, astro, calendar, shichen) => {
+const generateICSEvent = (date, dataByCategory) => {
   let summary = [];
   let description = [];
 
-  if (holidays[date]) {
-    summary.push(holidays[date].name);
-    description.push(`节日: ${holidays[date].name}`);
-  }
-  if (jieqi[date]) {
-    summary.push(jieqi[date].name);
-    description.push(`节气: ${jieqi[date].name}`);
-  }
-  if (astro[date]) {
-    description.push(`星座: ${astro[date].name} (${astro[date].fortune})`);
-  }
-  if (calendar[date]) {
-    description.push(`农历: ${calendar[date].lunar}`);
-  }
-  if (shichen[date]) {
-    description.push(`时辰: ${shichen[date].name}`);
+  for (const [category, records] of Object.entries(dataByCategory)) {
+    if (records[date]) {
+      // 提取所有字段，并格式化输出
+      const record = records[date];
+      summary.push(record.name || category);
+      description.push(`${category.toUpperCase()} 信息:`);
+
+      for (const [key, value] of Object.entries(record)) {
+        description.push(`- ${key}: ${value}`);
+      }
+    }
   }
 
-  // 确保 SUMMARY 不为空，避免 ICS 格式错误
+  // 确保 `SUMMARY` 不为空，避免 ICS 格式错误
   if (summary.length === 0) summary.push('日历事件');
 
   return `
@@ -126,56 +91,33 @@ END:VEVENT
 const generateICS = () => {
   ensureDirectoryExists(icsFilePath);
 
-  const data = {};
+  const dataByCategory = {};
   const invalidFiles = [];
 
-  // 读取 JSON 数据
+  // 📌 读取 JSON 数据
   for (const [key, filePath] of Object.entries(dataPaths)) {
-    const jsonData = readJson(filePath);
+    const jsonData = readJsonReconstruction(filePath);
 
     if (jsonData === null) {
-      logToFile(`⚠️ 文件 ${key}.json 读取失败，跳过！`, 'ERROR');
+      logToFile(`⚠️ ${key}.json 读取失败，跳过！`, 'ERROR');
       invalidFiles.push(key);
       continue;
     }
 
-    if (!validateDataStructure(jsonData, ['date'])) {
-      logToFile(`⚠️ 无效的 ${key}.json 数据结构，跳过！`, 'ERROR');
-      invalidFiles.push(key);
-      continue;
-    }
-
-    data[key] = jsonData;
+    dataByCategory[key] = jsonData;
   }
 
-  // 如果所有 JSON 数据都无效，终止生成
-  if (Object.keys(data).length === 0) {
-    logToFile('❌ 所有 JSON 文件都无效，无法生成 ICS！', 'ERROR');
-    return;
-  }
-
-  // 获取所有日期（去除 undefined/null）
+  // 📌 获取所有日期
   const allDates = new Set(
-    Object.values(data.holidays || {}).map(h => h.date)
-      .concat(Object.values(data.jieqi || {}).map(j => j.date))
-      .concat(Object.values(data.astro || {}).map(a => a.date))
-      .concat(Object.values(data.calendar || {}).map(c => c.date))
-      .concat(Object.values(data.shichen || {}).map(s => s.date))
-      .filter(date => date) // 过滤掉 null/undefined
+    Object.values(dataByCategory)
+      .flatMap((categoryData) => Object.keys(categoryData))
   );
 
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
 
-  // 遍历日期，生成 ICS 事件
+  // 📌 遍历日期，生成 ICS 事件
   allDates.forEach(date => {
-    icsContent += generateICSEvent(
-      date,
-      data.holidays || {},
-      data.jieqi || {},
-      data.astro || {},
-      data.calendar || {},
-      data.shichen || {}
-    );
+    icsContent += generateICSEvent(date, dataByCategory);
   });
 
   icsContent += 'END:VCALENDAR\r\n';
@@ -188,4 +130,5 @@ const generateICS = () => {
   }
 };
 
+// 📌 执行 ICS 生成
 generateICS();
