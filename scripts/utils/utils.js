@@ -5,7 +5,7 @@ const path = require('path');
 const logToFile = (message, level) => {
   const timestamp = new Date().toISOString();
   const logMessage = `${timestamp} [${level}] ${message}\n`;
-  fs.appendFileSync('calendar.log', logMessage, 'utf-8');
+  fs.appendFileSync('./data/error.log', logMessage, 'utf-8');
 };
 
 // 读取 JSON 文件
