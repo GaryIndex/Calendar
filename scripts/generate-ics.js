@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// 日志文件路径
+const errorLogPath = path.join(__dirname, './data/error.log');
+
 const dataPaths = {
   holidays: './data/Document/holidays.json',
   jieqi: './data/Document/jieqi.json',
@@ -15,6 +18,15 @@ const prioritySources = ["holidays", "jieqi"];
 const icsFilePath = path.join(__dirname, './calendar.ics');
 
 /**
+ * 写入错误日志到 error.log 文件
+ * @param {string} message
+ */
+const logError = (message) => {
+  const timestamp = new Date().toISOString();
+  fs.appendFileSync(errorLogPath, `[${timestamp}] ${message}\n`, 'utf8');
+};
+
+/**
  * 读取 JSON 并解析 Reconstruction 层
  * @param {string} filePath
  * @returns {Array}
@@ -23,14 +35,18 @@ const readJsonReconstruction = (filePath) => {
   try {
     const rawData = fs.readFileSync(filePath, 'utf-8');
     if (!rawData.trim()) {
-      console.log(`⚠️ 文件 ${filePath} 为空，跳过！`);
+      const message = `⚠️ 文件 ${filePath} 为空，跳过！`;
+      console.log(message);
+      logError(message);
       return [];
     }
 
     const data = JSON.parse(rawData);
     return Object.values(data).flatMap(entry => entry.Reconstruction || []);
   } catch (error) {
-    console.log(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`);
+    const message = `❌ 读取文件失败: ${filePath} - 错误: ${error.message}`;
+    console.log(message);
+    logError(message);
     return [];
   }
 };
@@ -70,6 +86,7 @@ const extractValidData = (data, category, existingData) => {
       existingData[date].description += ` | ${workStatus}${description}`;
     }
 
+    // **优先级文件处理**
     if (prioritySources.includes(category) && !existingData[date].name && name) {
       existingData[date].name = name;
     }
@@ -104,10 +121,13 @@ const generateICS = () => {
   let allEvents = {};
   let invalidFiles = [];
 
+  // 📌 读取并解析所有 JSON 数据
   for (const [key, filePath] of Object.entries(dataPaths)) {
     const jsonData = readJsonReconstruction(filePath);
     if (jsonData.length === 0) {
-      console.log(`⚠️ ${key}.json 读取失败或数据为空，跳过！`);
+      const message = `⚠️ ${key}.json 读取失败或数据为空，跳过！`;
+      console.log(message);
+      logError(message);
       invalidFiles.push(key);
       continue;
     }
@@ -122,6 +142,7 @@ const generateICS = () => {
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
   let eventCount = 0;
 
+  // **按日期生成 ICS 事件**
   for (const date of sortedDates) {
     const eventData = allEvents[date];
     const event = generateICSEvent(date, eventData);
@@ -136,9 +157,13 @@ const generateICS = () => {
   // 📌 写入 ICS 文件
   try {
     fs.writeFileSync(icsFilePath, icsContent);
-    console.log(`✅ ICS 日历文件生成成功！共 ${eventCount} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`);
+    const message = `✅ ICS 日历文件生成成功！共 ${eventCount} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`;
+    console.log(message);
+    logError(message);
   } catch (error) {
-    console.log(`❌ 生成 ICS 文件失败: ${error.message}`);
+    const message = `❌ 生成 ICS 文件失败: ${error.message}`;
+    console.log(message);
+    logError(message);
   }
 };
 
