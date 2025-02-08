@@ -121,6 +121,27 @@ const fetchDataFromApi = async (url, params = {}, retries = MAX_RETRIES) => {
 };
 
 /**
+ * 📌 将嵌套的对象扁平化为一层
+ */
+const flattenObject = (obj, parentKey = '') => {
+  let result = {};
+
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const newKey = parentKey ? `${parentKey}.${key}` : key;
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        // 递归处理对象
+        Object.assign(result, flattenObject(obj[key], newKey));
+      } else {
+        result[newKey] = obj[key];
+      }
+    }
+  }
+
+  return result;
+};
+
+/**
  * 📌 数据抓取逻辑
  */
 const fetchData = async () => {
@@ -133,10 +154,10 @@ const fetchData = async () => {
 
   // API对应的值
   const apiValues = {
-    'calendar.json': 'data',
-    'astro.json': 'data',
-    'shichen.json': 'data',
-    'jieqi.json': 'data',
+    'calendar.json': 'null',
+    'astro.json': 'null',
+    'shichen.json': 'null',
+    'jieqi.json': 'null',
     'holidays.json': 'null'
   };
 
@@ -165,13 +186,20 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
 
-      // 将对应API数据按值提取
+      // 扁平化数据
+      const flattenedCalendar = flattenObject(calendarData || {});
+      const flattenedAstro = flattenObject(astroData || {});
+      const flattenedShichen = flattenObject(shichenData || {});
+      const flattenedJieqi = flattenObject(jieqiData || {});
+      const flattenedHolidays = flattenObject(holidaysData || {});
+
+      // 将扁平化后的数据按值提取
       const filteredData = {
-        'calendar.json': { [dateStr]: { "Reconstruction": calendarData || {} } },
-        'astro.json': { [dateStr]: { "Reconstruction": astroData || {} } },
-        'shichen.json': { [dateStr]: { "Reconstruction": shichenData || {} } },
-        'jieqi.json': { [dateStr]: { "Reconstruction": jieqiData || {} } },
-        'holidays.json': { [dateStr]: { "Reconstruction": holidaysData || {} } }
+        'calendar.json': { [dateStr]: { "Reconstruction": flattenedCalendar } },
+        'astro.json': { [dateStr]: { "Reconstruction": flattenedAstro } },
+        'shichen.json': { [dateStr]: { "Reconstruction": flattenedShichen } },
+        'jieqi.json': { [dateStr]: { "Reconstruction": flattenedJieqi } },
+        'holidays.json': { [dateStr]: { "Reconstruction": flattenedHolidays } }
       };
 
       // 清理空对象，移除 null 值
