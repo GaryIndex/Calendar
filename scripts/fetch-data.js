@@ -44,7 +44,7 @@ process.on('uncaughtException', (error) => {
 });
 
 /**
- * 📌 读取已存储数据
+ * 📌 读取已存储数据并提取最深层级内容
  */
 const loadExistingData = () => {
   ensureDirectoryExists(DATA_PATH);
@@ -57,17 +57,43 @@ const loadExistingData = () => {
       try {
         const rawData = fs.readFileSync(filePath, 'utf8');
         const parsedData = JSON.parse(rawData);
-        data[file] = parsedData.Reconstruction || {};  
+
+        // 提取最深层级的数据并存储到 Reconstruction
+        const reconstructedData = Object.keys(parsedData).reduce((acc, key) => {
+          acc[key] = extractDeepestLayer(parsedData[key]);
+          return acc;
+        }, {});
+        data[file] = { Reconstruction: reconstructedData };
       } catch (error) {
         logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
-        data[file] = {}; 
+        data[file] = { Reconstruction: {} }; 
       }
     } else {
-      data[file] = {}; 
+      data[file] = { Reconstruction: {} }; 
     }
   });
 
   return data;
+};
+
+/**
+ * 📌 提取最深层级数据
+ */
+const extractDeepestLayer = (obj) => {
+  if (typeof obj !== 'object' || obj === null) return obj;
+
+  const keys = Object.keys(obj);
+  let currentLevel = obj;
+
+  // 深度遍历，直到找到最深层级的数据
+  while (keys.length > 0) {
+    const nextKey = keys.find(key => typeof currentLevel[key] === 'object');
+    if (!nextKey) break;
+
+    currentLevel = currentLevel[nextKey];
+  }
+
+  return currentLevel;
 };
 
 /**
@@ -88,7 +114,7 @@ const saveData = (data) => {
     }
 
     const mergedData = {
-      Reconstruction: { ...existingContent.Reconstruction, ...content }
+      Reconstruction: { ...existingContent.Reconstruction, ...content.Reconstruction }
     };
 
     try {
