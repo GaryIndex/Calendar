@@ -33,14 +33,15 @@ const readJsonReconstruction = (filePath) => {
     const rawData = fs.readFileSync(filePath, 'utf-8');
     if (!rawData.trim()) {
       logToFile(`⚠️ 文件 ${filePath} 为空，跳过！`, 'ERROR');
-      return {};
+      return [];
     }
     const data = JSON.parse(rawData);
 
     // 检查数据结构，日志前200字符
     logToFile(`📂 读取文件: ${filePath}，数据结构: ${JSON.stringify(data).slice(0, 200)}`, 'INFO');
 
-    return data.Reconstruction || [];
+    // 返回 Reconstruction 中的有效数据
+    return Array.isArray(data.Reconstruction) ? data.Reconstruction : [];
   } catch (error) {
     logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
     return [];
