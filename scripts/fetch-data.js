@@ -5,6 +5,7 @@ const moment = require('moment-timezone');
 const DATA_PATH = './data/Document';
 const LOG_PATH = './data/error.log';
 const START_DATE = '2025-02-08';
+const MAX_RETRIES = 3; // 最大重试次数
 
 /**
  * 📌 确保目录存在
@@ -60,16 +61,16 @@ const loadExistingData = () => {
 
         // 提取最深层级的数据并存储到 Reconstruction
         const reconstructedData = Object.keys(parsedData).reduce((acc, key) => {
-          acc[key] = extractDeepestLayer(parsedData[key]);
+          acc[key] = extractDeepestLayer(parsedData[key], file, key);
           return acc;
         }, {});
         data[file] = { Reconstruction: reconstructedData };
       } catch (error) {
         logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
-        data[file] = { Reconstruction: {} }; 
+        data[file] = { Reconstruction: {} };
       }
     } else {
-      data[file] = { Reconstruction: {} }; 
+      data[file] = { Reconstruction: {} };
     }
   });
 
@@ -79,18 +80,23 @@ const loadExistingData = () => {
 /**
  * 📌 提取最深层级数据
  */
-const extractDeepestLayer = (obj) => {
-  if (typeof obj !== 'object' || obj === null) return obj;
+const extractDeepestLayer = (obj, fileName, key) => {
+  if (typeof obj !== 'object' || obj === null) {
+    logMessage(`⚠️ 数据不符合预期 (文件: ${fileName}, 键: ${key}): ${JSON.stringify(obj)}`);
+    return {};
+  }
 
-  const keys = Object.keys(obj);
   let currentLevel = obj;
-
   // 深度遍历，直到找到最深层级的数据
-  while (keys.length > 0) {
-    const nextKey = keys.find(key => typeof currentLevel[key] === 'object');
+  while (typeof currentLevel === 'object' && currentLevel !== null) {
+    const nextKey = Object.keys(currentLevel).find(key => typeof currentLevel[key] === 'object');
     if (!nextKey) break;
-
     currentLevel = currentLevel[nextKey];
+  }
+
+  // 如果数据为空，记录日志
+  if (Object.keys(currentLevel).length === 0) {
+    logMessage(`⚠️ 提取失败，数据为空 (文件: ${fileName}, 键: ${key})`);
   }
 
   return currentLevel;
@@ -127,16 +133,16 @@ const saveData = (data) => {
 };
 
 /**
- * 📌 发送 API 请求（带错误处理）
+ * 📌 发送 API 请求（带错误处理和重试机制）
  */
-const fetchDataFromApi = async (url, params = {}, retries = 3) => {
+const fetchDataFromApi = async (url, params = {}, retries = MAX_RETRIES) => {
   try {
     const response = await axios.get(url, { params });
     if (typeof response.data !== 'object') {
       throw new Error(`API 返回的数据格式错误: ${JSON.stringify(response.data).slice(0, 100)}...`);
     }
     logMessage(`✅ API 请求成功: ${url}`);
-    return response.data; 
+    return response.data;
   } catch (error) {
     logMessage(`❌ API 请求失败: ${url} | 剩余重试次数: ${retries} | 错误: ${error.message}`);
     if (retries > 0) {
