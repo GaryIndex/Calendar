@@ -146,6 +146,7 @@ const fetchDataFromApi = async (url, params = {}, retries = MAX_RETRIES) => {
   } catch (error) {
     logMessage(`❌ API 请求失败: ${url} | 剩余重试次数: ${retries} | 错误: ${error.message}`);
     if (retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // 延迟 2 秒再重试
       return fetchDataFromApi(url, params, retries - 1);
     }
     return {}; 
