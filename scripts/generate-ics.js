@@ -58,14 +58,21 @@ const extractValidData = (data, category) => {
   const extractedData = {};
 
   data.forEach(record => {
-    const date = record.date || null;
-    const name = record.name || null;
-    const isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
+    // 查找 `date` 字段
+    const date = Object.entries(record).find(([key]) => key.includes('date'))?.[1] || null;
+    if (!date) return;
 
-    if (!date || !name) return;
+    // 查找 `name` 作为标题
+    const name = Object.entries(record).find(([key]) => key.includes('name'))?.[1] || null;
+    if (!name) return;
 
+    // 处理 `isOffDay`
+    const isOffDay = Object.entries(record).find(([key]) => key.includes('isOffDay'))?.[1];
+    const workStatus = isOffDay !== undefined ? `[${isOffDay ? '休' : '班'}] ` : '';
+
+    // 提取其他字段作为备注
     const description = Object.entries(record)
-      .filter(([key, value]) => key !== 'date' && key !== 'name' && key !== 'isOffDay' && value)
+      .filter(([key, value]) => !key.includes('date') && !key.includes('name') && !key.includes('isOffDay') && value)
       .map(([_, value]) => value)
       .join(' ');
 
@@ -73,7 +80,7 @@ const extractValidData = (data, category) => {
       category,
       name,
       isOffDay,
-      description
+      description: workStatus + description
     };
   });
 
@@ -89,10 +96,6 @@ const extractValidData = (data, category) => {
 const generateICSEvent = (date, eventData) => {
   let summary = eventData.name;
   let description = eventData.description ? eventData.description : '';
-
-  if (eventData.isOffDay !== null) {
-    description = `[${eventData.isOffDay ? '休' : '班'}] ` + description;
-  }
 
   return `
 BEGIN:VEVENT
