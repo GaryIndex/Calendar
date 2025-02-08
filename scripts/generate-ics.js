@@ -39,20 +39,21 @@ const logToFile = (message, level = 'INFO') => {
 const readJson = (filePath) => {
   if (!fs.existsSync(filePath)) {
     logToFile(`⚠️ 文件 ${filePath} 不存在`, 'ERROR');
-    return [];
+    return null;  // 返回 null 而非空数组，更加明确地表示文件不存在
   }
   try {
     const rawData = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(rawData);
   } catch (error) {
     logToFile(`⚠️ 解析 ${filePath} 失败: ${error.message}`, 'ERROR');
-    return [];
+    return null;
   }
 };
 
 // 📌 验证 JSON 数据结构
 const validateDataStructure = (data, requiredFields) => {
-  return Array.isArray(data) && data.every(entry => requiredFields.every(field => entry.hasOwnProperty(field)));
+  if (!Array.isArray(data)) return false;
+  return data.every(entry => requiredFields.every(field => entry.hasOwnProperty(field)));
 };
 
 // 📌 生成 ICS 事件格式
@@ -90,6 +91,7 @@ END:VEVENT
 
 // 📌 生成 ICS 文件
 const generateICS = () => {
+  // 确保目录存在
   ensureDirectoryExists(icsFilePath);
 
   // 📌 读取所有 JSON 文件
@@ -98,6 +100,12 @@ const generateICS = () => {
   const astro = readJson(astroPath);
   const calendar = readJson(calendarPath);
   const shichen = readJson(shichenPath);
+
+  // 📌 如果有任何文件不存在或解析失败，停止生成 ICS
+  if (![holidays, jieqi, astro, calendar, shichen].every(data => data !== null)) {
+    logToFile('⚠️ 必要的 JSON 文件缺失或解析失败，无法生成 ICS！', 'ERROR');
+    return;
+  }
 
   // 📌 验证数据结构
   const requiredFields = ['date'];
@@ -115,6 +123,7 @@ const generateICS = () => {
 
   icsContent += '\nEND:VCALENDAR';
 
+  // 📌 写入 ICS 文件
   try {
     fs.writeFileSync(icsFilePath, icsContent);
     logToFile('✅ ICS 日历文件生成成功！', 'INFO');
