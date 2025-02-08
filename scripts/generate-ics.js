@@ -61,9 +61,9 @@ const readJson = (filePath) => {
   }
 };
 
-// 📌 验证 JSON 数据结构
+// 📌 验证数据结构
 const validateDataStructure = (data, requiredFields) => {
-  return Array.isArray(data) && data.every(entry => requiredFields.every(field => entry[field] !== undefined && typeof entry[field] === 'string'));
+  return typeof data === 'object' && data !== null && Object.values(data).every(entry => requiredFields.every(field => entry[field] !== undefined && typeof entry[field] === 'string'));
 };
 
 // 📌 生成 ICS 事件格式
@@ -72,16 +72,16 @@ const generateICSEvent = (date, holidays, jieqi, astro, calendar, shichen) => {
 
   // 📌 事件标题
   let summary = new Set();
-  holidays.forEach(h => h.date === date && summary.add(h.name));
-  jieqi.forEach(j => j.date === date && summary.add(j.term));
+  Object.values(holidays).forEach(h => h.date === date && summary.add(h.name));
+  Object.values(jieqi).forEach(j => j.date === date && summary.add(j.term));
 
   if (summary.size === 0) summary.add('日程提醒');
 
   // 📌 查找详细信息
-  const calendarData = calendar.find(c => c.date === date) || {};
-  const astroData = astro.find(a => a.date === date) || {};
-  const shichenData = shichen.find(s => s.date === date) || {};
-  const jieqiData = jieqi.find(j => j.date === date) || {};
+  const calendarData = Object.values(calendar).find(c => c.date === date) || {};
+  const astroData = Object.values(astro).find(a => a.date === date) || {};
+  const shichenData = Object.values(shichen).find(s => s.date === date) || {};
+  const jieqiData = Object.values(jieqi).find(j => j.date === date) || {};
 
   // 📅 生成描述信息
   const description = [
@@ -122,9 +122,9 @@ const generateICS = () => {
 
   // 📌 获取所有日期集合
   const allDates = new Set([
-    ...data.holidays.map(h => h.date),
-    ...data.jieqi.map(j => j.date),
-    ...data.calendar.map(c => c.date),
+    ...Object.values(data.holidays).map(h => h.date),
+    ...Object.values(data.jieqi).map(j => j.date),
+    ...Object.values(data.calendar).map(c => c.date),
   ]);
 
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
