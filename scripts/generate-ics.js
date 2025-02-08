@@ -32,6 +32,7 @@ const ensureDirectoryExists = (filePath) => {
 const readJsonReconstruction = (filePath) => {
   try {
     const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    console.log(`读取文件: ${filePath}, 数据:`, data.Reconstruction); // 记录读取的内容
     return data.Reconstruction || {}; 
   } catch (error) {
     logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
@@ -76,13 +77,17 @@ const generateICSEvent = (date, dataByCategory) => {
   // 确保 `SUMMARY` 不为空，避免 ICS 格式错误
   if (summary.length === 0) summary.push('日历事件');
 
-  return `
+  const event = `
 BEGIN:VEVENT
 DTSTART;VALUE=DATE:${date.replace(/-/g, '')}
 SUMMARY:${summary.join(' ')}
 DESCRIPTION:${description.join('\\n')}
 END:VEVENT
 `;
+
+  console.log(`生成事件: ${date}`, event); // 日志记录生成的事件
+
+  return event;
 };
 
 /**
@@ -112,6 +117,13 @@ const generateICS = () => {
     Object.values(dataByCategory)
       .flatMap((categoryData) => Object.keys(categoryData))
   );
+
+  console.log('所有日期:', [...allDates]); // 确认日期集合
+
+  if (allDates.size === 0) {
+    logToFile('⚠️ 没有找到任何日期，跳过生成 ICS！', 'ERROR');
+    return;
+  }
 
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
 
