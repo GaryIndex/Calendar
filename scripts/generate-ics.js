@@ -47,87 +47,105 @@ const dataPaths = {
   shichen: './data/Document/shichen.json',
 };
 
-// **优先级数据源**
-const prioritySources = ["holidays", "jieqi"];
-
 // ICS 文件路径
 const icsFilePath = path.join(__dirname, './calendar.ics');
 
 /**
- * 读取 JSON 并解析 Reconstruction 层（支持异步）
+ * 读取 JSON 并解析数据（支持异步）
  * @param {string} filePath
- * @returns {Promise<Array>}
+ * @returns {Promise<Object>}
  */
-const readJsonReconstruction = async (filePath) => {
+const readJsonData = async (filePath) => {
   try {
     logInfo(`📂 读取文件: ${filePath}`);
     const rawData = await fs.promises.readFile(filePath, 'utf-8');
 
     if (!rawData.trim()) {
       logError(`⚠️ 文件 ${filePath} 为空！`);
-      return [];
+      return {};
     }
 
     const data = JSON.parse(rawData);
     logInfo(`✅ 成功解析 JSON: ${filePath}, 数据量: ${Object.keys(data).length}`);
 
-    // 提取 Reconstruction 层
-    return Object.values(data)
-      .flatMap(entry => entry.Reconstruction || [])
-      .filter(entry => Object.keys(entry).length > 0); // 过滤空对象
+    return data; // 返回原始数据
   } catch (error) {
     logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
-    return [];
+    return {};
   }
 };
 
 /**
- * 处理数据，提取关键字段
- * @param {Array} data
- * @param {string} category
+ * 针对不同文件自定义解析 Reconstruction 数据
+ * @param {string} fileKey 文件键名
+ * @param {Array} reconstructionData
  * @param {Object} existingData
  */
-const extractValidData = (data, category, existingData) => {
-  logInfo(`🔍 处理 ${category} 数据，共 ${data.length} 条`);
+const extractValidData = (fileKey, reconstructionData, existingData) => {
+  logInfo(`🔍 处理 ${fileKey} 数据，共 ${reconstructionData.length} 条`);
 
-  data.forEach(record => {
-    // 解析日期
+  // 根据文件键名决定如何解析
+  reconstructionData.forEach(record => {
     const date = record.date || record.day || null;
     if (!date) {
       logError(`⚠️ 无效记录（无日期）: ${JSON.stringify(record)}`);
       return;
     }
 
-    // 解析名称
-    const name = record.name || record.title || record["data.name"] || '(无标题)';
+    // 不同文件的解析规则
+    let name, isOffDay, description;
+    
+    switch (fileKey) {
+      case "holidays":
+        name = record.name || '(无标题)';
+        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
+        description = record.description || '';
+        break;
+      
+      case "jieqi":
+        name = record.name || '(无标题)';
+        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
+        description = record.details || '';
+        break;
+      
+      case "astro":
+        name = record.title || '(无标题)';
+        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
+        description = record["astro.details"] || '';
+        break;
+      
+      case "calendar":
+        name = record.title || '(无标题)';
+        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
+        description = record["event.details"] || '';
+        break;
+      
+      case "shichen":
+        name = record.label || '(无标题)';
+        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
+        description = record["time.details"] || '';
+        break;
+      
+      default:
+        name = record.name || '(无标题)';
+        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
+        description = record.details || '';
+        break;
+    }
 
-    // 解析 isOffDay 状态
-    const isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
     const workStatus = isOffDay !== null ? `[${isOffDay ? '休' : '班'}] ` : '';
-
-    // 解析描述信息
-    const description = Object.entries(record)
-      .filter(([key, value]) => !['date', 'day', 'name', 'title', 'isOffDay'].includes(key) && value)
-      .map(([key, value]) => `${key.replace(/^data\./, '')}: ${value}`)
-      .join(' | ');
 
     logInfo(`📅 解析事件: ${date} - ${name} - ${description}`);
 
     // 组织数据结构
     if (!existingData[date]) {
       existingData[date] = {
-        category,
         name,
         isOffDay,
         description: workStatus + description
       };
     } else {
       existingData[date].description += ` | ${workStatus}${description}`;
-    }
-
-    // 优先级数据源覆盖 name
-    if (prioritySources.includes(category) && name) {
-      existingData[date].name = name;
     }
   });
 };
@@ -155,18 +173,23 @@ END:VEVENT
  */
 const generateICS = async () => {
   let allEvents = {};
-  let invalidFiles = [];
 
   // 并行读取所有 JSON 文件
-  await Promise.all(Object.entries(dataPaths).map(async ([key, filePath]) => {
-    const jsonData = await readJsonReconstruction(filePath);
-    if (jsonData.length === 0) {
-      logError(`⚠️ ${key}.json 读取失败或数据为空，跳过！`);
-      invalidFiles.push(key);
+  await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
+    const jsonData = await readJsonData(filePath);
+    if (Object.keys(jsonData).length === 0) {
+      logError(`⚠️ ${fileKey}.json 读取失败或数据为空，跳过！`);
       return;
     }
 
-    extractValidData(jsonData, key, allEvents);
+    // 处理每个文件的 reconstruction 数据
+    for (const [date, records] of Object.entries(jsonData)) {
+      if (!records.Reconstruction || records.Reconstruction.length === 0) {
+        continue;
+      }
+      
+      extractValidData(fileKey, records.Reconstruction, allEvents);
+    }
   }));
 
   if (Object.keys(allEvents).length === 0) {
@@ -187,7 +210,7 @@ const generateICS = async () => {
 
   try {
     await fs.promises.writeFile(icsFilePath, icsContent);
-    logInfo(`✅ ICS 日历文件生成成功！共 ${Object.keys(allEvents).length} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`);
+    logInfo(`✅ ICS 日历文件生成成功！共 ${Object.keys(allEvents).length} 个事件`);
   } catch (error) {
     logError(`❌ 生成 ICS 文件失败: ${error.message}`);
   }
