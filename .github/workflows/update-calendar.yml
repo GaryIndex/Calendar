@@ -28,18 +28,21 @@ jobs:
         uses: actions/cache@v2
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install dependencies
+      - name: Ensure package-lock.json exists
         run: |
-          echo "Cleaning up potential broken node_modules..."
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
+          if [ ! -f "package-lock.json" ]; then
+            echo "package-lock.json is missing! Re-generating..."
+            npm install --package-lock-only
+          else
+            echo "package-lock.json exists, skipping generation."
+          fi
 
-          echo "Installing dependencies..."
-          npm ci
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run data fetch and ICS generation
         run: |
@@ -66,11 +69,12 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
-          
+
+          # 执行 stash 和 pop 仅在有更改时
           git stash || echo "No changes to stash"
           git pull --rebase origin main
           git stash pop || echo "No stashed changes"
-          
+
           git add .
           git commit -m "Update data and calendar.ics"
           git push origin main
@@ -83,4 +87,4 @@ jobs:
           branch: "update-calendar"
           commit-message: "Update data and calendar.ics"
           delete-branch: true
-          base: main
+          base: main  # 确保 PR 是基于 `main` 分支的
