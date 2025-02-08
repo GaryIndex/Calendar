@@ -61,17 +61,17 @@ const loadExistingData = () => {
   return data;
 };
 
-// 📌 解析 API 响应数据，仅保留 `data` 层
+// 📌 解析 API 响应数据，保留 `data` 层，去除 `errno`、`errmsg`
 const extractDataLayer = (response) => {
   if (response && typeof response === 'object' && 'data' in response) {
-    return response.data || {};
+    return { data: response.data || {} }; // 确保 `data` 存在，并包裹在 `data` 层
   }
-  return {}; // 避免数据缺失
+  return { data: {} }; // 避免数据缺失
 };
 
 // 📌 处理 `holidays.json`，确保 `isOffDay` 逻辑一致
 const normalizeHolidays = (holidaysData) => {
-  if (!holidaysData || typeof holidaysData !== 'object') return {};
+  if (!holidaysData || typeof holidaysData !== 'object') return { data: {} };
 
   Object.keys(holidaysData).forEach((date) => {
     if (holidaysData[date] && typeof holidaysData[date] === 'object') {
@@ -79,7 +79,7 @@ const normalizeHolidays = (holidaysData) => {
     }
   });
 
-  return holidaysData;
+  return { data: holidaysData };
 };
 
 // 📌 保存数据到文件（合并数据，防止覆盖）
@@ -94,20 +94,20 @@ const saveData = (data) => {
         existingContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       } catch (error) {
         logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
-        existingContent = {};
+        existingContent = { data: {} };
       }
     }
 
     let mergedData;
     if (file === 'holidays.json') {
-      mergedData = normalizeHolidays({ ...existingContent, ...data[file] });
+      mergedData = normalizeHolidays({ ...existingContent.data, ...data[file].data });
     } else {
-      mergedData = { ...existingContent, ...data[file] };
+      mergedData = { data: { ...existingContent.data, ...data[file].data } };
     }
 
     try {
       fs.writeFileSync(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
-      logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData).length} 条记录`);
+      logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData.data).length} 条记录`);
     } catch (error) {
       logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
     }
@@ -122,7 +122,7 @@ const fetchDataFromApi = async (url, params = {}) => {
     return extractDataLayer(response.data);
   } catch (error) {
     logMessage(`❌ API 请求失败: ${url} | 参数: ${JSON.stringify(params)} | 错误: ${error.message}`);
-    return null; // 避免中断
+    return { data: {} }; // 避免中断
   }
 };
 
@@ -140,11 +140,11 @@ const fetchData = async () => {
 
     // 📌 跳过已存在数据
     if (
-      existingData['calendar.json'][dateStr] ||
-      existingData['astro.json'][dateStr] ||
-      existingData['shichen.json'][dateStr] ||
-      existingData['jieqi.json'][dateStr] ||
-      existingData['holidays.json'][dateStr]
+      existingData['calendar.json']?.data[dateStr] ||
+      existingData['astro.json']?.data[dateStr] ||
+      existingData['shichen.json']?.data[dateStr] ||
+      existingData['jieqi.json']?.data[dateStr] ||
+      existingData['holidays.json']?.data[dateStr]
     ) {
       logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
       continue;
@@ -162,17 +162,17 @@ const fetchData = async () => {
     ]);
 
     // 📌 过滤无效数据
-    if (!calendarData && !astroData && !shichenData && !jieqiData && !holidaysData) {
+    if (!calendarData.data && !astroData.data && !shichenData.data && !jieqiData.data && !holidaysData.data) {
       logMessage(`⚠️ ${dateStr} 数据全部缺失，跳过存储`);
       continue;
     }
 
     // 📌 存储数据
-    if (calendarData) existingData['calendar.json'][dateStr] = calendarData;
-    if (astroData) existingData['astro.json'][dateStr] = astroData;
-    if (shichenData) existingData['shichen.json'][dateStr] = shichenData;
-    if (jieqiData) existingData['jieqi.json'][dateStr] = jieqiData;
-    if (holidaysData) existingData['holidays.json'][dateStr] = holidaysData;
+    existingData['calendar.json'].data[dateStr] = calendarData.data;
+    existingData['astro.json'].data[dateStr] = astroData.data;
+    existingData['shichen.json'].data[dateStr] = shichenData.data;
+    existingData['jieqi.json'].data[dateStr] = jieqiData.data;
+    existingData['holidays.json'].data[dateStr] = holidaysData.data;
 
     saveData(existingData);
     logMessage(`✅ ${dateStr} 数据保存成功`);
