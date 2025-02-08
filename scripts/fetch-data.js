@@ -195,11 +195,11 @@ const fetchData = async () => {
 
       // 将扁平化后的数据按值提取
       const filteredData = {
-        'calendar.json': { [dateStr]: { "Reconstruction": flattenedCalendar } },
-        'astro.json': { [dateStr]: { "Reconstruction": flattenedAstro } },
-        'shichen.json': { [dateStr]: { "Reconstruction": flattenedShichen } },
-        'jieqi.json': { [dateStr]: { "Reconstruction": flattenedJieqi } },
-        'holidays.json': { [dateStr]: { "Reconstruction": flattenedHolidays } }
+        'calendar.json': { [dateStr]: { "Reconstruction": [flattenedCalendar] } },
+        'astro.json': { [dateStr]: { "Reconstruction": [flattenedAstro] } },
+        'shichen.json': { [dateStr]: { "Reconstruction": [flattenedShichen] } },
+        'jieqi.json': { [dateStr]: { "Reconstruction": [flattenedJieqi] } },
+        'holidays.json': { [dateStr]: { "Reconstruction": [flattenedHolidays] } }
       };
 
       // 清理空对象，移除 null 值
