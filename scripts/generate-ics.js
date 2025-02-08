@@ -19,6 +19,7 @@ const ensureDirectoryExists = (filePath) => {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
+    logToFile(`✅ 目录已创建: ${dir}`, 'INFO');
   }
 };
 
@@ -36,7 +37,7 @@ const readJsonReconstruction = (filePath) => {
     }
     const data = JSON.parse(rawData);
 
-    // 检查数据结构
+    // 检查数据结构，日志前200字符
     logToFile(`📂 读取文件: ${filePath}，数据结构: ${JSON.stringify(data).slice(0, 200)}`, 'INFO');
 
     return data.Reconstruction || {};
@@ -55,7 +56,6 @@ const filterValidData = (data) => {
   const filteredData = {};
   for (const [date, record] of Object.entries(data)) {
     if (record && typeof record === 'object' && !Array.isArray(record)) {
-      // 移除无效字段
       const { errno, errmsg, ...validFields } = record;
       if (Object.keys(validFields).length > 0) {
         filteredData[date] = validFields;
