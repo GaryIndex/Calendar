@@ -134,10 +134,10 @@ const fetchData = async () => {
   // API对应的值
   const apiValues = {
     'calendar.json': 'data',
-    'astro.json': 'Value2',
-    'shichen.json': 'Value3',
-    'jieqi.json': 'Value4',
-    'holidays.json': 'Value5'
+    'astro.json': 'data',
+    'shichen.json': 'data',
+    'jieqi.json': 'data',
+    'holidays.json': 'null'
   };
 
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
