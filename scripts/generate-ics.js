@@ -44,7 +44,7 @@ const logError = (message) => writeLog("ERROR", message);
 
 // JSON 文件路径
 const dataPaths = {
-  hoilday: "./data/Document/holiday.json",
+  hoilday: "./data/Document/holidays.json",
 };
 
 // ICS 文件路径
