@@ -32,19 +32,6 @@ const logMessage = (message) => {
 };
 
 /**
- * 📌 监听异常
- */
-process.on('exit', () => logMessage('🚨 进程已退出'));
-process.on('SIGINT', () => {
-  logMessage('🚨 进程被手动终止 (SIGINT)');
-  process.exit();
-});
-process.on('uncaughtException', (error) => {
-  logMessage(`🔥 未捕获异常: ${error.message}\n堆栈: ${error.stack}`);
-  process.exit(1);
-});
-
-/**
  * 📌 读取已存储数据并返回数据
  */
 const loadExistingData = () => {
@@ -121,24 +108,26 @@ const fetchDataFromApi = async (url, params = {}, retries = MAX_RETRIES) => {
 };
 
 /**
- * 📌 将嵌套的对象扁平化为一层
+ * 📌 扁平化并重构数据
  */
-const flattenObject = (obj, parentKey = '') => {
-  let result = {};
+const reconstructData = (rawData, dateStr) => {
+  let reconstructed = {};
 
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const newKey = parentKey ? `${parentKey}.${key}` : key;
-      if (typeof obj[key] === 'object' && obj[key] !== null) {
-        // 递归处理对象
-        Object.assign(result, flattenObject(obj[key], newKey));
-      } else {
-        result[newKey] = obj[key];
-      }
+  Object.entries(rawData).forEach(([key, value]) => {
+    let match = key.match(/^data\.(\d+)\.name$/);
+    if (match) {
+      let index = match[1];
+      let name = value;
+      let time = rawData[`data.${index}.time`];
+      reconstructed[name] = time; // 将名字和时间作为键值对
     }
-  }
+  });
 
-  return result;
+  return {
+    [dateStr]: {
+      Reconstruction: reconstructed
+    }
+  };
 };
 
 /**
@@ -186,30 +175,21 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
 
-      // 扁平化数据
-      const flattenedCalendar = flattenObject(calendarData || {});
-      const flattenedAstro = flattenObject(astroData || {});
-      const flattenedShichen = flattenObject(shichenData || {});
-      const flattenedJieqi = flattenObject(jieqiData || {});
-      const flattenedHolidays = flattenObject(holidaysData || {});
+      // 重构并按日期存储
+      const calendarReconstructed = reconstructData(calendarData || {}, dateStr);
+      const astroReconstructed = reconstructData(astroData || {}, dateStr);
+      const shichenReconstructed = reconstructData(shichenData || {}, dateStr);
+      const jieqiReconstructed = reconstructData(jieqiData || {}, dateStr);
+      const holidaysReconstructed = reconstructData(holidaysData || {}, dateStr);
 
-      // 将扁平化后的数据按值提取
+      // 保存数据
       const filteredData = {
-        'calendar.json': { [dateStr]: { "Reconstruction": [flattenedCalendar] } },
-        'astro.json': { [dateStr]: { "Reconstruction": [flattenedAstro] } },
-        'shichen.json': { [dateStr]: { "Reconstruction": [flattenedShichen] } },
-        'jieqi.json': { [dateStr]: { "Reconstruction": [flattenedJieqi] } },
-        'holidays.json': { [dateStr]: { "Reconstruction": [flattenedHolidays] } }
+        'calendar.json': calendarReconstructed,
+        'astro.json': astroReconstructed,
+        'shichen.json': shichenReconstructed,
+        'jieqi.json': jieqiReconstructed,
+        'holidays.json': holidaysReconstructed
       };
-
-      // 清理空对象，移除 null 值
-      Object.entries(filteredData).forEach(([file, content]) => {
-        Object.entries(content).forEach(([key, value]) => {
-          if (Object.keys(value).length === 0) {
-            delete content[key];  // 删除空对象
-          }
-        });
-      });
 
       saveData(filteredData);
       logMessage(`✅ ${dateStr} 数据保存成功`);
