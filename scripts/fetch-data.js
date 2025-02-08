@@ -165,20 +165,20 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
 
-      // 将对应API数据按值提取并包裹null
+      // 将对应API数据按值提取
       const filteredData = {
-        'calendar.json': { [dateStr]: { [apiValues['calendar.json']]: calendarData || null } },
-        'astro.json': { [dateStr]: { [apiValues['astro.json']]: astroData || null } },
-        'shichen.json': { [dateStr]: { [apiValues['shichen.json']]: shichenData || null } },
-        'jieqi.json': { [dateStr]: { [apiValues['jieqi.json']]: jieqiData || null } },
-        'holidays.json': { [dateStr]: { [apiValues['holidays.json']]: holidaysData || null } }
+        'calendar.json': { [dateStr]: { "Reconstruction": calendarData || {} } },
+        'astro.json': { [dateStr]: { "Reconstruction": astroData || {} } },
+        'shichen.json': { [dateStr]: { "Reconstruction": shichenData || {} } },
+        'jieqi.json': { [dateStr]: { "Reconstruction": jieqiData || {} } },
+        'holidays.json': { [dateStr]: { "Reconstruction": holidaysData || {} } }
       };
 
-      // 将 null 包裹在 Reconstruction 中
+      // 清理空对象，移除 null 值
       Object.entries(filteredData).forEach(([file, content]) => {
         Object.entries(content).forEach(([key, value]) => {
-          if (value === null) {
-            content[key] = { "Reconstruction": { [key]: null } };
+          if (Object.keys(value).length === 0) {
+            delete content[key];  // 删除空对象
           }
         });
       });
