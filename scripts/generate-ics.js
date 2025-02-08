@@ -60,16 +60,28 @@ const filterValidData = (data) => {
     if (item && typeof item === 'object' && !Array.isArray(item)) {
       const { errno, errmsg, ...validFields } = item;
 
-      // 保证 validFields 里面至少包含一些有效数据
+      // 输出有效字段的内容
+      console.log('Filtered Valid Fields:', validFields);
+
       if (Object.keys(validFields).length > 0) {
-        for (const [date, record] of Object.entries(validFields)) {
-          if (record && typeof record === 'object') {
-            filteredData[date] = record;
+        if (Array.isArray(validFields)) {
+          validFields.forEach((record, index) => {
+            if (record && typeof record === 'object') {
+              filteredData[record.date || `data-${index}`] = record;
+            }
+          });
+        } else {
+          // 处理常规对象字段
+          for (const [date, record] of Object.entries(validFields)) {
+            if (record && typeof record === 'object') {
+              filteredData[date] = record;
+            }
           }
         }
       }
     }
   });
+  console.log('Filtered Data:', filteredData);  // 打印过滤后的结果
   return filteredData;
 };
 
