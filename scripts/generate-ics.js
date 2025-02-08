@@ -45,8 +45,9 @@ const readJson = (filePath) => {
  * @param {string} level
  */
 const logToFile = (message, level = 'INFO') => {
-  const logMessage = `[${new Date().toISOString()}] [${level}] ${message}\n`;
-  fs.appendFileSync('./data/error.log', logMessage);
+  const logMessage = `[${new Date().toISOString()}] [${level}] ${message}`;
+  console.log(logMessage);  // ✅ 同时输出到终端
+  fs.appendFileSync('./data/error.log', logMessage + '\n');
 };
 
 /**
@@ -56,10 +57,23 @@ const logToFile = (message, level = 'INFO') => {
  * @returns {boolean}
  */
 const validateDataStructure = (data, requiredFields) => {
-  if (typeof data !== 'object' || data === null) return false;
-  return Object.values(data).some((entry) =>
-    requiredFields.every((field) => field in entry)
-  );
+  if (typeof data !== 'object' || data === null) {
+    logToFile(`⚠️ JSON 数据无效（不是对象或为空）: ${JSON.stringify(data)}`, 'ERROR');
+    return false;
+  }
+
+  const missingFields = [];
+  const isValid = Object.values(data).some((entry) => {
+    const hasAllFields = requiredFields.every((field) => field in entry);
+    if (!hasAllFields) missingFields.push(JSON.stringify(entry));
+    return hasAllFields;
+  });
+
+  if (!isValid) {
+    logToFile(`⚠️ JSON 结构错误，缺少字段: ${requiredFields.join(', ')} -> 错误数据示例: ${missingFields.slice(0, 3).join('; ')}`, 'ERROR');
+  }
+
+  return isValid;
 };
 
 /**
@@ -93,6 +107,9 @@ const generateICSEvent = (date, holidays, jieqi, astro, calendar, shichen) => {
   if (shichen[date]) {
     description.push(`时辰: ${shichen[date].name}`);
   }
+
+  // 确保 SUMMARY 不为空，避免 ICS 格式错误
+  if (summary.length === 0) summary.push('日历事件');
 
   return `
 BEGIN:VEVENT
@@ -137,13 +154,15 @@ const generateICS = () => {
     return;
   }
 
-  // 获取所有日期
-  const allDates = new Set([
-    ...Object.values(data.holidays || {}).map(h => h.date),
-    ...Object.values(data.jieqi || {}).map(j => j.date),
-    ...Object.values(data.calendar || {}).map(c => c.date),
-    ...Object.values(data.shichen || {}).map(s => s.date),
-  ]);
+  // 获取所有日期（去除 undefined/null）
+  const allDates = new Set(
+    Object.values(data.holidays || {}).map(h => h.date)
+      .concat(Object.values(data.jieqi || {}).map(j => j.date))
+      .concat(Object.values(data.astro || {}).map(a => a.date))
+      .concat(Object.values(data.calendar || {}).map(c => c.date))
+      .concat(Object.values(data.shichen || {}).map(s => s.date))
+      .filter(date => date) // 过滤掉 null/undefined
+  );
 
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
 
