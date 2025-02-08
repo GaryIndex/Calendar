@@ -37,11 +37,16 @@ const readJsonReconstruction = (filePath) => {
     }
 
     const data = JSON.parse(rawData);
-    logToFile(`📂 读取文件: ${filePath}，数据结构: ${JSON.stringify(data, null, 2)}`, 'INFO');
+    if (!data || typeof data !== 'object') {
+      logToFile(`⚠️ 文件 ${filePath} 格式错误，跳过！`, 'ERROR');
+      return [];
+    }
 
-    // 提取 Reconstruction 数组
-    return Object.values(data)
+    const reconstructionData = Object.values(data)
       .flatMap(entry => entry.Reconstruction || []);
+
+    logToFile(`📂 读取文件: ${filePath}, 提取 ${reconstructionData.length} 条记录`, 'INFO');
+    return reconstructionData;
   } catch (error) {
     logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
     return [];
@@ -59,16 +64,19 @@ const extractValidData = (data, category) => {
 
   data.forEach(record => {
     // 查找 `date` 字段
-    const date = Object.entries(record).find(([key]) => key.includes('date'))?.[1] || null;
+    const dateEntry = Object.entries(record).find(([key]) => key.includes('date'));
+    const date = dateEntry ? dateEntry[1] : null;
     if (!date) return;
 
     // 查找 `name` 作为标题
-    const name = Object.entries(record).find(([key]) => key.includes('name'))?.[1] || null;
+    const nameEntry = Object.entries(record).find(([key]) => key.includes('name'));
+    const name = nameEntry ? nameEntry[1] : null;
     if (!name) return;
 
     // 处理 `isOffDay`
-    const isOffDay = Object.entries(record).find(([key]) => key.includes('isOffDay'))?.[1];
-    const workStatus = isOffDay !== undefined ? `[${isOffDay ? '休' : '班'}] ` : '';
+    const isOffDayEntry = Object.entries(record).find(([key]) => key.includes('isOffDay'));
+    const isOffDay = isOffDayEntry ? isOffDayEntry[1] : null;
+    const workStatus = isOffDay !== null ? `[${isOffDay ? '休' : '班'}] ` : '';
 
     // 提取其他字段作为备注
     const description = Object.entries(record)
@@ -80,10 +88,11 @@ const extractValidData = (data, category) => {
       category,
       name,
       isOffDay,
-      description: workStatus + description
+      description: workStatus + description.trim()
     };
   });
 
+  console.log(`📊 提取 ${category} 数据:`, extractedData);
   return extractedData;
 };
 
@@ -94,8 +103,8 @@ const extractValidData = (data, category) => {
  * @returns {string}
  */
 const generateICSEvent = (date, eventData) => {
-  let summary = eventData.name;
-  let description = eventData.description ? eventData.description : '';
+  const summary = eventData.name;
+  const description = eventData.description || '';
 
   return `
 BEGIN:VEVENT
@@ -128,6 +137,12 @@ const generateICS = () => {
     allEvents = { ...allEvents, ...extractedData };
   }
 
+  console.log(`📅 解析出的所有事件:`, allEvents);
+  if (Object.keys(allEvents).length === 0) {
+    logToFile(`⚠️ 没有找到任何事件，ICS 文件未生成！`, 'ERROR');
+    return;
+  }
+
   // 📌 生成 ICS 内容
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
   let eventCount = 0;
@@ -141,6 +156,12 @@ const generateICS = () => {
   }
 
   icsContent += 'END:VCALENDAR\r\n';
+
+  console.log(`📄 生成的 ICS 内容:\n${icsContent}`);
+  if (eventCount === 0) {
+    logToFile(`⚠️ 没有可用的事件，ICS 文件未写入！`, 'ERROR');
+    return;
+  }
 
   // 📌 写入 ICS 文件
   try {
