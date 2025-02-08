@@ -46,7 +46,7 @@ const readJson = (filePath) => {
  */
 const logToFile = (message, level = 'INFO') => {
   const logMessage = `[${new Date().toISOString()}] [${level}] ${message}\n`;
-  fs.appendFileSync('calendar.log', logMessage);
+  fs.appendFileSync('./data/error.log', logMessage);
 };
 
 /**
