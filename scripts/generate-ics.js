@@ -63,15 +63,20 @@ const readJsonReconstruction = (filePath) => {
     }
 
     const data = JSON.parse(rawData);
-    console.log(`✅ 成功解析 JSON: ${filePath}`);
-    console.log("🔍 [调试] JSON 内容:", JSON.stringify(data, null, 2));
+    console.log(`✅ 成功解析 JSON: ${filePath}, 数据量: ${Object.keys(data).length}`);
+
+    if (!data || Object.keys(data).length === 0) {
+      console.log(`⚠️ JSON 结构异常: ${filePath}`);
+      return [];
+    }
 
     const reconstructionData = Object.values(data).flatMap(entry => entry.Reconstruction || []);
-
+    
     if (reconstructionData.length === 0) {
       console.log(`⚠️ ${filePath} 没有 Reconstruction 数据！`);
+      logError(`⚠️ ${filePath} 没有 Reconstruction 数据！`);
     } else {
-      console.log(`✅ ${filePath} Reconstruction 数据 ${reconstructionData.length} 条`);
+      console.log(`✅ ${filePath} 解析出 ${reconstructionData.length} 条 Reconstruction 数据`);
     }
 
     return reconstructionData;
@@ -92,34 +97,34 @@ const extractValidData = (data, category, existingData) => {
   data.forEach(record => {
     console.log("🔍 [调试] 当前记录:", JSON.stringify(record, null, 2));
 
-    const dateEntry = Object.entries(record).find(([key]) => key.includes('date'));
-    const date = dateEntry ? dateEntry[1] : null;
+    let date = record.date || record.day || null;
+    if (!date) {
+      const dateEntry = Object.entries(record).find(([key]) => key.toLowerCase().includes('date'));
+      date = dateEntry ? dateEntry[1] : null;
+    }
 
     if (!date) {
       console.log("⚠️ 无效记录，缺少日期:", JSON.stringify(record, null, 2));
       return;
     }
 
-    console.log("✅ 解析到日期:", date);
+    console.log(`✅ 解析到日期: ${date}`);
 
-    const nameEntry = Object.entries(record).find(([key]) => key.includes('name'));
-    const name = nameEntry ? nameEntry[1] : null;
-
-    const isOffDayEntry = Object.entries(record).find(([key]) => key.includes('isOffDay'));
-    const isOffDay = isOffDayEntry ? isOffDayEntry[1] : null;
+    const name = record.name || record.title || '(无标题)';
+    const isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
     const workStatus = isOffDay !== null ? `[${isOffDay ? '休' : '班'}] ` : '';
 
     const description = Object.entries(record)
-      .filter(([key, value]) => !key.includes('date') && !key.includes('name') && !key.includes('isOffDay') && value)
+      .filter(([key, value]) => !['date', 'day', 'name', 'title', 'isOffDay'].includes(key) && value)
       .map(([_, value]) => value)
       .join(' ');
 
-    console.log(`📅 添加事件: ${date} - ${name || "(无标题)"} - ${description}`);
+    console.log(`📅 添加事件: ${date} - ${name} - ${description}`);
 
     if (!existingData[date]) {
       existingData[date] = {
         category,
-        name: null,
+        name,
         isOffDay,
         description: workStatus + description
       };
@@ -142,8 +147,10 @@ const extractValidData = (data, category, existingData) => {
  * @returns {string}
  */
 const generateICSEvent = (date, eventData) => {
+  console.log(`📝 生成事件: 日期=${date}, 名称=${eventData.name}, 描述=${eventData.description}`);
+
   const summary = eventData.name || '(无标题)';
-  const description = eventData.description ? eventData.description : '';
+  const description = eventData.description || '';
 
   return `
 BEGIN:VEVENT
@@ -161,7 +168,6 @@ const generateICS = () => {
   let allEvents = {};
   let invalidFiles = [];
 
-  // 读取所有 JSON 数据
   for (const [key, filePath] of Object.entries(dataPaths)) {
     const jsonData = readJsonReconstruction(filePath);
     if (jsonData.length === 0) {
@@ -185,7 +191,6 @@ const generateICS = () => {
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
   let eventCount = 0;
 
-  // 按日期升序排序
   const sortedDates = Object.keys(allEvents).sort();
 
   for (const date of sortedDates) {
@@ -199,16 +204,11 @@ const generateICS = () => {
 
   icsContent += 'END:VCALENDAR\r\n';
 
-  // 写入 ICS 文件
   try {
     fs.writeFileSync(icsFilePath, icsContent);
-    const message = `✅ ICS 日历文件生成成功！共 ${eventCount} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`;
-    console.log(message);
-    logError(message);
+    console.log(`✅ ICS 日历文件生成成功！共 ${eventCount} 个事件 (跳过无效 JSON: ${invalidFiles.join(', ')})`);
   } catch (error) {
-    const message = `❌ 生成 ICS 文件失败: ${error.message}`;
-    console.log(message);
-    logError(message);
+    console.log(`❌ 生成 ICS 文件失败: ${error.message}`);
   }
 };
 
