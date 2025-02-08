@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// 📌 JSON 数据路径
 const dataPaths = {
   holidays: './data/Document/holidays.json',
   jieqi: './data/Document/jieqi.json',
@@ -10,7 +9,6 @@ const dataPaths = {
   shichen: './data/Document/shichen.json',
 };
 
-// 📌 ICS 输出路径
 const icsFilePath = path.join(__dirname, '../calendar.ics');
 
 /**
@@ -45,6 +43,25 @@ const readJsonReconstruction = (filePath) => {
 };
 
 /**
+ * 过滤无效数据
+ * @param {Object} data
+ * @returns {Object}
+ */
+const filterValidData = (data) => {
+  const filteredData = {};
+  for (const [date, record] of Object.entries(data)) {
+    if (record && typeof record === 'object' && !Array.isArray(record)) {
+      // 移除无效字段
+      const { errno, errmsg, ...validFields } = record;
+      if (Object.keys(validFields).length > 0) {
+        filteredData[date] = validFields;
+      }
+    }
+  }
+  return filteredData;
+};
+
+/**
  * 日志记录
  * @param {string} message
  * @param {string} level
@@ -62,7 +79,7 @@ const logToFile = (message, level = 'INFO') => {
  * @returns {string}
  */
 const generateICSEvent = (date, dataByCategory) => {
-  let summary = [];
+  let summary = '';
   let description = [];
 
   console.log(`📅 正在处理日期: ${date}`);
@@ -72,27 +89,26 @@ const generateICSEvent = (date, dataByCategory) => {
       console.log(`✅ ${date} 存在于 ${category}`);
       const record = records[date];
 
-      // 确保 name 存在，否则使用 category 作为默认名称
-      summary.push(record.name || category);
-      description.push(`${category.toUpperCase()} 信息:`);
-
-      for (const [key, value] of Object.entries(record)) {
-        description.push(`- ${key}: ${value}`);
+      // 设置 `SUMMARY`
+      if (!summary && record.name) {
+        summary = record.name;
       }
+
+      description.push(`${category.toUpperCase()} 信息:\n${JSON.stringify(record, null, 2)}`);
     }
   }
 
-  if (summary.length === 0) {
-    console.log(`⚠️ ${date} 没有可用的事件`);
-    return ''; // 返回空字符串，避免写入无效事件
+  if (!summary) {
+    console.log(`⚠️ ${date} 没有有效事件`);
+    return '';
   }
 
-  console.log(`📌 生成事件: ${summary.join(' ')}`);
+  console.log(`📌 生成事件: ${summary}`);
 
   return `
 BEGIN:VEVENT
 DTSTART;VALUE=DATE:${date.replace(/-/g, '')}
-SUMMARY:${summary.join(' ')}
+SUMMARY:${summary}
 DESCRIPTION:${description.join('\\n')}
 END:VEVENT
 `;
@@ -117,7 +133,7 @@ const generateICS = () => {
       continue;
     }
 
-    dataByCategory[key] = jsonData;
+    dataByCategory[key] = filterValidData(jsonData);
   }
 
   // 📌 获取所有日期
