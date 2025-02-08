@@ -40,10 +40,10 @@ const readJsonReconstruction = (filePath) => {
     // 检查数据结构，日志前200字符
     logToFile(`📂 读取文件: ${filePath}，数据结构: ${JSON.stringify(data).slice(0, 200)}`, 'INFO');
 
-    return data.Reconstruction || {};
+    return data.Reconstruction || [];
   } catch (error) {
     logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
-    return {};
+    return [];
   }
 };
 
@@ -89,17 +89,19 @@ const generateICSEvent = (date, dataByCategory) => {
   console.log(`📅 正在处理日期: ${date}`);
 
   for (const [category, records] of Object.entries(dataByCategory)) {
-    if (records[date]) {
-      console.log(`✅ ${date} 存在于 ${category}`);
-      const record = records[date];
+    records.forEach((record) => {
+      if (record[date]) {
+        console.log(`✅ ${date} 存在于 ${category}`);
+        const recordData = record[date];
 
-      // 设置 `SUMMARY`
-      if (!summary && record.name) {
-        summary = record.name;
+        // 设置 `SUMMARY`
+        if (!summary && recordData.name) {
+          summary = recordData.name;
+        }
+
+        description.push(`${category.toUpperCase()} 信息:\n${JSON.stringify(recordData, null, 2)}`);
       }
-
-      description.push(`${category.toUpperCase()} 信息:\n${JSON.stringify(record, null, 2)}`);
-    }
+    });
   }
 
   if (!summary) {
@@ -131,26 +133,26 @@ const generateICS = () => {
   for (const [key, filePath] of Object.entries(dataPaths)) {
     const jsonData = readJsonReconstruction(filePath);
 
-    if (Object.keys(jsonData).length === 0) {
+    if (jsonData.length === 0) {
       logToFile(`⚠️ ${key}.json 读取失败或数据为空，跳过！`, 'ERROR');
       invalidFiles.push(key);
       continue;
     }
 
-    dataByCategory[key] = filterValidData(jsonData);
+    dataByCategory[key] = jsonData.map((item) => filterValidData(item));
   }
 
   // 📌 获取所有日期
   const allDates = new Set(
     Object.values(dataByCategory)
-      .flatMap((categoryData) => Object.keys(categoryData))
+      .flatMap((categoryData) => categoryData.flatMap((item) => Object.keys(item)))
   );
 
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
   let eventCount = 0;
 
   // 📌 遍历日期，生成 ICS 事件
-  allDates.forEach(date => {
+  allDates.forEach((date) => {
     const event = generateICSEvent(date, dataByCategory);
     if (event.trim()) {
       icsContent += event;
