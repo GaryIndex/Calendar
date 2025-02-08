@@ -2,7 +2,7 @@ const fs = require('fs');
 const moment = require('moment-timezone');
 
 // 📌 文件路径
-const dataDir = './data';
+const dataDir = './data/Document';
 const holidayPath = `${dataDir}/holidays.json`;
 const jieqiPath = `${dataDir}/jieqi.json`;
 const astroPath = `${dataDir}/astro.json`;
