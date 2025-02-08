@@ -11,7 +11,7 @@ const paths = {
   shichen: `${dataDir}/shichen.json`,
 };
 const icsFilePath = './calendar.ics';
-const errorLogPath = `${dataDir}/error.log`;
+const errorLogPath = './data/error.log'; // 修改为 ./data/error.log
 
 // 📌 确保目录存在
 const ensureDirectoryExists = (filePath) => {
@@ -31,6 +31,8 @@ const logToFile = (message, level = 'INFO') => {
   const timestamp = moment().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
   const logMessage = `[${timestamp}] [${level}] ${message}\r\n`;
   try {
+    // 确保日志目录存在
+    ensureDirectoryExists(errorLogPath);
     fs.appendFileSync(errorLogPath, logMessage);
   } catch (error) {
     console.error(`[日志写入失败] ${error.message}`);
@@ -41,20 +43,20 @@ const logToFile = (message, level = 'INFO') => {
 const readJson = (filePath) => {
   if (!fs.existsSync(filePath)) {
     logToFile(`⚠️ 文件 ${filePath} 不存在`, 'ERROR');
-    return [];
+    return null; // 如果文件不存在，返回 null
   }
   try {
     const rawData = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(rawData);
   } catch (error) {
     logToFile(`⚠️ 解析 ${filePath} 失败: ${error.message}`, 'ERROR');
-    return [];
+    return null; // 如果解析失败，返回 null
   }
 };
 
 // 📌 验证 JSON 数据结构
 const validateDataStructure = (data, requiredFields) => {
-  return Array.isArray(data) && data.every(entry => requiredFields.every(field => entry[field] !== undefined));
+  return Array.isArray(data) && data.every(entry => requiredFields.every(field => entry[field] !== undefined && typeof entry[field] === 'string'));
 };
 
 // 📌 生成 ICS 事件格式
@@ -90,12 +92,16 @@ const generateICSEvent = (date, holidays, jieqi, astro, calendar, shichen) => {
 
 // 📌 生成 ICS 文件
 const generateICS = () => {
-  ensureDirectoryExists(icsFilePath);
+  ensureDirectoryExists(icsFilePath); // 确保目录存在
 
   // 📌 读取所有 JSON 文件
   const data = {};
   for (const [key, path] of Object.entries(paths)) {
     data[key] = readJson(path);
+    if (data[key] === null) {
+      logToFile(`⚠️ 文件 ${key}.json 读取失败，无法继续生成 ICS！`, 'ERROR');
+      return;
+    }
   }
 
   // 📌 验证数据结构
