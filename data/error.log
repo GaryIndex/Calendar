@@ -1,0 +1,26 @@
+[2025-02-08 16:08:44] 🚀 开始数据抓取...
+[2025-02-08 16:08:44] 📅 处理日期: 2025-02-08
+[2025-02-08 16:08:45] ✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025
+[2025-02-08 16:08:46] ✅ API 请求成功: https://api.timelessq.com/time
+[2025-02-08 16:08:46] ✅ API 请求成功: https://api.timelessq.com/time/astro
+[2025-02-08 16:08:46] ✅ API 请求成功: https://api.timelessq.com/time/jieqi
+[2025-02-08 16:08:46] ✅ API 请求成功: https://api.timelessq.com/time/shichen
+[2025-02-08 16:08:46] ✅ calendar.json 保存成功: 1 条记录
+[2025-02-08 16:08:46] ✅ astro.json 保存成功: 1 条记录
+[2025-02-08 16:08:46] ✅ shichen.json 保存成功: 1 条记录
+[2025-02-08 16:08:46] ✅ jieqi.json 保存成功: 1 条记录
+[2025-02-08 16:08:46] ✅ holidays.json 保存成功: 1 条记录
+[2025-02-08 16:08:46] ✅ 2025-02-08 数据保存成功
+[2025-02-08 16:08:46] 🎉 所有数据抓取完成！
+[2025-02-08 16:08:46] 🚨 进程已退出
+[2025-02-08T08:08:46.182Z] [INFO] 📂 读取文件: ./data/Document/holidays.json，数据结构: {"2025-02-08":{"Reconstruction":[{"2025-01-01.date":"2025-01-01","2025-01-01.name":"元旦","2025-01-01.isOffDay":true,"2025-01-26.date":"2025-01-26","2025-01-26.name":"春节","2025-01-26.isOffDay":false,"20
+[2025-02-08T08:08:46.217Z] [ERROR] ⚠️ holidays.json 读取失败或数据为空，跳过！
+[2025-02-08T08:08:46.217Z] [INFO] 📂 读取文件: ./data/Document/jieqi.json，数据结构: {"2025-02-08":{"Reconstruction":[{"errno":0,"errmsg":"","data.0.name":"大雪","data.0.time":"2024-12-06 23:16:47","data.1.name":"冬至","data.1.time":"2024-12-21 17:20:20","data.2.name":"小寒","data.2.time":"
+[2025-02-08T08:08:46.217Z] [ERROR] ⚠️ jieqi.json 读取失败或数据为空，跳过！
+[2025-02-08T08:08:46.217Z] [INFO] 📂 读取文件: ./data/Document/astro.json，数据结构: {"2025-02-08":{"Reconstruction":[{"errno":0,"errmsg":"","data.name":"水瓶座","data.range":"1.20-2.18","data.zxtd":"自由博爱","data.sssx":"风","data.zggw":"第十一宫","data.yysx":"阳性","data.zdtz":"求知","data.zgxx":"
+[2025-02-08T08:08:46.217Z] [ERROR] ⚠️ astro.json 读取失败或数据为空，跳过！
+[2025-02-08T08:08:46.218Z] [INFO] 📂 读取文件: ./data/Document/calendar.json，数据结构: {"2025-02-08":{"Reconstruction":[{"errno":0,"errmsg":"","data.year":2025,"data.leapYear":false,"data.month":2,"data.maxDayInMonth":28,"data.enMonth":"February","data.astro":"水瓶座","data.cnWeek":"星期六","
+[2025-02-08T08:08:46.218Z] [ERROR] ⚠️ calendar.json 读取失败或数据为空，跳过！
+[2025-02-08T08:08:46.218Z] [INFO] 📂 读取文件: ./data/Document/shichen.json，数据结构: {"2025-02-08":{"Reconstruction":[{"errno":0,"errmsg":"","data.0.date":"2025-2-8","data.0.hours":"23:00-00:59","data.0.hour":"子时","data.0.yi":"无","data.0.ji":"诸事不宜","data.0.chong":"生肖冲(丙午)马","data.0.sh
+[2025-02-08T08:08:46.218Z] [ERROR] ⚠️ shichen.json 读取失败或数据为空，跳过！
+[2025-02-08T08:08:46.219Z] [INFO] ✅ ICS 日历文件生成成功！ 共 0 个事件 (跳过无效 JSON: holidays, jieqi, astro, calendar, shichen)
