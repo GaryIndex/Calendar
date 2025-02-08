@@ -45,7 +45,7 @@ process.on('uncaughtException', (error) => {
 });
 
 /**
- * 📌 读取已存储数据并提取最深层级内容
+ * 📌 读取已存储数据并返回数据
  */
 const loadExistingData = () => {
   ensureDirectoryExists(DATA_PATH);
@@ -58,48 +58,17 @@ const loadExistingData = () => {
       try {
         const rawData = fs.readFileSync(filePath, 'utf8');
         const parsedData = JSON.parse(rawData);
-
-        // 提取最深层级的数据并存储到 Reconstruction
-        const reconstructedData = Object.keys(parsedData).reduce((acc, key) => {
-          acc[key] = extractDeepestLayer(parsedData[key], file, key);
-          return acc;
-        }, {});
-        data[file] = { Reconstruction: reconstructedData };
+        data[file] = parsedData;
       } catch (error) {
         logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
-        data[file] = { Reconstruction: {} };
+        data[file] = {};
       }
     } else {
-      data[file] = { Reconstruction: {} };
+      data[file] = {};
     }
   });
 
   return data;
-};
-
-/**
- * 📌 提取最深层级数据
- */
-const extractDeepestLayer = (obj, fileName, key) => {
-  if (typeof obj !== 'object' || obj === null) {
-    logMessage(`⚠️ 数据不符合预期 (文件: ${fileName}, 键: ${key}): ${JSON.stringify(obj)}`);
-    return {};
-  }
-
-  let currentLevel = obj;
-  // 深度遍历，直到找到最深层级的数据
-  while (typeof currentLevel === 'object' && currentLevel !== null) {
-    const nextKey = Object.keys(currentLevel).find(key => typeof currentLevel[key] === 'object');
-    if (!nextKey) break;
-    currentLevel = currentLevel[nextKey];
-  }
-
-  // 如果数据为空，记录日志
-  if (Object.keys(currentLevel).length === 0) {
-    logMessage(`⚠️ 提取失败，数据为空 (文件: ${fileName}, 键: ${key})`);
-  }
-
-  return currentLevel;
 };
 
 /**
@@ -110,7 +79,7 @@ const saveData = (data) => {
   Object.entries(data).forEach(([file, content]) => {
     const filePath = `${DATA_PATH}/${file}`;
 
-    let existingContent = { Reconstruction: {} };
+    let existingContent = {};
     if (fs.existsSync(filePath)) {
       try {
         existingContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -119,13 +88,11 @@ const saveData = (data) => {
       }
     }
 
-    const mergedData = {
-      Reconstruction: { ...existingContent.Reconstruction, ...content.Reconstruction }
-    };
+    const mergedData = { ...existingContent, ...content };
 
     try {
       fs.writeFileSync(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
-      logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData.Reconstruction).length} 条记录`);
+      logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData).length} 条记录`);
     } catch (error) {
       logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
     }
@@ -164,6 +131,15 @@ const fetchData = async () => {
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
   const startDate = moment(START_DATE).tz('Asia/Shanghai');
 
+  // API对应的值
+  const apiValues = {
+    'calendar.json': 'Value1',
+    'astro.json': 'Value2',
+    'shichen.json': 'Value3',
+    'jieqi.json': 'Value4',
+    'holidays.json': 'Value5'
+  };
+
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD');
 
@@ -189,12 +165,13 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
 
+      // 将对应API数据按值提取
       const filteredData = {
-        'calendar.json': { [dateStr]: calendarData },
-        'astro.json': { [dateStr]: astroData },
-        'shichen.json': { [dateStr]: shichenData },
-        'jieqi.json': { [dateStr]: jieqiData },
-        'holidays.json': { [dateStr]: holidaysData }
+        'calendar.json': { [dateStr]: { [apiValues['calendar.json']]: calendarData } },
+        'astro.json': { [dateStr]: { [apiValues['astro.json']]: astroData } },
+        'shichen.json': { [dateStr]: { [apiValues['shichen.json']]: shichenData } },
+        'jieqi.json': { [dateStr]: { [apiValues['jieqi.json']]: jieqiData } },
+        'holidays.json': { [dateStr]: { [apiValues['holidays.json']]: holidaysData } }
       };
 
       saveData(filteredData);
