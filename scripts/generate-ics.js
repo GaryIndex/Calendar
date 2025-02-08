@@ -111,5 +111,4 @@ const generateICS = () => {
   }
 };
 
-// 调用生成 ICS 函数
 generateICS();
