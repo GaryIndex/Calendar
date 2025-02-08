@@ -59,6 +59,7 @@ jobs:
           else
             echo "No changes to commit."
             echo "changes=false" >> $GITHUB_ENV
+          fi  # 添加 fi 来结束 if 语句
 
       - name: Commit and push changes
         if: env.changes == 'true'
