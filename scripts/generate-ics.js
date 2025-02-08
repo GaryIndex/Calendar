@@ -121,7 +121,7 @@ const generateICSEvent = (date, eventData) => {
 
   return `
 BEGIN:VEVENT
-DTSTART;VALUE=DATE:${date.replace(/-/g, '')}
+DTSTART;VALUE=DATE:${date.replace(/-/g, '')}  // 确保格式化为 YYYYMMDD
 SUMMARY:${summary}
 DESCRIPTION:${description}
 END:VEVENT
@@ -151,6 +151,9 @@ const generateICS = () => {
 
   // **📌 按日期升序排序**
   const sortedDates = Object.keys(allEvents).sort();
+
+  // 📌 打印所有已处理的事件数据
+  console.log('处理的事件数据:', allEvents);
 
   // 📌 生成 ICS 内容
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
