@@ -4,6 +4,26 @@ const path = require('path');
 // 日志文件路径
 const errorLogPath = path.join(__dirname, './data/error.log');
 
+// 检查并创建缺失的目录
+const ensureDirectoryExistence = (filePath) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+// 在写入日志前，确保目录存在
+ensureDirectoryExistence(errorLogPath);
+
+/**
+ * 写入错误日志到 error.log 文件
+ * @param {string} message
+ */
+const logError = (message) => {
+  const timestamp = new Date().toISOString();
+  fs.appendFileSync(errorLogPath, `[${timestamp}] ${message}\n`, 'utf8');
+};
+
 const dataPaths = {
   holidays: './data/Document/holidays.json',
   jieqi: './data/Document/jieqi.json',
