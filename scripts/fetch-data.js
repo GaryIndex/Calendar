@@ -165,14 +165,23 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
 
-      // 将对应API数据按值提取
+      // 将对应API数据按值提取并包裹null
       const filteredData = {
-        'calendar.json': { [dateStr]: { [apiValues['calendar.json']]: calendarData } },
-        'astro.json': { [dateStr]: { [apiValues['astro.json']]: astroData } },
-        'shichen.json': { [dateStr]: { [apiValues['shichen.json']]: shichenData } },
-        'jieqi.json': { [dateStr]: { [apiValues['jieqi.json']]: jieqiData } },
-        'holidays.json': { [dateStr]: { [apiValues['holidays.json']]: holidaysData } }
+        'calendar.json': { [dateStr]: { [apiValues['calendar.json']]: calendarData || null } },
+        'astro.json': { [dateStr]: { [apiValues['astro.json']]: astroData || null } },
+        'shichen.json': { [dateStr]: { [apiValues['shichen.json']]: shichenData || null } },
+        'jieqi.json': { [dateStr]: { [apiValues['jieqi.json']]: jieqiData || null } },
+        'holidays.json': { [dateStr]: { [apiValues['holidays.json']]: holidaysData || null } }
       };
+
+      // 将 null 包裹在 Reconstruction 中
+      Object.entries(filteredData).forEach(([file, content]) => {
+        Object.entries(content).forEach(([key, value]) => {
+          if (value === null) {
+            content[key] = { "Reconstruction": { [key]: null } };
+          }
+        });
+      });
 
       saveData(filteredData);
       logMessage(`✅ ${dateStr} 数据保存成功`);
