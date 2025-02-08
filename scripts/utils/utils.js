@@ -28,7 +28,7 @@ const ensureDirectoryExists = (filePath) => {
 const logToFile = (message, type = 'INFO') => {
   const logMessage = `[${new Date().toISOString()}] [${type}] ${message}`;
   console.log(logMessage);
-  fs.appendFileSync('./logs/app.log', logMessage + '\n');
+  fs.appendFileSync('./data/error.log', logMessage + '\n');
 };
 
 module.exports = { readJson, ensureDirectoryExists, logToFile };
