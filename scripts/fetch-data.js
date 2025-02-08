@@ -229,4 +229,3 @@ fetchData().catch((error) => {
   process.exit(1);
 });
 
-改进这个json重构问题
