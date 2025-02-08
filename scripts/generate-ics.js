@@ -109,15 +109,10 @@ const generateICS = () => {
     const jsonData = readJson(path);
     if (jsonData === null) {
       logToFile(`⚠️ 文件 ${key}.json 读取失败，跳过该文件！`, 'ERROR');
-      allFilesValid = false;
+      continue; // 如果文件读取失败，跳过当前文件，继续处理其他文件
     } else {
       data[key] = jsonData;
     }
-  }
-
-  if (!allFilesValid) {
-    logToFile('❌ 有文件读取失败，无法继续生成 ICS 文件！', 'ERROR');
-    return;  // 如果有文件读取失败，终止生成 ICS
   }
 
   // 📌 验证数据结构
@@ -125,22 +120,22 @@ const generateICS = () => {
   for (const key of Object.keys(data)) {
     if (!validateDataStructure(data[key], requiredFields)) {
       logToFile(`⚠️ 无效的 ${key}.json 数据结构，无法生成 ICS！`, 'ERROR');
-      return; // 如果数据结构无效，终止生成 ICS
+      continue; // 如果数据结构无效，跳过当前文件，继续处理其他文件
     }
   }
 
   // 📌 获取所有日期集合
   const allDates = new Set([
-    ...Object.values(data.holidays).map(h => h.date),
-    ...Object.values(data.jieqi).map(j => j.date),
-    ...Object.values(data.calendar).map(c => c.date),
+    ...Object.values(data.holidays || {}).map(h => h.date),
+    ...Object.values(data.jieqi || {}).map(j => j.date),
+    ...Object.values(data.calendar || {}).map(c => c.date),
   ]);
 
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
 
   // 📌 生成 ICS 事件
   allDates.forEach(date => {
-    icsContent += generateICSEvent(date, data.holidays, data.jieqi, data.astro, data.calendar, data.shichen);
+    icsContent += generateICSEvent(date, data.holidays || {}, data.jieqi || {}, data.astro || {}, data.calendar || {}, data.shichen || {});
   });
 
   icsContent += 'END:VCALENDAR\r\n';
