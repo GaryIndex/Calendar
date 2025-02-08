@@ -1,53 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-const validateDataStructure = require('./utils/validateDataStructure.js');
-const { logToFile, readJson, ensureDirectoryExists } = require('./utils/utils.js');
-
-// 配置 JSON 数据路径
-const dataPaths = {
-  holidays: './data/Document/holidays.json',
-  jieqi: './data/Document/jieqi.json',
-  astro: './data/Document/astro.json',
-  calendar: './data/Document/calendar.json',
-  shichen: './data/Document/shichen.json',
-};
-
-// ICS 输出路径
-const icsFilePath = path.join(__dirname, './calendar.ics');
-
-// 生成 ICS 事件
-const generateICSEvent = (date, holidays, jieqi, astro, calendar, shichen) => {
-  let summary = [];
-  let description = [];
-
-  if (holidays[date]) {
-    summary.push(holidays[date].name);
-    description.push(`节日: ${holidays[date].name}`);
-  }
-  if (jieqi[date]) {
-    summary.push(jieqi[date].name);
-    description.push(`节气: ${jieqi[date].name}`);
-  }
-  if (astro[date]) {
-    description.push(`星座: ${astro[date].name} (${astro[date].fortune})`);
-  }
-  if (calendar[date]) {
-    description.push(`农历: ${calendar[date].lunar}`);
-  }
-  if (shichen[date]) {
-    description.push(`时辰: ${shichen[date].name}`);
-  }
-
-  return `
-BEGIN:VEVENT
-DTSTART;VALUE=DATE:${date.replace(/-/g, '')}
-SUMMARY:${summary.join(' ')}
-DESCRIPTION:${description.join('\\n')}
-END:VEVENT
-`;
-};
-
-// 生成 ICS 日历
 const generateICS = () => {
   ensureDirectoryExists(icsFilePath);
 
@@ -84,6 +34,7 @@ const generateICS = () => {
     ...Object.values(data.holidays || {}).map(h => h.date),
     ...Object.values(data.jieqi || {}).map(j => j.date),
     ...Object.values(data.calendar || {}).map(c => c.date),
+    ...Object.values(data.shichen || {}).map(s => s.date),
   ]);
 
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
@@ -109,5 +60,3 @@ const generateICS = () => {
     logToFile(`❌ 生成 ICS 文件失败: ${error.message}`, 'ERROR');
   }
 };
-
-generateICS();
