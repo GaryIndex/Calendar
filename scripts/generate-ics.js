@@ -38,15 +38,6 @@ const prioritySources = ["holidays", "jieqi"];
 const icsFilePath = path.join(__dirname, './calendar.ics');
 
 /**
- * 写入错误日志到 error.log 文件
- * @param {string} message
- */
-const logError = (message) => {
-  const timestamp = new Date().toISOString();
-  fs.appendFileSync(errorLogPath, `[${timestamp}] ${message}\n`, 'utf8');
-};
-
-/**
  * 读取 JSON 并解析 Reconstruction 层
  * @param {string} filePath
  * @returns {Array}
