@@ -39,15 +39,22 @@ const logToFile = (message, level = 'INFO') => {
   }
 };
 
-// 📌 读取 JSON 文件
+// 📌 读取 JSON 文件，增加缓存避免多次读取
+const jsonCache = {}; // 用于缓存已读取的 JSON 数据
+
 const readJson = (filePath) => {
+  if (jsonCache[filePath]) {
+    return jsonCache[filePath]; // 如果已缓存，直接返回
+  }
   if (!fs.existsSync(filePath)) {
     logToFile(`⚠️ 文件 ${filePath} 不存在`, 'ERROR');
     return null; // 如果文件不存在，返回 null
   }
   try {
     const rawData = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(rawData);
+    const jsonData = JSON.parse(rawData);
+    jsonCache[filePath] = jsonData; // 缓存数据
+    return jsonData;
   } catch (error) {
     logToFile(`⚠️ 解析 ${filePath} 失败: ${error.message}`, 'ERROR');
     return null; // 如果解析失败，返回 null
