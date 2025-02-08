@@ -33,7 +33,13 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ ! -d "node_modules" ] || [ -z "$(ls -A node_modules)" ]; then
+            echo "Cache miss or empty node_modules, running npm ci..."
+            npm ci
+          else
+            echo "Cache hit, skipping npm install."
+          fi
 
       - name: Run data fetch and ICS generation
         run: |
@@ -46,7 +52,6 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          git status --porcelain
           if [[ -n "$(git status --porcelain)" ]]; then
             echo "Changes detected."
             echo "changes=true" >> $GITHUB_ENV
@@ -60,7 +65,12 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
+          
+          git stash  # 预防 rebase 失败
           git pull --rebase origin main
+          git stash pop
+          
+          git add .
           git commit -m "Update data and calendar.ics"
           git push origin main
 
@@ -72,3 +82,4 @@ jobs:
           branch: "update-calendar"
           commit-message: "Update data and calendar.ics"
           delete-branch: true
+          base: main  # 确保 PR 是基于 `main` 分支的
