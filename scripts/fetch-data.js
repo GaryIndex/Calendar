@@ -2,9 +2,10 @@ const axios = require('axios');
 const fs = require('fs');
 const moment = require('moment-timezone');
 
-const DATA_PATH = './data/Document'; // 存储目录
+// 配置常量
+const DATA_PATH = './data/Document'; 
 const LOG_PATH = './data/error.log';
-const START_DATE = '2025-02-08'; // 初始抓取日期
+const START_DATE = '2025-02-08'; 
 
 // 📌 确保目录存在
 const ensureDirectoryExists = (path) => {
@@ -32,11 +33,11 @@ process.on('SIGINT', () => {
   process.exit();
 });
 process.on('uncaughtException', (error) => {
-  logMessage(`🔥 未捕获异常: ${error.message}`);
+  logMessage(`🔥 未捕获异常: ${error.message}\n堆栈: ${error.stack}`);
   process.exit(1);
 });
 
-// 📌 读取已存储数据，防止重复抓取
+// 📌 读取已存储数据
 const loadExistingData = () => {
   ensureDirectoryExists(DATA_PATH);
   const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
@@ -47,10 +48,9 @@ const loadExistingData = () => {
     if (fs.existsSync(filePath)) {
       try {
         const rawData = fs.readFileSync(filePath, 'utf8');
-        const parsedData = JSON.parse(rawData);
-        data[file] = parsedData || {}; // 确保数据是对象
+        data[file] = JSON.parse(rawData) || {}; 
       } catch (error) {
-        logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
+        logMessage(`❌ 读取 ${file} 失败: ${error.message}\n堆栈: ${error.stack}`);
         data[file] = {};
       }
     } else {
@@ -61,28 +61,20 @@ const loadExistingData = () => {
   return data;
 };
 
-// 📌 解析 API 响应数据，仅保留 `data` 层
-const extractDataLayer = (response) => {
-  if (response && typeof response === 'object' && 'data' in response) {
-    return response.data || {};
-  }
-  return {}; // 避免数据缺失
-};
-
-// 📌 处理 `holidays.json`，确保 `isOffDay` 逻辑一致
+// 📌 处理节假日数据
 const normalizeHolidays = (holidaysData) => {
-  if (!holidaysData || typeof holidaysData !== 'object') return {};
+  if (!holidaysData || typeof holidaysData !== 'object') return { data: {} };
 
   Object.keys(holidaysData).forEach((date) => {
     if (holidaysData[date] && typeof holidaysData[date] === 'object') {
-      holidaysData[date].isOffDay = !!holidaysData[date].isOffDay; // 强制转换为 true/false
+      holidaysData[date].isOffDay = !!holidaysData[date].isOffDay; 
     }
   });
 
-  return holidaysData;
+  return { data: holidaysData };
 };
 
-// 📌 保存数据到文件（合并数据，防止覆盖）
+// 📌 保存数据到文件
 const saveData = (data) => {
   ensureDirectoryExists(DATA_PATH);
   Object.keys(data).forEach((file) => {
@@ -93,36 +85,38 @@ const saveData = (data) => {
       try {
         existingContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       } catch (error) {
-        logMessage(`❌ 读取 ${file} 失败: ${error.message}`);
-        existingContent = {};
+        logMessage(`❌ 读取 ${file} 失败: ${error.message}\n堆栈: ${error.stack}`);
+        existingContent = { data: {} };
       }
     }
 
     let mergedData;
-    if (file === 'holidays.json') {
-      mergedData = normalizeHolidays({ ...existingContent, ...data[file] });
-    } else {
-      mergedData = { ...existingContent, ...data[file] };
-    }
-
     try {
+      mergedData = file === 'holidays.json' 
+        ? normalizeHolidays({ ...existingContent.data, ...data[file].data })
+        : { data: { ...existingContent.data, ...data[file].data } };
+
       fs.writeFileSync(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
-      logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData).length} 条记录`);
+      logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData.data).length} 条记录`);
     } catch (error) {
-      logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
+      logMessage(`❌ 保存 ${file} 失败: ${error.message}\n堆栈: ${error.stack}`);
     }
   });
 };
 
-// 📌 发送 API 请求
-const fetchDataFromApi = async (url, params = {}) => {
+// 📌 发送 API 请求（带重试机制）
+const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
     const response = await axios.get(url, { params });
     logMessage(`✅ API 请求成功: ${url} | 参数: ${JSON.stringify(params)}`);
-    return extractDataLayer(response.data);
+    return response.data; // 直接返回响应数据对象，不再提取 data 层
   } catch (error) {
-    logMessage(`❌ API 请求失败: ${url} | 参数: ${JSON.stringify(params)} | 错误: ${error.message}`);
-    return null; // 避免中断
+    if (retries > 0) {
+      logMessage(`❌ API 请求失败，重试中... 剩余重试次数: ${retries} | 错误: ${error.message}`);
+      return fetchDataFromApi(url, params, retries - 1); 
+    }
+    logMessage(`❌ API 请求失败: ${url} | 参数: ${JSON.stringify(params)} | 错误: ${error.message}\n堆栈: ${error.stack}`);
+    return {}; // 返回空对象作为默认值
   }
 };
 
@@ -140,11 +134,11 @@ const fetchData = async () => {
 
     // 📌 跳过已存在数据
     if (
-      existingData['calendar.json'][dateStr] ||
-      existingData['astro.json'][dateStr] ||
-      existingData['shichen.json'][dateStr] ||
-      existingData['jieqi.json'][dateStr] ||
-      existingData['holidays.json'][dateStr]
+      existingData['calendar.json']?.data[dateStr] ||
+      existingData['astro.json']?.data[dateStr] ||
+      existingData['shichen.json']?.data[dateStr] ||
+      existingData['jieqi.json']?.data[dateStr] ||
+      existingData['holidays.json']?.data[dateStr]
     ) {
       logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
       continue;
@@ -168,11 +162,11 @@ const fetchData = async () => {
     }
 
     // 📌 存储数据
-    if (calendarData) existingData['calendar.json'][dateStr] = calendarData;
-    if (astroData) existingData['astro.json'][dateStr] = astroData;
-    if (shichenData) existingData['shichen.json'][dateStr] = shichenData;
-    if (jieqiData) existingData['jieqi.json'][dateStr] = jieqiData;
-    if (holidaysData) existingData['holidays.json'][dateStr] = holidaysData;
+    existingData['calendar.json'].data[dateStr] = calendarData;
+    existingData['astro.json'].data[dateStr] = astroData;
+    existingData['shichen.json'].data[dateStr] = shichenData;
+    existingData['jieqi.json'].data[dateStr] = jieqiData;
+    existingData['holidays.json'].data[dateStr] = holidaysData;
 
     saveData(existingData);
     logMessage(`✅ ${dateStr} 数据保存成功`);
