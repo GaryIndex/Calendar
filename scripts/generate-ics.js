@@ -11,7 +11,7 @@ const dataPaths = {
 };
 
 // 📌 ICS 输出路径
-const icsFilePath = path.join(__dirname, './calendar.ics');
+const icsFilePath = path.join(__dirname, '../calendar.ics');
 
 /**
  * 确保目录存在
@@ -27,23 +27,20 @@ const ensureDirectoryExists = (filePath) => {
 /**
  * 读取 JSON 文件并解析 Reconstruction 层
  * @param {string} filePath
- * @returns {Object|null}
+ * @returns {Object}
  */
 const readJsonReconstruction = (filePath) => {
   try {
     const rawData = fs.readFileSync(filePath, 'utf-8');
-    const data = JSON.parse(rawData);
-    
-    if (!data.Reconstruction || Object.keys(data.Reconstruction).length === 0) {
-      console.log(`⚠️ ${filePath} 中的 Reconstruction 为空`);
-      return {};  // 返回空对象，避免 undefined
+    if (!rawData.trim()) {
+      logToFile(`⚠️ 文件 ${filePath} 为空，跳过！`, 'ERROR');
+      return {};
     }
-    
-    console.log(`✅ 成功读取 ${filePath}, Reconstruction 数据:`, Object.keys(data.Reconstruction));
-    return data.Reconstruction;
+    const data = JSON.parse(rawData);
+    return data.Reconstruction || {};
   } catch (error) {
     logToFile(`❌ 读取文件失败: ${filePath} - 错误: ${error.message}`, 'ERROR');
-    return null;
+    return {};
   }
 };
 
@@ -68,9 +65,14 @@ const generateICSEvent = (date, dataByCategory) => {
   let summary = [];
   let description = [];
 
+  console.log(`📅 正在处理日期: ${date}`);
+
   for (const [category, records] of Object.entries(dataByCategory)) {
     if (records[date]) {
+      console.log(`✅ ${date} 存在于 ${category}`);
       const record = records[date];
+
+      // 确保 name 存在，否则使用 category 作为默认名称
       summary.push(record.name || category);
       description.push(`${category.toUpperCase()} 信息:`);
 
@@ -81,9 +83,11 @@ const generateICSEvent = (date, dataByCategory) => {
   }
 
   if (summary.length === 0) {
-    console.log(`⚠️ 跳过 ${date}，没有可用的事件`);
-    return ''; // 避免返回空事件
+    console.log(`⚠️ ${date} 没有可用的事件`);
+    return ''; // 返回空字符串，避免写入无效事件
   }
+
+  console.log(`📌 生成事件: ${summary.join(' ')}`);
 
   return `
 BEGIN:VEVENT
@@ -107,8 +111,8 @@ const generateICS = () => {
   for (const [key, filePath] of Object.entries(dataPaths)) {
     const jsonData = readJsonReconstruction(filePath);
 
-    if (jsonData === null) {
-      logToFile(`⚠️ ${key}.json 读取失败，跳过！`, 'ERROR');
+    if (Object.keys(jsonData).length === 0) {
+      logToFile(`⚠️ ${key}.json 读取失败或数据为空，跳过！`, 'ERROR');
       invalidFiles.push(key);
       continue;
     }
@@ -122,16 +126,10 @@ const generateICS = () => {
       .flatMap((categoryData) => Object.keys(categoryData))
   );
 
-  console.log('📅 所有日期:', [...allDates]); // 确认日期集合
-
-  if (allDates.size === 0) {
-    logToFile('⚠️ 没有找到任何日期，ICS 文件不会被生成！', 'ERROR');
-    return;
-  }
-
   let icsContent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//MyCalendar//EN\r\nCALSCALE:GREGORIAN\r\n';
-
   let eventCount = 0;
+
+  // 📌 遍历日期，生成 ICS 事件
   allDates.forEach(date => {
     const event = generateICSEvent(date, dataByCategory);
     if (event.trim()) {
@@ -141,11 +139,6 @@ const generateICS = () => {
   });
 
   icsContent += 'END:VCALENDAR\r\n';
-
-  if (eventCount === 0) {
-    logToFile('⚠️ 没有生成任何事件，ICS 文件将不会被写入！', 'ERROR');
-    return;
-  }
 
   try {
     fs.writeFileSync(icsFilePath, icsContent);
