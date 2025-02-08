@@ -1,0 +1,11 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//MyCalendar//EN
+CALSCALE:GREGORIAN
+
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20250208
+SUMMARY:holidays jieqi astro calendar shichen
+DESCRIPTION:HOLIDAYS 信息:\n- 2025-01-01: [object Object]\n- 2025-01-26: [object Object]\n- 2025-01-28: [object Object]\n- 2025-01-29: [object Object]\n- 2025-01-30: [object Object]\n- 2025-01-31: [object Object]\n- 2025-02-01: [object Object]\n- 2025-02-02: [object Object]\n- 2025-02-03: [object Object]\n- 2025-02-04: [object Object]\n- 2025-02-08: [object Object]\n- 2025-04-04: [object Object]\n- 2025-04-05: [object Object]\n- 2025-04-06: [object Object]\n- 2025-04-27: [object Object]\n- 2025-05-01: [object Object]\n- 2025-05-02: [object Object]\n- 2025-05-03: [object Object]\n- 2025-05-04: [object Object]\n- 2025-05-05: [object Object]\n- 2025-05-31: [object Object]\n- 2025-06-01: [object Object]\n- 2025-06-02: [object Object]\n- 2025-09-28: [object Object]\n- 2025-10-01: [object Object]\n- 2025-10-02: [object Object]\n- 2025-10-03: [object Object]\n- 2025-10-04: [object Object]\n- 2025-10-05: [object Object]\n- 2025-10-06: [object Object]\n- 2025-10-07: [object Object]\n- 2025-10-08: [object Object]\n- 2025-10-11: [object Object]\nJIEQI 信息:\n- errno: 0\n- errmsg: \n- data: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]\nASTRO 信息:\n- errno: 0\n- errmsg: \n- data: [object Object]\nCALENDAR 信息:\n- errno: 0\n- errmsg: \n- data: [object Object]\nSHICHEN 信息:\n- errno: 0\n- errmsg: \n- data: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+END:VEVENT
+END:VCALENDAR
