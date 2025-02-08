@@ -52,13 +52,13 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
+          echo "Checking for changes..."
           if [[ -n "$(git status --porcelain)" ]]; then
             echo "Changes detected."
             echo "changes=true" >> $GITHUB_ENV
           else
             echo "No changes to commit."
             echo "changes=false" >> $GITHUB_ENV
-          fi
 
       - name: Commit and push changes
         if: env.changes == 'true'
@@ -66,9 +66,10 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
           
-          git stash  # 预防 rebase 失败
+          # 执行 stash 和 pop 仅在有更改时
+          git stash || echo "No changes to stash"
           git pull --rebase origin main
-          git stash pop
+          git stash pop || echo "No stashed changes"
           
           git add .
           git commit -m "Update data and calendar.ics"
