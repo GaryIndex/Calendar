@@ -133,7 +133,7 @@ const fetchData = async () => {
 
   // API对应的值
   const apiValues = {
-    'calendar.json': 'Value1',
+    'calendar.json': 'data',
     'astro.json': 'Value2',
     'shichen.json': 'Value3',
     'jieqi.json': 'Value4',
