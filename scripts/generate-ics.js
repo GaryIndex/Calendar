@@ -71,10 +71,20 @@ const generateICSEvent = (entry, holidays, jieqi, astro, calendar, shichen) => {
   const calendarData = calendar.find(c => c.date === entry.date) || {};
   const astroData = astro.find(a => a.date === entry.date) || {};
   const shichenData = shichen.find(s => s.date === entry.date) || {};
+  const jieqiData = jieqi.find(j => j.date === entry.date) || {};
 
+  // 🏮 解析万年历（农历）信息
+  const lunar = calendarData.lunar || '暂无农历';
+  const tianGanDiZhi = calendarData.tianGanDiZhi || '暂无天干地支';
+  const huangLi = calendarData.huangLi || '暂无黄历信息';
+
+  // 📅 生成描述信息
   const description = [
     `📅 日期: ${entry.date}`,
-    calendarData.lunar ? `🌙 农历: ${calendarData.lunar}` : '',
+    lunar ? `🌙 农历: ${lunar}` : '',
+    tianGanDiZhi ? `天干地支: ${tianGanDiZhi}` : '',
+    huangLi ? `黄历: ${huangLi}` : '',
+    jieqiData.term ? `🌾 节气: ${jieqiData.term}` : '',
     astroData.name ? `💫 星座: ${astroData.name} (${astroData.description || ''})` : '',
     shichenData.periods ? `🕒 十二时辰: ${shichenData.periods.map(p => `${p.name} (${p.start}-${p.end})`).join('，')}` : '',
   ].filter(Boolean).join('\\n');
