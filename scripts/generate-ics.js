@@ -9,7 +9,7 @@ const dataPaths = {
   shichen: './data/Document/shichen.json',
 };
 
-const icsFilePath = path.join(__dirname, '../calendar.ics');
+const icsFilePath = path.join(__dirname, './calendar.ics');
 
 /**
  * 确保目录存在
