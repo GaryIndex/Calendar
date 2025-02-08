@@ -76,15 +76,13 @@ const readJsonData = async (filePath) => {
 };
 
 /**
- * 针对不同文件自定义解析 Reconstruction 数据
- * @param {string} fileKey 文件键名
+ * 动态获取所有字段并提取有效数据
  * @param {Array} reconstructionData
  * @param {Object} existingData
  */
-const extractValidData = (fileKey, reconstructionData, existingData) => {
-  logInfo(`🔍 处理 ${fileKey} 数据，共 ${reconstructionData.length} 条`);
+const extractValidData = (reconstructionData, existingData) => {
+  logInfo(`🔍 处理 Reconstruction 数据，共 ${reconstructionData.length} 条`);
 
-  // 根据文件键名决定如何解析
   reconstructionData.forEach(record => {
     const date = record.date || record.day || null;
     if (!date) {
@@ -92,46 +90,17 @@ const extractValidData = (fileKey, reconstructionData, existingData) => {
       return;
     }
 
-    // 不同文件的解析规则
-    let name, isOffDay, description;
+    // 遍历对象的所有键并提取
+    let description = '';
+    let name = record.name || '(无标题)';
+    let isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
     
-    switch (fileKey) {
-      case "holidays":
-        name = record.name || '(无标题)';
-        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
-        description = record.description || '';
-        break;
-      
-      case "jieqi":
-        name = record.name || '(无标题)';
-        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
-        description = record.details || '';
-        break;
-      
-      case "astro":
-        name = record.title || '(无标题)';
-        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
-        description = record["astro.details"] || '';
-        break;
-      
-      case "calendar":
-        name = record.title || '(无标题)';
-        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
-        description = record["event.details"] || '';
-        break;
-      
-      case "shichen":
-        name = record.label || '(无标题)';
-        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
-        description = record["time.details"] || '';
-        break;
-      
-      default:
-        name = record.name || '(无标题)';
-        isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
-        description = record.details || '';
-        break;
-    }
+    // 提取所有字段
+    Object.entries(record).forEach(([key, value]) => {
+      if (key !== 'date' && key !== 'day' && key !== 'isOffDay') {
+        description += `${key}: ${value} | `;
+      }
+    });
 
     const workStatus = isOffDay !== null ? `[${isOffDay ? '休' : '班'}] ` : '';
 
@@ -188,7 +157,8 @@ const generateICS = async () => {
         continue;
       }
       
-      extractValidData(fileKey, records.Reconstruction, allEvents);
+      // 提取所有 Reconstruction 数据的字段
+      extractValidData(records.Reconstruction, allEvents);
     }
   }));
 
