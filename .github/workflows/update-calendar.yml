@@ -32,13 +32,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Ensure package-lock.json exists
+      - name: Ensure package-lock.json exists or is not empty
         run: |
-          if [ ! -f "package-lock.json" ]; then
-            echo "package-lock.json is missing! Re-generating..."
+          if [ ! -f "package-lock.json" ] || [ ! -s "package-lock.json" ]; then
+            echo "package-lock.json is missing or empty! Re-generating..."
             npm install --package-lock-only
           else
-            echo "package-lock.json exists, skipping generation."
+            echo "package-lock.json exists and is not empty, skipping regeneration."
           fi
 
       - name: Install dependencies
@@ -62,7 +62,6 @@ jobs:
           else
             echo "No changes to commit."
             echo "changes=false" >> $GITHUB_ENV
-          fi
 
       - name: Commit and push changes
         if: env.changes == 'true'
