@@ -1,9 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// 颜色库（终端输出美化）
-const chalk = require('chalk');
-
 // 日志文件路径
 const logFilePath = path.join(__dirname, './data/error.log');
 
@@ -29,9 +26,12 @@ const writeLog = async (type, message) => {
 
   try {
     await fs.promises.appendFile(logFilePath, logMessage, 'utf8');
+    
+    // **动态导入 chalk**
+    const chalk = (await import('chalk')).default;
     console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
   } catch (err) {
-    console.log(chalk.red(`❌ 写入日志失败: ${err.message}`));
+    console.log(`❌ 写入日志失败: ${err.message}`);
   }
 };
 
