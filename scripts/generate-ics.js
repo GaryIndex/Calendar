@@ -3,7 +3,6 @@ const path = require('path');
 
 // 日志文件路径
 const logFilePath = path.join(__dirname, './data/error.log');
-const icsFilePath = path.join(__dirname, './calendar.ics');
 
 // 确保目录存在
 const ensureDirectoryExistence = (filePath) => {
@@ -12,10 +11,14 @@ const ensureDirectoryExistence = (filePath) => {
     fs.mkdirSync(dir, { recursive: true });
   }
 };
+
+// 创建日志目录
 ensureDirectoryExistence(logFilePath);
 
 /**
- * 记录日志
+ * 记录日志 (成功 + 错误)
+ * @param {string} type "INFO" | "ERROR"
+ * @param {string} message
  */
 const writeLog = (type, message) => {
   const timestamp = new Date().toISOString();
@@ -28,6 +31,7 @@ const writeLog = (type, message) => {
     console.log(`❌ 写入日志失败: ${err.message}`);
   }
 };
+
 const logInfo = (message) => writeLog("INFO", message);
 const logError = (message) => writeLog("ERROR", message);
 
@@ -43,8 +47,13 @@ const dataPaths = {
 // **优先级数据源**
 const prioritySources = ["holidays", "jieqi"];
 
+// ICS 文件路径
+const icsFilePath = path.join(__dirname, './calendar.ics');
+
 /**
  * 读取 JSON 并解析 Reconstruction 层
+ * @param {string} filePath
+ * @returns {Array}
  */
 const readJsonReconstruction = (filePath) => {
   try {
@@ -53,40 +62,69 @@ const readJsonReconstruction = (filePath) => {
 
     if (!rawData.trim()) {
       logError(`⚠️ 文件 ${filePath} 为空！`);
-      return {};
+      return [];
     }
 
     const data = JSON.parse(rawData);
     logInfo(`✅ 成功解析 JSON: ${filePath}, 数据量: ${Object.keys(data).length}`);
 
-    return data.Reconstruction || {};
+    // 提取 Reconstruction 层
+    const reconstructionData = Object.values(data)
+      .flatMap(entry => entry.Reconstruction || [])
+      .filter(entry => Object.keys(entry).length > 0); // 过滤空对象
+
+    if (reconstructionData.length === 0) {
+      logError(`⚠️ ${filePath} 没有 Reconstruction 数据！`);
+    }
+
+    return reconstructionData;
   } catch (error) {
     logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
-    return {};
+    return [];
   }
 };
 
 /**
- * 提取有效数据
+ * 处理数据，提取关键字段
+ * @param {Array} data
+ * @param {string} category
+ * @param {Object} existingData
  */
 const extractValidData = (data, category, existingData) => {
-  logInfo(`🔍 处理 ${category} 数据，共 ${Object.keys(data).length} 条`);
+  logInfo(`🔍 处理 ${category} 数据，共 ${data.length} 条`);
 
-  for (const [date, record] of Object.entries(data)) {
-    if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      logError(`⚠️ 无效日期格式: ${date}`);
-      continue;
+  data.forEach(record => {
+    // 解析日期
+    let date = record.date || record.day || null;
+    if (!date) {
+      const dateEntry = Object.entries(record).find(([key]) => key.toLowerCase().includes('date'));
+      date = dateEntry ? dateEntry[1] : null;
     }
 
+    if (!date) {
+      logError(`⚠️ 无效记录（无日期）: ${JSON.stringify(record)}`);
+      return;
+    }
+
+    // 解析名称
     const name = record.name || record.title || '(无标题)';
+
+    // 解析 isOffDay 状态
     const isOffDay = record.isOffDay !== undefined ? record.isOffDay : null;
     const workStatus = isOffDay !== null ? `[${isOffDay ? '休' : '班'}] ` : '';
 
+    // 解析描述信息
     const description = Object.entries(record)
-      .filter(([key]) => !['date', 'day', 'name', 'title', 'isOffDay'].includes(key))
-      .map(([_, value]) => value)
-      .join(' ');
+      .filter(([key, value]) => !['date', 'day', 'name', 'title', 'isOffDay'].includes(key) && value)
+      .map(([key, value]) => {
+        const cleanKey = key.replace(/^data\./, ''); // 去掉 data. 前缀
+        return `${cleanKey}: ${value}`;
+      })
+      .join(' | ');
 
+    logInfo(`📅 解析事件: ${date} - ${name} - ${description}`);
+
+    // 组织数据结构
     if (!existingData[date]) {
       existingData[date] = {
         category,
@@ -98,14 +136,18 @@ const extractValidData = (data, category, existingData) => {
       existingData[date].description += ` | ${workStatus}${description}`;
     }
 
+    // 优先级数据源覆盖 name
     if (prioritySources.includes(category) && !existingData[date].name && name) {
       existingData[date].name = name;
     }
-  }
+  });
 };
 
 /**
  * 生成 ICS 事件
+ * @param {string} date
+ * @param {Object} eventData
+ * @returns {string}
  */
 const generateICSEvent = (date, eventData) => {
   logInfo(`📝 生成 ICS 事件: 日期=${date}, 名称=${eventData.name}`);
@@ -131,7 +173,7 @@ const generateICS = () => {
 
   for (const [key, filePath] of Object.entries(dataPaths)) {
     const jsonData = readJsonReconstruction(filePath);
-    if (Object.keys(jsonData).length === 0) {
+    if (jsonData.length === 0) {
       logError(`⚠️ ${key}.json 读取失败或数据为空，跳过！`);
       invalidFiles.push(key);
       continue;
