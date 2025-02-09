@@ -336,20 +336,32 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
     'VERSION:2.0',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
+    //--
     ...mergedEvents.map(event => {
-      const dateFormatted = event.date.replace(/-/g, '');
-      let dtstart, dtend;
+  // 解析日期，确保 YYYYMMDD 格式正确
+  const [year, month, day] = event.date.split('-');
+  const dateFormatted = `${year}${month.padStart(2, '0')}${day.padStart(2, '0')}`;
 
-      if (event.startTime) {
-        // 事件有具体时间
-        const timeFormatted = event.startTime.replace(/:/g, '') + '00'; // HHMMSS
-        dtstart = `DTSTART;TZID=Asia/Shanghai:${dateFormatted}T${timeFormatted}`;
-        dtend = `DTEND;TZID=Asia/Shanghai:${dateFormatted}T${parseInt(timeFormatted) + 10000}`; // 默认+1小时
-      } else {
-        // 全天事件
-        dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
-        dtend = ''; // 全天事件不需要 DTEND
-      }
+  let dtstart, dtend;
+
+  if (event.startTime) {
+    // 事件有具体时间，格式化 HHMMSS
+    const [hour, minute, second] = event.startTime.split(':').map(Number);
+    const timeFormatted = event.startTime.replace(/:/g, '') + '00';
+
+    // 计算 +1 小时后的结束时间
+    const endTime = new Date(year, month - 1, day, hour + 1, minute, second);
+    const timeEndFormatted = endTime.toTimeString().slice(0, 8).replace(/:/g, '') + '00';
+
+    dtstart = `DTSTART;TZID=Asia/Shanghai:${dateFormatted}T${timeFormatted}`;
+    dtend = `DTEND;TZID=Asia/Shanghai:${dateFormatted}T${timeEndFormatted}`;
+  } else {
+    // 全天事件
+    dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
+    dtend = ''; // 全天事件不需要 DTEND
+  }
+});
+//--
 
       return [
         'BEGIN:VEVENT',
