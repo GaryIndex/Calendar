@@ -91,18 +91,17 @@ const processors = {
 const generateICSEvent = (event) => {
   if (!event.date) return '';
 
-  let dtstart;
-  if (event.isAllDay) {
-    dtstart = `DTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}`;
-  } else {
-    return ''; // 无效事件跳过
-  }
+  const dtstart = `DTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}`;
+  const summary = event.title ? `SUMMARY:${event.title}` : 'SUMMARY:无标题事件';
+  const description = event.description
+    ? `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}`
+    : 'DESCRIPTION:无描述信息';
 
   return [
     'BEGIN:VEVENT',
     dtstart,
-    `SUMMARY:${event.title || '未命名事件'}`,
-    `DESCRIPTION:${(event.description || '无描述信息').replace(/\n/g, '\\n')}`,
+    summary,
+    description,
     'END:VEVENT'
   ].join('\r\n');
 };
@@ -145,3 +144,5 @@ const generateICS = async () => {
     logError(`❌ 写入 ICS 文件失败: ${error.message}`);
   }
 };
+
+generateICS();
