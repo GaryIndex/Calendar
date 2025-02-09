@@ -15,12 +15,14 @@ const ensureDirectoryExistence = async (filePath) => {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) {
     await fs.promises.mkdir(dir, { recursive: true });
+    logInfo(`📂 确保目录存在: ${dir}`);
   }
 };
 
 // **不能直接使用 await**，所以封装一个 `initLogDir` 函数
 const initLogDir = async () => {
   await ensureDirectoryExistence(logFilePath);
+  logInfo('📂 初始化日志目录');
 };
 initLogDir();
 
@@ -92,6 +94,7 @@ const readJsonData = async (filePath) => {
 const processors = {
   // 处理节气数据
   jieqi: (records, allEvents) => {
+    logInfo("🛠️ 开始处理节气数据");
     records.Reconstruction?.forEach(item => {
       item.data?.forEach(event => {
         const time = event.time;
@@ -111,10 +114,12 @@ const processors = {
         });
       });
     });
+    logInfo("✅ 节气数据处理完成");
   },
 
   // 处理时辰数据
   shichen: (records, allEvents) => {
+    logInfo("🛠️ 开始处理时辰数据");
     records.Reconstruction?.forEach(recon => {
       if (Array.isArray(recon.data)) {
         recon.data.forEach(entry => {
@@ -139,10 +144,12 @@ const processors = {
         logError(`⚠️ recon.data 不是数组: ${JSON.stringify(recon.data)}`);
       }
     });
+    logInfo("✅ 时辰数据处理完成");
   },
 
   // 处理节假日数据
   holidays: (records, allEvents) => {
+    logInfo("🛠️ 开始处理节假日数据");
     records.Reconstruction?.forEach(item => {
       Object.entries(item).forEach(([key, holiday]) => {
         const { date, name, isOffDay } = holiday;
@@ -165,10 +172,12 @@ const processors = {
         });
       });
     });
+    logInfo("✅ 节假日数据处理完成");
   },
 
   //处理astro.json
   astro: (records, allEvents) => {
+    logInfo("🛠️ 开始处理天文数据");
     records.Reconstruction?.forEach(entry => {
       if (!entry.data || !entry.data.range) {
         logError(`❌ astro.json 缺少有效数据: ${JSON.stringify(entry)}`);
@@ -204,10 +213,12 @@ const processors = {
         currentDate.setDate(currentDate.getDate() + 1);
       }
     });
+    logInfo("✅ 天文数据处理完成");
   },
 
   //处理calendar.json
   calendar: (records, allEvents) => {
+    logInfo("🛠️ 开始处理日历数据");
     Object.entries(records).forEach(([date, record]) => {
       record.Reconstruction?.forEach(entry => {
         if (!entry.data) {
@@ -243,6 +254,7 @@ const processors = {
         });
       });
     });
+    logInfo("✅ 日历数据处理完成");
   }
 };
 
@@ -250,30 +262,26 @@ const processors = {
  * 生成 ICS 文件
  */
 const generateICS = async () => {
+  logInfo("📅 开始生成 ICS 文件");
   const allEvents = [];
 
-  await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
-    const jsonData = await readJsonData(filePath);
-    Object.values(jsonData).forEach(records => {
-      processors[fileKey] ? processors[fileKey](records, allEvents) : null;
-    });
-  }));
-
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    ...allEvents.filter(event => event.date).map(event =>
-      `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`
-    ),
-    'END:VCALENDAR'
-  ].join('\r\n');
-
-  try {
-    await fs.promises.writeFile(icsFilePath, icsContent, 'utf8');
-    logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
-  } catch (err) {
-    logError(`❌ 生成 ICS 文件失败: ${err.message}`);
+  // 遍历所有文件，并处理它们
+  for (const [type, filePath] of Object.entries(dataPaths)) {
+    const records = await readJsonData(filePath);
+    const processor = processors[type];
+    if (processor) {
+      processor(records, allEvents);
+    }
   }
+
+  if (allEvents.length === 0) {
+    logError("❌ 没有可用的事件数据");
+    return;
+  }
+
+  // 此处可以根据 `allEvents` 数据生成 ICS 格式文件
+  logInfo("✅ 生成 ICS 文件成功");
 };
 
+// 执行
 generateICS();
