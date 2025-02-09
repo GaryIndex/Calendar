@@ -105,6 +105,7 @@ const readJsonData = async (filePath) => {
     });
   },
 */
+/*
 const processors = {
   // 处理节气数据
   jieqi: (records, allEvents) => {
@@ -129,6 +130,42 @@ const processors = {
     });
   },
 };
+*/
+const processors = {
+  // 处理节气数据
+  jieqi: (records, allEvents) => {
+    records.Reconstruction?.forEach(item => {
+      item.data?.forEach(event => {
+        // 获取每个节气的 time 字段，提取出日期部分
+        const time = event.time;
+        if (!time) {
+          logError(`❌ 节气数据缺少时间: ${JSON.stringify(event)}`);
+          return;
+        }
+
+        // 提取日期部分（格式：YYYY-MM-DD）
+        const date = time.split(' ')[0];
+
+        // 填充节气的描述信息（可选，根据需要调整）
+        const description = `节气: ${event.name}`;
+
+        allEvents.push({
+          date,
+          title: event.name, // 节气名称
+          startTime: time, // 完整时间
+          isAllDay: false, // 设为非全天事件
+          description, // 可选的描述信息
+        });
+      });
+    });
+  },
+};
+// 用于存储所有节气事件
+const allEvents = [];
+// 调用处理函数
+processors.jieqi(records, allEvents);
+// 打印所有事件
+console.log(allEvents);
 
 
   // 处理时辰数据
