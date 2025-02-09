@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+import chalk from 'chalk';
 //const chalk = require('chalk');
 // 日志文件路径
 const logFilePath = path.join(__dirname, './data/error.log');
@@ -175,7 +176,6 @@ const processors = {
   },
 
   // 处理带data数组的通用数据
-/*
 common: (records, allEvents, fileKey) => {
   console.log(`📂 正在处理文件: ${fileKey}`);
 
@@ -230,7 +230,7 @@ common: (records, allEvents, fileKey) => {
 
   console.log(`✅ ${fileKey}: 数据处理完成，共生成 ${entries.length} 个事件`);
 },
-*/
+/*
   common: (records, allEvents, fileKey) => {
     records.Reconstruction?.forEach(recon => {
       // 检查 recon.data 是否是数组
@@ -255,6 +255,7 @@ common: (records, allEvents, fileKey) => {
     });
   }
 };
+*/
 
 
 /**
