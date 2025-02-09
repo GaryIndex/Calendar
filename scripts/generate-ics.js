@@ -272,21 +272,24 @@ const generateICS = async () => {
         processors[fileKey](records, allEvents);
       }
     });
+
+    // 🔍 确保数据成功添加到 allEvents
+    logInfo(`🔍 处理 ${fileKey} 后，当前 allEvents 事件数量: ${allEvents.length}`);
   }));
 
-  // ✅ 记录到日志文件
+  // ✅ 记录所有事件数据
   logInfo(`📌 解析后的所有事件数据: ${JSON.stringify(allEvents, null, 2)}`);
 
-  // 验证 allEvents 内容，确保每个事件都有有效的 date 和 description
+  // 过滤出有效的事件
   const validEvents = allEvents.filter(event => event.date && event.description);
-  
+  logInfo(`📅 有效的事件数量: ${validEvents.length}`);
+
   if (validEvents.length === 0) {
-    logError('❌ 没有有效的事件数据，无法生成 ICS 文件');
+    logError('❌ 没有有效的事件数据，跳过 ICS 文件生成');
     return;
   }
 
-  // 检查生成的 events 内容
-  logInfo(`📅 有效的事件数量: ${validEvents.length}`);
+  // 逐个打印所有有效的事件
   validEvents.forEach(event => {
     logInfo(`📝 事件详情: 日期 - ${event.date}, 标题 - ${event.title}, 备注 - ${event.description}`);
   });
@@ -295,22 +298,30 @@ const generateICS = async () => {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    ...validEvents.map(event => {
-      return `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`;
-    }),
+    ...validEvents.map(event => 
+      `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`
+    ),
     'END:VCALENDAR'
   ].join('\r\n');
 
-  // 打印生成的 ICS 内容
+  // ✅ 确保 ICS 内容正确
   logInfo(`✅ 即将写入 ICS 文件内容:\n${icsContent}`);
 
-  // 写入 ICS 文件
+  // ✅ 打印目标文件路径
+  logInfo(`📂 目标 ICS 文件路径: ${icsFilePath}`);
+
+  // 使用同步写入，确保数据写入成功
   try {
-    await fs.promises.writeFile(icsFilePath, icsContent, 'utf8');
-    logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
+    fs.writeFileSync(icsFilePath, icsContent, 'utf8');
+    logInfo(`✅ ICS 文件同步写入成功: ${icsFilePath}`);
+
+    // 读取 `.ics` 文件，确保写入正确
+    const writtenContent = fs.readFileSync(icsFilePath, 'utf8');
+    logInfo(`📖 读取已写入的 ICS 文件内容:\n${writtenContent}`);
   } catch (err) {
     logError(`❌ 生成 ICS 文件失败: ${err.message}`);
   }
 };
+
 // 执行
 generateICS();
