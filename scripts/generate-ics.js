@@ -1,4 +1,4 @@
-import path from 'path';
+/*import path from 'path';
 import chalk from 'chalk';
 import fs from 'fs';
 
@@ -15,6 +15,29 @@ const ensureDirectoryExistence = async (filePath) => {
 
 // 创建日志目录
 ensureDirectoryExistence(logFilePath);
+*/
+import path from 'path';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
+import fs from 'fs';
+
+// 计算 __dirname（ESM 方式）
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 日志文件路径
+const logFilePath = path.join(__dirname, './data/error.log');
+
+// 确保目录存在
+const ensureDirectoryExistence = async (filePath) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    await fs.promises.mkdir(dir, { recursive: true });
+  }
+};
+
+// 创建日志目录
+await ensureDirectoryExistence(logFilePath);
 
 /**
  * 记录日志
