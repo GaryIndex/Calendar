@@ -264,6 +264,7 @@ const processors = {
 const generateICS = async () => {
   const allEvents = [];
 
+  // 读取和处理所有 JSON 数据
   await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
     const jsonData = await readJsonData(filePath);
     Object.values(jsonData).forEach(records => {
@@ -276,15 +277,34 @@ const generateICS = async () => {
   // ✅ 记录到日志文件
   logInfo(`📌 解析后的所有事件数据: ${JSON.stringify(allEvents, null, 2)}`);
 
+  // 验证 allEvents 内容，确保每个事件都有有效的 date 和 description
+  const validEvents = allEvents.filter(event => event.date && event.description);
+  
+  if (validEvents.length === 0) {
+    logError('❌ 没有有效的事件数据，无法生成 ICS 文件');
+    return;
+  }
+
+  // 检查生成的 events 内容
+  logInfo(`📅 有效的事件数量: ${validEvents.length}`);
+  validEvents.forEach(event => {
+    logInfo(`📝 事件详情: 日期 - ${event.date}, 标题 - ${event.title}, 备注 - ${event.description}`);
+  });
+
+  // 生成 ICS 内容
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    ...allEvents.filter(event => event.date).map(event =>
-      `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`
-    ),
+    ...validEvents.map(event => {
+      return `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`;
+    }),
     'END:VCALENDAR'
   ].join('\r\n');
 
+  // 打印生成的 ICS 内容
+  logInfo(`✅ 即将写入 ICS 文件内容:\n${icsContent}`);
+
+  // 写入 ICS 文件
   try {
     await fs.promises.writeFile(icsFilePath, icsContent, 'utf8');
     logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
@@ -292,6 +312,5 @@ const generateICS = async () => {
     logError(`❌ 生成 ICS 文件失败: ${err.message}`);
   }
 };
-
 // 执行
 generateICS();
