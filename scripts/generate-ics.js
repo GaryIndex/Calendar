@@ -175,7 +175,6 @@ const processors = {
   },
 
   // 处理带data数组的通用数据
-/*
 common: (records, allEvents, fileKey) => {
   console.log(`📂 正在处理文件: ${fileKey}`);
 
@@ -228,7 +227,7 @@ common: (records, allEvents, fileKey) => {
     console.log(`✅ ${fileKey}: 数据处理完成，共生成 ${entries.length} 个事件`);
   });
 }
-*/
+/*
   common: (records, allEvents, fileKey) => {
     records.Reconstruction?.forEach(recon => {
       // 检查 recon.data 是否是数组
