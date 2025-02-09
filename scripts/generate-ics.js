@@ -155,7 +155,8 @@ const processors = {
 
   //处理通用数据
 // 处理通用数据
-const processors = processors || {};
+//const processors = processors || {};
+const processors = {}; // ✅ 先声明 processors
 processors.common = (records, allEvents, fileKey) => {
   // 处理 astro 数据
   if (fileKey === 'astro') {
