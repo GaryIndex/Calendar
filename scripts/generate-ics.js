@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import { promises as fs } from 'fs';  // 使用 fs 的 Promise 版本，避免回调
+import path from 'path';
 import chalk from 'chalk';
 //const chalk = require('chalk');
 // 日志文件路径
