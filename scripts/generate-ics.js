@@ -303,13 +303,24 @@ const generateICS = async () => {
 
   // 读取和处理所有 JSON 数据
   await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
-    const jsonData = await readJsonData(filePath);
-    Object.values(jsonData).forEach(records => {
-      if (processors[fileKey]) {
-        processors[fileKey](records, allEvents);
-      }
-    });
-  }));
+  const jsonData = await readJsonData(filePath);
+
+  // 🔹 关键修复：遍历 JSON 时保留日期
+  Object.entries(jsonData).forEach(([date, dataObject]) => {
+    if (dataObject.Reconstruction) {
+      dataObject.Reconstruction.forEach(record => {
+        if (record.data) {
+          const event = {
+            date, // ✅ 使用 JSON 文件中的日期
+            title: record.data.name,
+            description: record.data.description
+          };
+          allEvents.push(event);
+        }
+      });
+    }
+  });
+}));
 
   // ✅ 记录到日志文件
   logInfo(`📌 解析后的所有事件数据: ${JSON.stringify(allEvents, null, 2)}`);
