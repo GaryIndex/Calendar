@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 // 日志文件路径
 const logFilePath = path.join(__dirname, './data/error.log');
 
