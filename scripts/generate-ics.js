@@ -56,7 +56,7 @@ const dataPaths = {
 };
 
 // ICS 文件路径
-const icsFilePath = path.join(__dirname, './calendar.ics');
+const icsFilePath = path.join(__dirname, '../calendar.ics');
 
 /**
  * 读取 JSON 数据
