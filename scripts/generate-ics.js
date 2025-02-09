@@ -39,12 +39,13 @@ const logInfo = (message) => writeLog("INFO", message);
 const logError = (message) => writeLog("ERROR", message);
 
 // JSON 文件路径
+// JSON 文件路径 (更新路径为相对路径)
 const dataPaths = {
-  holidays: './data/Document/holidays.json',
-  jieqi: './data/Document/jieqi.json',
-  astro: './data/Document/astro.json',
-  calendar: './data/Document/calendar.json',
-  shichen: './data/Document/shichen.json',
+  holidays: path.resolve(__dirname, './data/Document/holidays.json'),
+  jieqi: path.resolve(__dirname, './data/Document/jieqi.json'),
+  astro: path.resolve(__dirname, './data/Document/astro.json'),
+  calendar: path.resolve(__dirname, './data/Document/calendar.json'),
+  shichen: path.resolve(__dirname, './data/Document/shichen.json'),
 };
 
 // ICS 文件路径
