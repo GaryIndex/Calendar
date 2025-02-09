@@ -153,22 +153,89 @@ const processors = {
     });
   },
 
-  // 处理通用数据
-  common: (records, allEvents, fileKey) => {
+  //处理通用数据
+// 处理通用数据
+processors.common = (records, allEvents, fileKey) => {
+  // 处理 astro 数据
+  if (fileKey === 'astro') {
     records.Reconstruction?.forEach(entry => {
-      if (!entry.date) {
-        logError(`❌ 缺少日期: ${JSON.stringify(entry)}`);
+      if (!entry.data || !entry.data.range) {
+        logError(`❌ astro.json 缺少有效数据: ${JSON.stringify(entry)}`);
         return;
       }
-      allEvents.push({
-        date: entry.date,
-        title: fileKey.toUpperCase(),
-        isAllDay: true,
-        description: `信息: ${JSON.stringify(entry)}`,
+
+      const { data } = entry;
+      const year = new Date().getFullYear(); // 获取当前年份
+
+      // 解析 range 字段，提取起止日期
+      const [start, end] = data.range.split("-").map(date => `${year}-${date.replace(".", "-")}`);
+
+      // 计算日期范围
+      let currentDate = new Date(start);
+      const endDate = new Date(end);
+
+      while (currentDate <= endDate) {
+        const dateStr = currentDate.toISOString().split("T")[0]; // 格式化 YYYY-MM-DD
+
+        // 提取所有值，不要键名
+        const description = Object.values(data)
+          .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
+          .join(" | ");
+
+        allEvents.push({
+          date: dateStr,
+          title: "",  // 不设置标题
+          isAllDay: true,
+          description, // 所有值写进备注
+        });
+
+        // 日期 +1 天
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    });
+  }
+
+  // 处理 calendar 数据
+  if (fileKey === 'calendar') {
+    Object.entries(records).forEach(([date, record]) => {
+      record.Reconstruction?.forEach(entry => {
+        if (!entry.data) {
+          logError(`❌ calendar.json 缺少有效数据: ${JSON.stringify(entry)}`);
+          return;
+        }
+
+        const { data } = entry;
+
+        // 需要提取的对象字段
+        const extractFields = ["data", "lunar", "almanac", "jishenfangwei"];
+
+        // 提取数据并转换为数组
+        const values = extractFields.flatMap(field => 
+          data[field] ? Object.values(data[field]) : []
+        );
+
+        // 额外提取单个值
+        ["liuyao", "jiuxing", "taisui"].forEach(key => {
+          if (data.almanac?.[key]) values.push(data.almanac[key]);
+        });
+
+        // 将所有值拼接成字符串
+        const description = values
+          .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
+          .join(" | ");
+
+        allEvents.push({
+          date,  // 直接使用 JSON key 作为日期
+          title: "",  // 不设置标题
+          isAllDay: true,
+          description, // 所有值写进备注
+        });
       });
     });
   }
 };
+
+// 处理通用数据（结束）
 
 /**
  * 生成 ICS 文件
