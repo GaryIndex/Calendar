@@ -3,12 +3,6 @@ import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import fs from 'fs';
 
-const ensureDirExists = (filePath) => {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-};
 // 计算 __dirname（ESM 方式）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -97,7 +91,6 @@ const readJsonData = async (filePath) => {
 /**
  * 处理不同文件类型的数据
  */
-// 修改processors中的数据处理逻辑，使来自多个JSON文件的数据备注用换行符分开
 const processors = {
   // 处理节气数据
   jieqi: (records, allEvents) => {
@@ -112,19 +105,13 @@ const processors = {
         const date = time.split(' ')[0];
         const description = `节气: ${event.name}`;
 
-        // 合并多个JSON文件的备注，使用换行符分开
-        const existingEvent = allEvents.find(e => e.date === date);
-        if (existingEvent) {
-          existingEvent.description += `\n${description}`;
-        } else {
-          allEvents.push({
-            date,
-            title: event.name,
-            startTime: time,
-            isAllDay: false,
-            description,
-          });
-        }
+        allEvents.push({
+          date,
+          title: event.name,
+          startTime: time,
+          isAllDay: false,
+          description,
+        });
       });
     });
     logInfo("✅ 节气数据处理完成");
@@ -146,18 +133,12 @@ const processors = {
             entry.jiuxing
           ].filter(Boolean).join(' ');
 
-          // 合并多个JSON文件的备注，使用换行符分开
-          const existingEvent = allEvents.find(e => e.date === entry.date);
-          if (existingEvent) {
-            existingEvent.description += `\n${descParts}`;
-          } else {
-            allEvents.push({
-              date: entry.date,
-              title: entry.hour,
-              isAllDay: true,
-              description: descParts,
-            });
-          }
+          allEvents.push({
+            date: entry.date,
+            title: entry.hour,
+            isAllDay: true,
+            description: descParts
+          });
         });
       } else {
         logError(`⚠️ recon.data 不是数组: ${JSON.stringify(recon.data)}`);
@@ -183,18 +164,12 @@ const processors = {
           .map(([k, v]) => `${k}: ${v}`)
           .join(' | ');
 
-        // 合并多个JSON文件的备注，使用换行符分开
-        const existingEvent = allEvents.find(e => e.date === date);
-        if (existingEvent) {
-          existingEvent.description += `\n${name} | ${descParts}`;
-        } else {
-          allEvents.push({
-            date,
-            title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
-            isAllDay: true,
-            description: `${name} | ${descParts}`,
-          });
-        }
+        allEvents.push({
+          date,
+          title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
+          isAllDay: true,
+          description: descParts
+        });
       });
     });
     logInfo("✅ 节假日数据处理完成");
@@ -227,18 +202,12 @@ const processors = {
           .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
           .join(" | ");
 
-        // 合并多个JSON文件的备注，使用换行符分开
-        const existingEvent = allEvents.find(e => e.date === dateStr);
-        if (existingEvent) {
-          existingEvent.description += `\n${description}`;
-        } else {
-          allEvents.push({
-            date: dateStr,
-            title: "",  // 不设置标题
-            isAllDay: true,
-            description, // 所有值写进备注
-          });
-        }
+        allEvents.push({
+          date: dateStr,
+          title: "",  // 不设置标题
+          isAllDay: true,
+          description, // 所有值写进备注
+        });
 
         // 日期 +1 天
         currentDate.setDate(currentDate.getDate() + 1);
@@ -277,18 +246,12 @@ const processors = {
           .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
           .join(" | ");
 
-        // 合并多个JSON文件的备注，使用换行符分开
-        const existingEvent = allEvents.find(e => e.date === date);
-        if (existingEvent) {
-          existingEvent.description += `\n${description}`;
-        } else {
-          allEvents.push({
-            date,  // 直接使用 JSON key 作为日期
-            title: "",  // 不设置标题
-            isAllDay: true,
-            description, // 所有值写进备注
-          });
-        }
+        allEvents.push({
+          date,  // 直接使用 JSON key 作为日期
+          title: "",  // 不设置标题
+          isAllDay: true,
+          description, // 所有值写进备注
+        });
       });
     });
     logInfo("✅ 日历数据处理完成");
@@ -303,24 +266,13 @@ const generateICS = async () => {
 
   // 读取和处理所有 JSON 数据
   await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
-  const jsonData = await readJsonData(filePath);
-
-  // 🔹 关键修复：遍历 JSON 时保留日期
-  Object.entries(jsonData).forEach(([date, dataObject]) => {
-    if (dataObject.Reconstruction) {
-      dataObject.Reconstruction.forEach(record => {
-        if (record.data) {
-          const event = {
-            date, // ✅ 使用 JSON 文件中的日期
-            title: record.data.name,
-            description: record.data.description
-          };
-          allEvents.push(event);
-        }
-      });
-    }
-  });
-}));
+    const jsonData = await readJsonData(filePath);
+    Object.values(jsonData).forEach(records => {
+      if (processors[fileKey]) {
+        processors[fileKey](records, allEvents);
+      }
+    });
+  }));
 
   // ✅ 记录到日志文件
   logInfo(`📌 解析后的所有事件数据: ${JSON.stringify(allEvents, null, 2)}`);
@@ -333,34 +285,9 @@ const generateICS = async () => {
     return;
   }
 
-  // **修复：合并同一天的标题和备注，并去重**
-  const mergedEvents = validEvents.reduce((acc, event) => {
-    const existingEvent = acc.find(e => e.date === event.date);
-    
-    if (existingEvent) {
-      // **标题合并（去重）**
-      if (event.title) {
-        const titleSet = new Set(existingEvent.title ? existingEvent.title.split(' | ') : []);
-        titleSet.add(event.title);
-        existingEvent.title = [...titleSet].join(' | ');
-      }
-
-      // **备注合并（去重）**
-      if (event.description) {
-        const descSet = new Set(existingEvent.description ? existingEvent.description.split('\n') : []);
-        descSet.add(event.description);
-        existingEvent.description = [...descSet].join('\n');
-      }
-    } else {
-      acc.push({ ...event });
-    }
-    
-    return acc;
-  }, []);
-
-  // 检查合并后的事件数据
-  logInfo(`📅 合并后的事件数量: ${mergedEvents.length}`);
-  mergedEvents.forEach(event => {
+  // 检查事件数据
+  logInfo(`📅 有效的事件数量: ${validEvents.length}`);
+  validEvents.forEach(event => {
     logInfo(`📝 事件详情: 日期 - ${event.date}, 标题 - ${event.title}, 备注 - ${event.description}`);
   });
 
@@ -368,7 +295,7 @@ const generateICS = async () => {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    ...mergedEvents.map(event => {
+    ...validEvents.map(event => {
       return `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`;
     }),
     'END:VCALENDAR'
@@ -394,6 +321,14 @@ const generateICS = async () => {
     }
   } catch (err) {
     logError(`❌ 生成 ICS 文件失败: ${err.message}`);
+  }
+};
+
+// 确保目录存在的函数
+const ensureDirExists = (filePath) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
 };
 
