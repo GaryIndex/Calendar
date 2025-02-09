@@ -40,11 +40,11 @@ const logError = (message) => writeLog("ERROR", message);
 
 // JSON 文件路径
 const dataPaths = {
-  holidays: 'data/Document/holidays.json',
-  jieqi: 'data/Document/jieqi.json',
-  astro: 'data/Document/astro.json',
-  calendar: 'data/Document/calendar.json',
-  shichen: 'data/Document/shichen.json',
+  holidays: './data/Document/holidays.json',
+  jieqi: './data/Document/jieqi.json',
+  astro: './data/Document/astro.json',
+  calendar: './data/Document/calendar.json',
+  shichen: './data/Document/shichen.json',
 };
 
 // ICS 文件路径
