@@ -1,8 +1,8 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 // 日志文件路径
-const logFilePath = path.join(__dirname, "./data/error.log");
+const logFilePath = path.join(__dirname, './data/error.log');
 
 // 确保目录存在
 const ensureDirectoryExistence = async (filePath) => {
@@ -16,7 +16,7 @@ const ensureDirectoryExistence = async (filePath) => {
 ensureDirectoryExistence(logFilePath);
 
 /**
- * 记录日志 (成功 + 错误)
+ * 记录日志
  * @param {string} type "INFO" | "ERROR"
  * @param {string} message
  */
@@ -25,15 +25,11 @@ const writeLog = async (type, message) => {
   const logMessage = `[${timestamp}] [${type}] ${message}\n`;
 
   try {
-    await fs.promises.appendFile(logFilePath, logMessage, "utf8");
-
-    // **动态导入 chalk**
-    const chalk = (await import("chalk")).default;
-    console.log(
-      type === "INFO"
-        ? chalk.green(logMessage.trim())
-        : chalk.red(logMessage.trim())
-    );
+    await fs.promises.appendFile(logFilePath, logMessage, 'utf8');
+    
+    // 动态导入 chalk
+    const chalk = (await import('chalk')).default;
+    console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
   } catch (err) {
     console.log(`❌ 写入日志失败: ${err.message}`);
   }
@@ -44,21 +40,25 @@ const logError = (message) => writeLog("ERROR", message);
 
 // JSON 文件路径
 const dataPaths = {
-  hoilday: "./data/Document/holidays.json",
+  holidays: './data/Document/holidays.json',
+  jieqi: './data/Document/jieqi.json',
+  astro: './data/Document/astro.json',
+  calendar: './data/Document/calendar.json',
+  shichen: './data/Document/shichen.json',
 };
 
 // ICS 文件路径
-const icsFilePath = path.join(__dirname, "./calendar.ics");
+const icsFilePath = path.join(__dirname, './calendar.ics');
 
 /**
- * 读取 JSON 并解析数据（支持异步）
+ * 读取 JSON 数据
  * @param {string} filePath
  * @returns {Promise<Object>}
  */
 const readJsonData = async (filePath) => {
   try {
     logInfo(`📂 读取文件: ${filePath}`);
-    const rawData = await fs.promises.readFile(filePath, "utf-8");
+    const rawData = await fs.promises.readFile(filePath, 'utf-8');
 
     if (!rawData.trim()) {
       logError(`⚠️ 文件 ${filePath} 为空！`);
@@ -66,11 +66,8 @@ const readJsonData = async (filePath) => {
     }
 
     const data = JSON.parse(rawData);
-    logInfo(
-      `✅ 成功解析 JSON: ${filePath}, 数据量: ${Object.keys(data).length}`
-    );
-
-    return data; // 返回原始数据
+    logInfo(`✅ 成功解析 JSON: ${filePath}, 数据量: ${Object.keys(data).length}`);
+    return data;
   } catch (error) {
     logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
     return {};
@@ -78,123 +75,149 @@ const readJsonData = async (filePath) => {
 };
 
 /**
- * 动态获取所有字段并提取有效数据
- * @param {Array} reconstructionData
- * @param {Object} existingData
+ * 处理不同文件类型的数据
  */
-const extractValidData = (reconstructionData, existingData) => {
-  logInfo(`🔍 处理 Reconstruction 数据，共 ${reconstructionData.length} 条`);
-  reconstructionData.forEach((record) => {
-    const lastKey = Object.keys(record)
-      .filter((key) => key.startsWith("data.") && key.endsWith(".date")) // 过滤出所有 `date` 键
-      .sort((a, b) => {
-        const numA = parseInt(a.match(/data\.(\d+)\.date/)[1], 10);
-        const numB = parseInt(b.match(/data\.(\d+)\.date/)[1], 10);
-        return numA - numB;
-      }) // 按 `data.X.date` 的 X 进行排序
-      .pop();
-    const date = record[lastKey] || null;
-    if (!date) {
-      logError(`⚠️ 无效记录（无日期）: ${JSON.stringify(record)}`);
-      return;
-    }
-    const lastNameKey = Object.keys(record)
-      .filter((key) => key.startsWith("data.") && key.endsWith(".name"))
-      .sort((a, b) => {
-        const numA = parseInt(a.match(/data\.(\d+)\.name/)[1], 10);
-        const numB = parseInt(b.match(/data\.(\d+)\.name/)[1], 10);
-        return numA - numB;
-      })
-      .pop();
-    const name = record[lastNameKey] || "(无标题)";
-    const isOffDay =
-      record["data.isOffDay"] !== undefined ? record["data.isOffDay"] : null;
-    const descriptions = Object.entries(record).filter(
-      ([key]) =>
-        !key.endsWith(".name") &&
-        !key.endsWith(".date") &&
-        !key.endsWith(".time") &&
-        key != "errno" &&
-        key != "errmsg"
-    );
-    
-    const workStatus = isOffDay !== null ? `[${isOffDay ? "休" : "班"}] ` : "";
-    const description = descriptions.reduce((arch, nex) => {
-      return arch + " " + nex[1];
-    }, "");
-    
-    if (!existingData[date]) {
-      existingData[date] = {
-        name,
-        isOffDay,
-        description: workStatus + description,
-      };
-    } else {
-      existingData[date].description += ` | ${workStatus}${description}`;
-    }
-  });
+const processors = {
+  // 处理节气数据
+  jieqi: (records, allEvents) => {
+    records.Reconstruction?.forEach(item => {
+      const date = item.date || item.data?.date;
+      if (!date) return;
+
+      allEvents.push({
+        date,
+        title: item.data?.name,
+        startTime: item.data?.time,
+        isAllDay: false,
+        description: ''
+      });
+    });
+  },
+
+  // 处理时辰数据
+  shichen: (records, allEvents) => {
+    records.Reconstruction?.forEach(recon => {
+      recon.data?.forEach(entry => {
+        const descParts = [
+          `${entry.date} ${entry.hours}`,
+          entry.hour,
+          entry.yi !== '无' ? entry.yi : null,
+          entry.ji,
+          entry.chong,
+          entry.sha,
+          entry.nayin,
+          entry.jiuxing
+        ].filter(Boolean).join(' ');
+
+        allEvents.push({
+          date: entry.date,
+          title: '时辰信息',
+          isAllDay: true,
+          description: descParts
+        });
+      });
+    });
+  },
+
+  // 处理节假日数据
+  holidays: (records, allEvents) => {
+    records.Reconstruction?.forEach(item => {
+      const descParts = Object.entries(item.data)
+        .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(' | ');
+
+      allEvents.push({
+        date: item.date,
+        title: `${item.data?.isOffDay ? '[休]' : '[班]'} ${item.data?.name}`,
+        isAllDay: true,
+        description: descParts
+      });
+    });
+  },
+
+  // 处理带data数组的通用数据
+  common: (records, allEvents, fileKey) => {
+    records.Reconstruction?.forEach(recon => {
+      recon.data?.forEach(entry => {
+        const descParts = [
+          entry.name,
+          entry.range,
+          entry.zxtd
+        ].filter(Boolean).join(' ');
+
+        allEvents.push({
+          date: entry.date,
+          title: fileKey.toUpperCase(),
+          isAllDay: true,
+          description: descParts
+        });
+      });
+    });
+  }
 };
 
 /**
- * 生成 ICS 事件
- * @param {string} date
- * @param {Object} eventData
- * @returns {string}
+ * 生成ICS事件内容
  */
-const generateICSEvent = (date, eventData) => {
-  logInfo(`📝 生成 ICS 事件: 日期=${date}, 名称=${eventData.name}`);
-
-  return `
-BEGIN:VEVENT
-DTSTART;VALUE=DATE:${date.replace(/-/g, "")}
-SUMMARY:${eventData.name || "(无标题)"}
-DESCRIPTION:${eventData.description || ""}
-END:VEVENT
-`.trim();
-};
-
-/**
- * 生成 ICS 日历
- */
-const generateICS = async () => {
-  let allEvents = {};
-
-  await Promise.all(
-    Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
-      const jsonData = await readJsonData(filePath);
-      if (Object.keys(jsonData).length === 0) {
-        logError(`⚠️ ${fileKey}.json 读取失败或数据为空，跳过！`);
-        return;
-      }
-
-      for (const [date, records] of Object.entries(jsonData)) {
-        if (!records.Reconstruction || records.Reconstruction.length === 0) {
-          continue;
-        }
-        extractValidData(records.Reconstruction, allEvents);
-      }
-    })
-  );
-
-  if (Object.keys(allEvents).length === 0) {
-    logError("⚠️ 没有可用的事件数据，ICS 文件未生成！");
-    return;
+const generateICSEvent = (event) => {
+  let dtstart;
+  if (event.isAllDay) {
+    dtstart = `DTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}`;
+  } else {
+    const dateObj = new Date(event.startTime);
+    const formattedDate = [
+      dateObj.getUTCFullYear(),
+      String(dateObj.getUTCMonth() + 1).padStart(2, '0'),
+      String(dateObj.getUTCDate()).padStart(2, '0')
+    ].join('');
+    dtstart = `DTSTART;VALUE=DATE:${formattedDate}`;
   }
 
-  const icsContent = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//MyCalendar//EN",
-    "CALSCALE:GREGORIAN",
-    ...Object.entries(allEvents)
-      .sort()
-      .map(([date, eventData]) => generateICSEvent(date, eventData)),
-    "END:VCALENDAR",
-  ].join("\r\n");
-
-  await fs.promises.writeFile(icsFilePath, icsContent);
-  logInfo(`✅ ICS 日历文件生成成功！共 ${Object.keys(allEvents).length} 个事件`);
+  return [
+    'BEGIN:VEVENT',
+    dtstart,
+    `SUMMARY:${event.title}`,
+    `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}`,
+    'END:VEVENT'
+  ].join('\r\n');
 };
 
-// **运行脚本**
+/**
+ * 生成ICS日历文件
+ */
+const generateICS = async () => {
+  const allEvents = [];
+
+  // 并行处理所有数据文件
+  await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
+    const jsonData = await readJsonData(path.resolve(__dirname, filePath));
+    
+    Object.values(jsonData).forEach(records => {
+      if (fileKey === 'jieqi') processors.jieqi(records, allEvents);
+      else if (fileKey === 'shichen') processors.shichen(records, allEvents);
+      else if (fileKey === 'holidays') processors.holidays(records, allEvents);
+      else processors.common(records, allEvents, fileKey);
+    });
+  }));
+
+  // 生成ICS内容
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Chinese Calendar//EN',
+    'CALSCALE:GREGORIAN',
+    ...allEvents.map(event => generateICSEvent(event)),
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  try {
+    await fs.promises.writeFile(icsFilePath, icsContent);
+    logInfo(`✅ ICS文件生成成功！共包含 ${allEvents.length} 个事件`);
+  } catch (error) {
+    logError(`❌ 写入ICS文件失败: ${error.message}`);
+  }
+};
+
+// 运行生成器
 generateICS();
