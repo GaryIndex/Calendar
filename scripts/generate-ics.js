@@ -57,9 +57,17 @@ const icsFilePath = path.join(__dirname, './calendar.ics');
  */
 const readJsonData = async (filePath) => {
   try {
-    logInfo(`📂 读取文件: ${filePath}`);
-    const rawData = await fs.promises.readFile(filePath, 'utf-8');
+    // 检查文件是否存在
+    if (!fs.existsSync(filePath)) {
+      logError(`❌ 文件不存在: ${filePath}`);
+      return {};
+    }
 
+    console.log(`📂 读取文件: ${filePath}`);
+    logInfo(`📂 读取文件: ${filePath}`);
+
+    const rawData = await fs.promises.readFile(filePath, 'utf-8');
+    
     if (!rawData.trim()) {
       logError(`⚠️ 文件 ${filePath} 为空！`);
       return {};
