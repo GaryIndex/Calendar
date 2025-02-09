@@ -160,7 +160,7 @@ const processors = {
       }
     });
   },
-
+/*
   // 处理节假日数据
   holidays: (records, allEvents) => {
     records.Reconstruction?.forEach(item => {
@@ -178,6 +178,38 @@ const processors = {
       });
     });
   },
+*/
+
+// 处理节假日数据
+holidays: (records, allEvents) => {
+  records.Reconstruction?.forEach(item => {
+    // 遍历每个节假日的日期
+    Object.entries(item).forEach(([key, holiday]) => {
+      const { date, name, isOffDay } = holiday;
+
+      // 确保日期、节日名称和是否休假有效
+      if (!date || !name || isOffDay === undefined) {
+        logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
+        return;
+      }
+
+      // 生成描述信息
+      const descParts = Object.entries(holiday)
+        .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(' | ');
+
+      allEvents.push({
+        date, // 使用节假日的日期
+        title: `${isOffDay ? '[休]' : '[班]'} ${name}`, // 标题显示休假或上班
+        isAllDay: true, // 设为全天事件
+        description: descParts // 描述包含其他信息
+      });
+    });
+  });
+},
+
+
 
   // 处理带data数组的通用数据
   common: (records, allEvents, fileKey) => {
