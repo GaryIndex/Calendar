@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-
+const chalk = (await import('chalk')).default; // ES 模块
 // 日志文件路径
 const logFilePath = path.join(__dirname, './data/error.log');
 
