@@ -175,7 +175,61 @@ const processors = {
   },
 
   // 处理带data数组的通用数据
-  common: (records, allEvents, fileKey) => {
+
+common: (records, allEvents, fileKey) => {
+  console.log(`📂 正在处理文件: ${fileKey}`);
+
+  records.Reconstruction?.forEach(recon => {
+    let entries = [];
+
+    // 兼容 data 既可能是数组也可能是对象
+    if (Array.isArray(recon.data)) {
+      console.log(`✅ ${fileKey}: data 字段是数组，共 ${recon.data.length} 条数据`);
+      entries = recon.data;
+    } else if (typeof recon.data === 'object' && recon.data !== null) {
+      console.log(`✅ ${fileKey}: data 字段是对象，已转换为数组`);
+      entries = [recon.data]; // 转换为数组，统一处理
+    } else {
+      logError(`⚠️ ${fileKey}: data 既不是对象也不是数组: ${JSON.stringify(recon.data)}`);
+      return;
+    }
+
+    // 遍历处理数据
+    entries.forEach((entry, index) => {
+      console.log(`🔍 处理第 ${index + 1} 条数据: ${JSON.stringify(entry)}`);
+
+      const { date, name, range, zxtd, lunar, almanac } = entry;
+      const { cnYear, cnMonth, cnDay, cyclicalYear, cyclicalMonth, cyclicalDay, zodiac } = lunar || {};
+      const { yi, ji, chong, sha, jishenfangwei } = almanac || {};
+
+      // 提取吉神方位
+      const jishenfangweiStr = jishenfangwei 
+        ? Object.entries(jishenfangwei).map(([key, value]) => `${key}: ${value}`).join(' ')
+        : '';
+
+      // 组装 description 字段
+      const descParts = [
+        name, range, zxtd, // 原本的字段
+        `农历: ${cnYear}年 ${cnMonth}${cnDay} (${cyclicalYear}年 ${cyclicalMonth}月 ${cyclicalDay}日) ${zodiac}年`,
+        `宜: ${yi}`, `忌: ${ji}`, `冲: ${chong}`, `煞: ${sha}`,
+        `吉神方位: ${jishenfangweiStr}`
+      ].filter(Boolean).join(' | ');
+
+      console.log(`📝 生成事件 - 日期: ${date}, 标题: ${fileKey.toUpperCase()}, 描述: ${descParts}`);
+
+      allEvents.push({
+        date,
+        title: fileKey.toUpperCase(),
+        isAllDay: true,
+        description: descParts
+      });
+    });
+
+    console.log(`✅ ${fileKey}: 数据处理完成，共生成 ${entries.length} 个事件`);
+  });
+}
+
+  /*common: (records, allEvents, fileKey) => {
     records.Reconstruction?.forEach(recon => {
       // 检查 recon.data 是否是数组
       if (Array.isArray(recon.data)) {
@@ -199,6 +253,7 @@ const processors = {
     });
   }
 };
+*/
 
 /**
  * 生成ICS事件内容
