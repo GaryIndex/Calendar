@@ -185,7 +185,7 @@ const processors = {
       });
     });
   },
-
+/*
   // 处理通用数据
   common: (records, allEvents, fileKey) => {
     records.Reconstruction?.forEach(entry => {
@@ -213,6 +213,39 @@ const processors = {
     });
   }
 };
+*/
+// 处理通用数据
+common: (records, allEvents, fileKey) => {
+  records.Reconstruction?.forEach(entry => {
+    const { date, name, range, zxtd, lunar = {}, almanac = {} } = entry;
+    const { cnYear, cnMonth, cnDay, cyclicalYear, cyclicalMonth, cyclicalDay, zodiac } = lunar;
+    const { yi, ji, chong, sha, jishenfangwei } = almanac;
+
+    // 如果某些字段是 "无"，则将其替换为空字符串
+    const yiStr = yi === "无" ? "" : yi;
+    const jiStr = ji === "无" ? "" : ji;
+    const chongStr = chong === "无" ? "" : chong;
+    const shaStr = sha === "无" ? "" : sha;
+    const jishenfangweiStr = jishenfangwei 
+      ? Object.entries(jishenfangwei).map(([key, value]) => `${key}: ${value}`).join(' ')
+      : '';
+
+    // 拼接描述字段
+    const descParts = [
+      name, range, zxtd,
+      `农历: ${cnYear}年 ${cnMonth}${cnDay} (${cyclicalYear}年 ${cyclicalMonth}月 ${cyclicalDay}日) ${zodiac}年`,
+      `宜: ${yiStr}`, `忌: ${jiStr}`, `冲: ${chongStr}`, `煞: ${shaStr}`,
+      `吉神方位: ${jishenfangweiStr}`
+    ].filter(Boolean).join(' | ');
+
+    allEvents.push({
+      date,
+      title: fileKey.toUpperCase(),
+      isAllDay: true,
+      description: descParts
+    });
+  });
+}
 
 /**
  * 生成ICS文件
