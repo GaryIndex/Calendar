@@ -293,6 +293,15 @@ const generateICS = async () => {
     logError('❌ 没有有效的事件数据，无法生成 ICS 文件');
     return;
   }
+  // 去重，防止相同日期的相同事件重复
+const uniqueEvents = new Map();
+validEvents.forEach(event => {
+  const key = `${event.date}-${event.title}`;
+  if (!uniqueEvents.has(key)) {
+    uniqueEvents.set(key, event);
+  }
+});
+const deduplicatedEvents = Array.from(uniqueEvents.values());
 
   // **合并相同日期的事件**
   const mergedEvents = Object.values(validEvents.reduce((acc, event) => {
