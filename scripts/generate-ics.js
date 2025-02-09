@@ -1,21 +1,3 @@
-/*import path from 'path';
-import chalk from 'chalk';
-import fs from 'fs';
-
-// 日志文件路径
-const logFilePath = path.join(__dirname, './data/error.log');
-
-// 确保目录存在
-const ensureDirectoryExistence = async (filePath) => {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    await fs.promises.mkdir(dir, { recursive: true });
-  }
-};
-
-// 创建日志目录
-ensureDirectoryExistence(logFilePath);
-*/
 import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
@@ -36,8 +18,11 @@ const ensureDirectoryExistence = async (filePath) => {
   }
 };
 
-// 创建日志目录
-await ensureDirectoryExistence(logFilePath);
+// **不能直接使用 await**，所以封装一个 `initLogDir` 函数
+const initLogDir = async () => {
+  await ensureDirectoryExistence(logFilePath);
+};
+initLogDir();
 
 /**
  * 记录日志
@@ -50,9 +35,6 @@ const writeLog = async (type, message) => {
 
   try {
     await fs.promises.appendFile(logFilePath, logMessage, 'utf8');
-    
-    // 动态导入 chalk
-    const chalk = (await import('chalk')).default;
     console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
   } catch (err) {
     console.log(`❌ 写入日志失败: ${err.message}`);
@@ -86,7 +68,6 @@ const readJsonData = async (filePath) => {
       return {};
     }
 
-    console.log(`📂 读取文件: ${filePath}`);
     logInfo(`📂 读取文件: ${filePath}`);
 
     const rawData = await fs.promises.readFile(filePath, 'utf-8');
@@ -185,7 +166,7 @@ const processors = {
       });
     });
   },
-/*
+
   // 处理通用数据
   common: (records, allEvents, fileKey) => {
     records.Reconstruction?.forEach(entry => {
@@ -193,15 +174,11 @@ const processors = {
       const { cnYear, cnMonth, cnDay, cyclicalYear, cyclicalMonth, cyclicalDay, zodiac } = lunar;
       const { yi, ji, chong, sha, jishenfangwei } = almanac;
 
-      const jishenfangweiStr = jishenfangwei 
-        ? Object.entries(jishenfangwei).map(([key, value]) => `${key}: ${value}`).join(' ')
-        : '';
-
       const descParts = [
         name, range, zxtd,
         `农历: ${cnYear}年 ${cnMonth}${cnDay} (${cyclicalYear}年 ${cyclicalMonth}月 ${cyclicalDay}日) ${zodiac}年`,
         `宜: ${yi}`, `忌: ${ji}`, `冲: ${chong}`, `煞: ${sha}`,
-        `吉神方位: ${jishenfangweiStr}`
+        `吉神方位: ${jishenfangwei}`
       ].filter(Boolean).join(' | ');
 
       allEvents.push({
@@ -213,42 +190,9 @@ const processors = {
     });
   }
 };
-*/
-// 处理通用数据
-common: (records, allEvents, fileKey) => {
-  records.Reconstruction?.forEach(entry => {
-    const { date, name, range, zxtd, lunar = {}, almanac = {} } = entry;
-    const { cnYear, cnMonth, cnDay, cyclicalYear, cyclicalMonth, cyclicalDay, zodiac } = lunar;
-    const { yi, ji, chong, sha, jishenfangwei } = almanac;
-
-    // 如果某些字段是 "无"，则将其替换为空字符串
-    const yiStr = yi === "无" ? "" : yi;
-    const jiStr = ji === "无" ? "" : ji;
-    const chongStr = chong === "无" ? "" : chong;
-    const shaStr = sha === "无" ? "" : sha;
-    const jishenfangweiStr = jishenfangwei 
-      ? Object.entries(jishenfangwei).map(([key, value]) => `${key}: ${value}`).join(' ')
-      : '';
-
-    // 拼接描述字段
-    const descParts = [
-      name, range, zxtd,
-      `农历: ${cnYear}年 ${cnMonth}${cnDay} (${cyclicalYear}年 ${cyclicalMonth}月 ${cyclicalDay}日) ${zodiac}年`,
-      `宜: ${yiStr}`, `忌: ${jiStr}`, `冲: ${chongStr}`, `煞: ${shaStr}`,
-      `吉神方位: ${jishenfangweiStr}`
-    ].filter(Boolean).join(' | ');
-
-    allEvents.push({
-      date,
-      title: fileKey.toUpperCase(),
-      isAllDay: true,
-      description: descParts
-    });
-  });
-}
 
 /**
- * 生成ICS文件
+ * 生成 ICS 文件
  */
 const generateICS = async () => {
   const allEvents = [];
@@ -259,28 +203,15 @@ const generateICS = async () => {
       processors[fileKey] ? processors[fileKey](records, allEvents) : processors.common(records, allEvents, fileKey);
     });
   }));
-/*
+
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    ...allEvents.map(event => `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`),
+    ...allEvents.filter(event => event.date).map(event =>
+      `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`
+    ),
     'END:VCALENDAR'
   ].join('\r\n');
-  */
-const icsContent = [
-  'BEGIN:VCALENDAR',
-  'VERSION:2.0',
-  ...allEvents.map(event => {
-    // 如果 event.date 为 undefined 或为空，跳过此事件
-    if (!event.date) {
-      logError(`❌ 无效事件日期: ${JSON.stringify(event)}`);
-      return ''; // 返回空字符串，避免生成无效事件
-    }
-
-    return `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`;
-  }).filter(Boolean), // 过滤掉空字符串
-  'END:VCALENDAR'
-].join('\r\n');
 
   await fs.promises.writeFile(icsFilePath, icsContent, 'utf-8');
   logInfo(`✅ 生成 ICS 文件: ${icsFilePath}`);
