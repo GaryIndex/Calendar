@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const chalk = require('chalk');
+//const chalk = require('chalk');
 // 日志文件路径
 const logFilePath = path.join(__dirname, './data/error.log');
 
