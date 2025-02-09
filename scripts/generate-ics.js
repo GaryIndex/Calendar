@@ -178,6 +178,60 @@ const processors = {
 common: (records, allEvents, fileKey) => {
   console.log(`📂 正在处理文件: ${fileKey}`);
 
+  const entries = Array.isArray(records.Reconstruction?.data)
+    ? records.Reconstruction.data
+    : records.Reconstruction?.data ? [records.Reconstruction.data] : [];
+
+  if (entries.length === 0) {
+    logError(`⚠️ ${fileKey}: data 既不是数组也不是对象: ${JSON.stringify(records.Reconstruction?.data)}`);
+    return;
+  }
+
+  console.log(`✅ ${fileKey}: 数据字段共 ${entries.length} 条数据`);
+
+  // 使用 reduce 处理并返回事件
+  const events = entries.reduce((acc, entry, index) => {
+    console.log(`🔍 处理第 ${index + 1} 条数据: ${JSON.stringify(entry)}`);
+
+    const { date, name, range, zxtd, lunar = {}, almanac = {} } = entry;
+    const {
+      cnYear, cnMonth, cnDay,
+      cyclicalYear, cyclicalMonth, cyclicalDay,
+      zodiac
+    } = lunar;
+    const { yi, ji, chong, sha, jishenfangwei } = almanac;
+
+    const jishenfangweiStr = jishenfangwei 
+      ? Object.entries(jishenfangwei).map(([key, value]) => `${key}: ${value}`).join(' ')
+      : '';
+
+    const descParts = [
+      name, range, zxtd,
+      `农历: ${cnYear}年 ${cnMonth}${cnDay} (${cyclicalYear}年 ${cyclicalMonth}月 ${cyclicalDay}日) ${zodiac}年`,
+      `宜: ${yi}`, `忌: ${ji}`, `冲: ${chong}`, `煞: ${sha}`,
+      `吉神方位: ${jishenfangweiStr}`
+    ].filter(Boolean).join(' | ');
+
+    console.log(`📝 生成事件 - 日期: ${date}, 标题: ${fileKey.toUpperCase()}, 描述: ${descParts}`);
+
+    acc.push({
+      date,
+      title: fileKey.toUpperCase(),
+      isAllDay: true,
+      description: descParts
+    });
+
+    return acc;
+  }, []);
+
+  allEvents.push(...events); // 将所有生成的事件推入 allEvents
+
+  console.log(`✅ ${fileKey}: 数据处理完成，共生成 ${entries.length} 个事件`);
+}
+/*
+common: (records, allEvents, fileKey) => {
+  console.log(`📂 正在处理文件: ${fileKey}`);
+
   records.Reconstruction?.forEach(recon => {
     let entries = [];
 
