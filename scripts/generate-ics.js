@@ -181,34 +181,48 @@ common: (records, allEvents, fileKey) => {
   records.Reconstruction?.forEach(recon => {
     let entries = [];
 
-    // 兼容 data 既可能是数组也可能是对象
     if (Array.isArray(recon.data)) {
       console.log(`✅ ${fileKey}: data 字段是数组，共 ${recon.data.length} 条数据`);
       entries = recon.data;
     } else if (typeof recon.data === 'object' && recon.data !== null) {
       console.log(`✅ ${fileKey}: data 字段是对象，已转换为数组`);
-      entries = [recon.data]; // 转换为数组，统一处理
+      entries = [recon.data]; 
     } else {
       logError(`⚠️ ${fileKey}: data 既不是对象也不是数组: ${JSON.stringify(recon.data)}`);
       return;
     }
 
-    // 遍历处理数据
+    // 处理数据
     entries.forEach((entry, index) => {
       console.log(`🔍 处理第 ${index + 1} 条数据: ${JSON.stringify(entry)}`);
 
-      const { date, name, range, zxtd, lunar, almanac } = entry;
-      const { cnYear, cnMonth, cnDay, cyclicalYear, cyclicalMonth, cyclicalDay, zodiac } = lunar || {};
-      const { yi, ji, chong, sha, jishenfangwei } = almanac || {};
+      var date = entry.date;
+      var name = entry.name;
+      var range = entry.range;
+      var zxtd = entry.zxtd;
+      var lunar = entry.lunar || {};
+      var almanac = entry.almanac || {};
 
-      // 提取吉神方位
+      var cnYear = lunar.cnYear;
+      var cnMonth = lunar.cnMonth;
+      var cnDay = lunar.cnDay;
+      var cyclicalYear = lunar.cyclicalYear;
+      var cyclicalMonth = lunar.cyclicalMonth;
+      var cyclicalDay = lunar.cyclicalDay;
+      var zodiac = lunar.zodiac;
+
+      var yi = almanac.yi;
+      var ji = almanac.ji;
+      var chong = almanac.chong;
+      var sha = almanac.sha;
+      var jishenfangwei = almanac.jishenfangwei;
+
       const jishenfangweiStr = jishenfangwei 
         ? Object.entries(jishenfangwei).map(([key, value]) => `${key}: ${value}`).join(' ')
         : '';
 
-      // 组装 description 字段
       const descParts = [
-        name, range, zxtd, // 原本的字段
+        name, range, zxtd,
         `农历: ${cnYear}年 ${cnMonth}${cnDay} (${cyclicalYear}年 ${cyclicalMonth}月 ${cyclicalDay}日) ${zodiac}年`,
         `宜: ${yi}`, `忌: ${ji}`, `冲: ${chong}`, `煞: ${sha}`,
         `吉神方位: ${jishenfangweiStr}`
