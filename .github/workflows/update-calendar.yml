@@ -10,21 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 🛎️ Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Ensure data directory and files exist
-        run: |
-          mkdir -p data/Document
-          for file in calendar.json astro.json shichen.json jieqi.json holidays.json; do
-            if [ ! -f "data/Document/$file" ]; then
-              echo "[]" > "data/Document/$file"
-            fi
-          done
+      - name: 📂 确保数据目录存在
+        run: mkdir -p data/Document
 
-      - name: Cache Node.js modules
+      - name: ⚡️ 缓存 Node.js 依赖
         uses: actions/cache@v2
         with:
           path: node_modules
@@ -32,59 +26,65 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Ensure package-lock.json exists or is not empty
-        run: |
-          if [ ! -f "package-lock.json" ] || [ ! -s "package-lock.json" ]; then
-            echo "package-lock.json is missing or empty! Re-generating..."
-            npm install --package-lock-only
-          else
-            echo "package-lock.json exists and is not empty, skipping regeneration."
-          fi
-
-      - name: Install dependencies
+      - name: 📦 安装依赖
         run: npm ci
 
-      - name: Run data fetch and ICS generation
+      - name: 📡 获取数据 (`fetch-data.js`)
         run: |
           set -e
-          echo "Fetching data..."
+          echo "📥 开始获取数据..."
           node scripts/fetch-data.js
-          echo "Generating ICS file..."
-          node scripts/generate-ics.js
+          echo "✅ 数据获取成功！"
 
-      - name: Check for changes
+      - name: 🔍 确保 JSON 数据已写入
+        run: |
+          echo "🛠️ 确保数据文件已正确写入..."
+          for file in data/Document/calendar.json data/Document/astro.json data/Document/shichen.json data/Document/jieqi.json data/Document/holidays.json; do
+            if [ ! -s "$file" ]; then
+              echo "❌ 错误: $file 为空或未写入！终止执行。"
+              exit 1
+            fi
+          done
+          echo "✅ 所有数据文件已正确写入！"
+
+      - name: 📅 生成 ICS (`generate-ics.js`)
+        run: |
+          echo "📅 开始生成 ICS 文件..."
+          node scripts/generate-ics.js
+          echo "✅ ICS 文件生成成功！"
+
+      - name: 🔍 检查文件变更
         id: check_changes
         run: |
-          echo "Checking for changes..."
+          echo "🛠️ 检查是否有文件更改..."
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo "Changes detected."
+            echo "🔄 检测到文件变更。"
             echo "changes=true" >> $GITHUB_ENV
           else
-            echo "No changes to commit."
+            echo "✅ 没有文件变更，无需提交。"
             echo "changes=false" >> $GITHUB_ENV
           fi
 
-      - name: Commit and push changes
+      - name: 📝 提交并推送更改
         if: env.changes == 'true'
         run: |
+          echo "🚀 提交更改..."
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
 
-          # 执行 stash 和 pop 仅在有更改时
-          git stash || echo "No changes to stash"
+          git fetch origin main
           git pull --rebase origin main
-          git stash pop || echo "No stashed changes"
-
+          
           git add .
-          git commit -m "Update data and calendar.ics"
+          git commit -m "🔄 更新数据和 calendar.ics"
           git push origin main
 
-      - name: Create Pull Request
+      - name: 🔀 创建 Pull Request
         if: env.changes == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          title: "Update data and calendar.ics"
+          title: "🔄 更新数据和 calendar.ics"
           branch: "update-calendar"
-          commit-message: "Update data and calendar.ics"
+          commit-message: "🔄 更新数据和 calendar.ics"
           delete-branch: true
-          base: main  # 确保 PR 是基于 `main` 分支的
+          base: main
