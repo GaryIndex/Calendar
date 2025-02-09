@@ -271,3 +271,14 @@
 [2025-02-09T11:12:09.772Z] [ERROR] ❌ 无效事件日期: {"title":"CALENDAR","isAllDay":true,"description":"农历: undefined年 undefinedundefined (undefined年 undefined月 undefined日) undefined年 | 宜: undefined | 忌: undefined | 冲: undefined | 煞: undefined | 吉神方位: "}
 [2025-02-09T11:12:09.772Z] [ERROR] ❌ 无效事件日期: {"title":"CALENDAR","isAllDay":true,"description":"农历: undefined年 undefinedundefined (undefined年 undefined月 undefined日) undefined年 | 宜: undefined | 忌: undefined | 冲: undefined | 煞: undefined | 吉神方位: "}
 [2025-02-09T11:12:09.774Z] [INFO] ✅ 生成 ICS 文件: /home/runner/work/Calendar/Calendar/scripts/calendar.ics
+[2025-02-09T11:32:14.245Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/holidays.json
+[2025-02-09T11:32:14.246Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/jieqi.json
+[2025-02-09T11:32:14.246Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/astro.json
+[2025-02-09T11:32:14.246Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/calendar.json
+[2025-02-09T11:32:14.246Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/shichen.json
+[2025-02-09T11:32:14.250Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/holidays.json, 数据量: 2
+[2025-02-09T11:32:14.250Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/jieqi.json, 数据量: 2
+[2025-02-09T11:32:14.251Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/astro.json, 数据量: 2
+[2025-02-09T11:32:14.251Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/calendar.json, 数据量: 2
+[2025-02-09T11:32:14.252Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/shichen.json, 数据量: 2
+[2025-02-09T11:32:14.253Z] [INFO] ✅ 生成 ICS 文件: /home/runner/work/Calendar/Calendar/scripts/calendar.ics
