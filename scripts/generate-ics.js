@@ -279,15 +279,33 @@ const generateICS = async () => {
 
   // 过滤无效事件
   const validEvents = allEvents.filter(event => event.date && event.description);
-  
+
   if (validEvents.length === 0) {
     logError('❌ 没有有效的事件数据，无法生成 ICS 文件');
     return;
   }
 
-  // 检查事件数据
-  logInfo(`📅 有效的事件数量: ${validEvents.length}`);
-  validEvents.forEach(event => {
+  // **合并相同日期的事件**
+  const mergedEvents = Object.values(validEvents.reduce((acc, event) => {
+    if (!acc[event.date]) {
+      acc[event.date] = { 
+        date: event.date, 
+        title: event.title ? [event.title] : [], 
+        description: event.description ? [event.description] : [] 
+      };
+    } else {
+      if (event.title) acc[event.date].title.push(event.title);
+      if (event.description) acc[event.date].description.push(event.description);
+    }
+    return acc;
+  }, {})).map(event => ({
+    date: event.date,
+    title: event.title.join(' '),  // 用空格拼接标题
+    description: event.description.join(' | ') // 用 `|` 拼接描述
+  }));
+
+  logInfo(`📅 合并后的事件数量: ${mergedEvents.length}`);
+  mergedEvents.forEach(event => {
     logInfo(`📝 事件详情: 日期 - ${event.date}, 标题 - ${event.title}, 备注 - ${event.description}`);
   });
 
@@ -295,13 +313,13 @@ const generateICS = async () => {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    ...validEvents.map(event => {
+    ...mergedEvents.map(event => {
       return `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`;
     }),
     'END:VCALENDAR'
   ].join('\r\n');
 
-  // ✅ 先确保目录存在
+  // ✅ 确保目录存在
   ensureDirExists(icsFilePath);
 
   // ✅ 记录目标 ICS 文件路径
@@ -321,14 +339,6 @@ const generateICS = async () => {
     }
   } catch (err) {
     logError(`❌ 生成 ICS 文件失败: ${err.message}`);
-  }
-};
-
-// 确保目录存在的函数
-const ensureDirExists = (filePath) => {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
   }
 };
 
