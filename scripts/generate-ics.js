@@ -190,6 +190,7 @@ common: (records, allEvents, fileKey) => {
   console.log(`✅ ${fileKey}: 数据字段共 ${entries.length} 条数据`);
 
   // 使用 reduce 处理并返回事件
+/*
   const events = entries.reduce((acc, entry, index) => {
     console.log(`🔍 处理第 ${index + 1} 条数据: ${JSON.stringify(entry)}`);
 
@@ -228,7 +229,7 @@ common: (records, allEvents, fileKey) => {
 
   console.log(`✅ ${fileKey}: 数据处理完成，共生成 ${entries.length} 个事件`);
 },
-/*
+*/
   common: (records, allEvents, fileKey) => {
     records.Reconstruction?.forEach(recon => {
       // 检查 recon.data 是否是数组
@@ -253,7 +254,7 @@ common: (records, allEvents, fileKey) => {
     });
   }
 };
-*/
+
 
 /**
  * 生成ICS事件内容
