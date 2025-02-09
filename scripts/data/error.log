@@ -158,3 +158,14 @@
 [2025-02-09T02:24:30.447Z] [ERROR] ❌ 读取 JSON 失败: /home/runner/work/Calendar/Calendar/scripts/data/Document/calendar.json - ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/calendar.json'
 [2025-02-09T02:24:30.448Z] [ERROR] ❌ 读取 JSON 失败: /home/runner/work/Calendar/Calendar/scripts/data/Document/shichen.json - ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/shichen.json'
 [2025-02-09T02:24:30.454Z] [INFO] ✅ ICS文件生成成功！共包含 0 个事件
+[2025-02-09T02:27:24.652Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/scripts/data/Document/holidays.json
+[2025-02-09T02:27:24.654Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/scripts/data/Document/jieqi.json
+[2025-02-09T02:27:24.654Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/scripts/data/Document/astro.json
+[2025-02-09T02:27:24.654Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/scripts/data/Document/calendar.json
+[2025-02-09T02:27:24.654Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/scripts/data/Document/shichen.json
+[2025-02-09T02:27:24.655Z] [ERROR] ❌ 读取 JSON 失败: /home/runner/work/Calendar/Calendar/scripts/data/Document/holidays.json - ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/holidays.json'
+[2025-02-09T02:27:24.655Z] [ERROR] ❌ 读取 JSON 失败: /home/runner/work/Calendar/Calendar/scripts/data/Document/jieqi.json - ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/jieqi.json'
+[2025-02-09T02:27:24.655Z] [ERROR] ❌ 读取 JSON 失败: /home/runner/work/Calendar/Calendar/scripts/data/Document/astro.json - ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/astro.json'
+[2025-02-09T02:27:24.655Z] [ERROR] ❌ 读取 JSON 失败: /home/runner/work/Calendar/Calendar/scripts/data/Document/calendar.json - ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/calendar.json'
+[2025-02-09T02:27:24.655Z] [ERROR] ❌ 读取 JSON 失败: /home/runner/work/Calendar/Calendar/scripts/data/Document/shichen.json - ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/shichen.json'
+[2025-02-09T02:27:24.661Z] [INFO] ✅ ICS文件生成成功！共包含 0 个事件
