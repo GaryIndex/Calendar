@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import fs from 'fs';
 // utils.js
 //import fs from 'fs';
-import path from 'path';
+//import path from 'path';
 export const ensureDirExists = (filePath) => {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) {
