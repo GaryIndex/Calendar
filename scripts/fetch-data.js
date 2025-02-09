@@ -4,8 +4,9 @@ const fs = require('fs');
 const moment = require('moment-timezone');
 const deepmerge = require('deepmerge');
 */
+import fs from 'fs';
 import axios from 'axios';
-import { promises as fs } from 'fs';          // 使用 fs 的 Promise 版本
+//import { promises as fs } from 'fs';          // 使用 fs 的 Promise 版本
 import moment from 'moment-timezone';         // 保持 moment 的导入方式
 import deepmerge from 'deepmerge';            // 使用 ES 模块导入 deepmerge
 
