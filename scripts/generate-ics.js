@@ -287,34 +287,60 @@ const generateICS = async () => {
 
   // **合并相同日期的事件**
   const mergedEvents = Object.values(validEvents.reduce((acc, event) => {
-    if (!acc[event.date]) {
-      acc[event.date] = { 
+    const key = event.date + (event.startTime ? `T${event.startTime.replace(/:/g, '')}` : ''); // 确保时间唯一
+    if (!acc[key]) {
+      acc[key] = { 
         date: event.date, 
+        startTime: event.startTime || null, 
         title: event.title ? [event.title] : [], 
         description: event.description ? [event.description] : [] 
       };
     } else {
-      if (event.title) acc[event.date].title.push(event.title);
-      if (event.description) acc[event.date].description.push(event.description);
+      if (event.title) acc[key].title.push(event.title);
+      if (event.description) acc[key].description.push(event.description);
     }
     return acc;
   }, {})).map(event => ({
     date: event.date,
+    startTime: event.startTime, // 可能为空
     title: event.title.join(' '),  // 用空格拼接标题
     description: event.description.join(' | ') // 用 `|` 拼接描述
   }));
 
   logInfo(`📅 合并后的事件数量: ${mergedEvents.length}`);
   mergedEvents.forEach(event => {
-    logInfo(`📝 事件详情: 日期 - ${event.date}, 标题 - ${event.title}, 备注 - ${event.description}`);
+    logInfo(`📝 事件详情: 日期 - ${event.date}, 时间 - ${event.startTime || '全天'}, 标题 - ${event.title}, 备注 - ${event.description}`);
   });
 
   // 生成 ICS 内容
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
     ...mergedEvents.map(event => {
-      return `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`;
+      const dateFormatted = event.date.replace(/-/g, '');
+      let dtstart, dtend;
+
+      if (event.startTime) {
+        // 事件有具体时间
+        const timeFormatted = event.startTime.replace(/:/g, '') + '00'; // HHMMSS
+        dtstart = `DTSTART;TZID=Asia/Shanghai:${dateFormatted}T${timeFormatted}`;
+        dtend = `DTEND;TZID=Asia/Shanghai:${dateFormatted}T${parseInt(timeFormatted) + 10000}`; // 默认+1小时
+      } else {
+        // 全天事件
+        dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
+        dtend = ''; // 全天事件不需要 DTEND
+      }
+
+      return [
+        'BEGIN:VEVENT',
+        dtstart,
+        dtend ? dtend : '',
+        `SUMMARY:${event.title}`,
+        `DESCRIPTION:${event.description}`,
+        'END:VEVENT'
+      ].filter(Boolean).join('\r\n'); // 过滤空行
     }),
     'END:VCALENDAR'
   ].join('\r\n');
