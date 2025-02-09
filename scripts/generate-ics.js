@@ -85,7 +85,7 @@ const readJsonData = async (filePath) => {
 /**
  * 处理不同文件类型的数据
  */
-const processors = {
+/*const processors = {
   // 处理节气数据
   jieqi: (records, allEvents) => {
     records.Reconstruction?.forEach(item => {
@@ -104,6 +104,32 @@ const processors = {
       });
     });
   },
+*/
+const processors = {
+  // 处理节气数据
+  jieqi: (records, allEvents) => {
+    records.Reconstruction?.forEach(item => {
+      // 获取每个节气的 time 字段，提取出日期部分
+      const time = item.data?.time;
+      if (!time) {
+        logError(`❌ 节气数据缺少时间: ${JSON.stringify(item)}`);
+        return;
+      }
+
+      // 提取日期部分（格式：YYYY-MM-DD）
+      const date = time.split(' ')[0];
+
+      allEvents.push({
+        date,
+        title: item.data?.name,
+        startTime: time,
+        isAllDay: false,
+        description: ''
+      });
+    });
+  },
+};
+
 
   // 处理时辰数据
   shichen: (records, allEvents) => {
