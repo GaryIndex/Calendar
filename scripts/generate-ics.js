@@ -161,7 +161,7 @@ holidays: (records, allEvents) => {
       description: descParts
     });
   });
-}
+},
 
   // 处理带data数组的通用数据
   common: (records, allEvents, fileKey) => {
