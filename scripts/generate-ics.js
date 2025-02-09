@@ -227,7 +227,7 @@ common: (records, allEvents, fileKey) => {
   allEvents.push(...events); // 将所有生成的事件推入 allEvents
 
   console.log(`✅ ${fileKey}: 数据处理完成，共生成 ${entries.length} 个事件`);
-}
+},
 /*
   common: (records, allEvents, fileKey) => {
     records.Reconstruction?.forEach(recon => {
