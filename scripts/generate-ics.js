@@ -167,7 +167,7 @@ processors.jieqi(records, allEvents);
 // 打印所有事件
 console.log(allEvents);
 
-
+/*
   // 处理时辰数据
   shichen: (records, allEvents) => {
     records.Reconstruction?.forEach(recon => {
@@ -197,6 +197,51 @@ console.log(allEvents);
       }
     });
   },
+*/
+
+const processors = {
+  // 处理时辰数据
+  shichen: (records, allEvents) => {
+    records.Reconstruction?.forEach(recon => {
+      // 检查 recon.data 是否是数组
+      if (Array.isArray(recon.data)) {
+        recon.data.forEach(entry => {
+          // 拼接描述信息
+          const descParts = [
+            `${entry.date} ${entry.hours}`,
+            entry.yi !== '无' ? entry.yi : null,
+            entry.ji,
+            entry.chong,
+            entry.sha,
+            entry.nayin,
+            entry.jiuxing
+          ].filter(Boolean).join(' ');
+
+          // 将时辰信息推送到 allEvents 数组
+          allEvents.push({
+            date: entry.date,
+            title: entry.hour,  // 使用时辰名称作为标题
+            isAllDay: true,
+            description: descParts
+          });
+        });
+      } else {
+        logError(`⚠️ recon.data 不是数组: ${JSON.stringify(recon.data)}`);
+      }
+    });
+  }
+};
+
+
+// 用于存储所有时辰事件
+const allEvents = [];
+// 调用处理函数
+processors.shichen(records, allEvents);
+// 打印处理后的时辰事件
+console.log(allEvents);
+
+
+
 /*
   // 处理节假日数据
   holidays: (records, allEvents) => {
