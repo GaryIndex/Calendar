@@ -3,6 +3,12 @@ import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import fs from 'fs';
 
+const ensureDirExists = (filePath) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
 // 计算 __dirname（ESM 方式）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
