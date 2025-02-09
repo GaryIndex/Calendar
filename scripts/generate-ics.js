@@ -10,10 +10,7 @@ const __dirname = path.dirname(__filename);
 // 日志文件路径
 const logFilePath = path.join(__dirname, './data/error.log');
 
-/**
- * 确保目录存在
- * @param {string} filePath - 目标文件路径
- */
+// 确保目录存在
 const ensureDirectoryExistence = async (filePath) => {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) {
@@ -30,7 +27,7 @@ initLogDir();
 /**
  * 记录日志
  * @param {string} type "INFO" | "ERROR"
- * @param {string} message - 记录的消息
+ * @param {string} message
  */
 const writeLog = async (type, message) => {
   const timestamp = new Date().toISOString();
@@ -61,8 +58,8 @@ const icsFilePath = path.join(__dirname, './calendar.ics');
 
 /**
  * 读取 JSON 数据
- * @param {string} filePath - JSON 文件路径
- * @returns {Promise<Object>} - 解析后的 JSON 对象
+ * @param {string} filePath
+ * @returns {Promise<Object>}
  */
 const readJsonData = async (filePath) => {
   try {
@@ -82,7 +79,6 @@ const readJsonData = async (filePath) => {
 
     const data = JSON.parse(rawData);
     logInfo(`✅ 成功解析 JSON: ${filePath}, 数据量: ${Object.keys(data).length}`);
-
     return data;
   } catch (error) {
     logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
@@ -104,12 +100,14 @@ const processors = {
           return;
         }
         const date = time.split(' ')[0];
+        const description = `节气: ${event.name}`;
 
         allEvents.push({
           date,
           title: event.name,
+          startTime: time,
           isAllDay: false,
-          description: `节气: ${event.name}`,
+          description,
         });
       });
     });
@@ -120,11 +118,21 @@ const processors = {
     records.Reconstruction?.forEach(recon => {
       if (Array.isArray(recon.data)) {
         recon.data.forEach(entry => {
+          const descParts = [
+            `${entry.date} ${entry.hours}`,
+            entry.yi !== '无' ? entry.yi : null,
+            entry.ji,
+            entry.chong,
+            entry.sha,
+            entry.nayin,
+            entry.jiuxing
+          ].filter(Boolean).join(' ');
+
           allEvents.push({
             date: entry.date,
             title: entry.hour,
             isAllDay: true,
-            description: `${entry.date} ${entry.hours} | ${entry.yi || ''} | ${entry.ji || ''}`,
+            description: descParts
           });
         });
       } else {
@@ -138,28 +146,29 @@ const processors = {
     records.Reconstruction?.forEach(item => {
       Object.entries(item).forEach(([key, holiday]) => {
         const { date, name, isOffDay } = holiday;
+
         if (!date || !name || isOffDay === undefined) {
-          logError(`❌ 节假日数据缺失字段: ${JSON.stringify(holiday)}`);
+          logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
           return;
         }
+
+        const descParts = Object.entries(holiday)
+          .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(' | ');
 
         allEvents.push({
           date,
           title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
           isAllDay: true,
-          description: `类型: ${isOffDay ? '休息日' : '工作日'}`,
+          description: descParts
         });
       });
     });
   },
 
-  //处理通用数据
-// 处理通用数据
-globalThis.processors = globalThis.processors || {}; // ✅ 使 processors 在任何环境下都可用
-
-processors.common = (records, allEvents, fileKey) => {
-  // 处理 astro 数据
-  if (fileKey === 'astro') {
+  //处理astro.json
+  astro: (records, allEvents) => {
     records.Reconstruction?.forEach(entry => {
       if (!entry.data || !entry.data.range) {
         logError(`❌ astro.json 缺少有效数据: ${JSON.stringify(entry)}`);
@@ -195,10 +204,10 @@ processors.common = (records, allEvents, fileKey) => {
         currentDate.setDate(currentDate.getDate() + 1);
       }
     });
-  }
+  },
 
-  // 处理 calendar 数据
-  if (fileKey === 'calendar') {
+  //处理calendar.json
+  calendar: (records, allEvents) => {
     Object.entries(records).forEach(([date, record]) => {
       record.Reconstruction?.forEach(entry => {
         if (!entry.data) {
@@ -237,36 +246,19 @@ processors.common = (records, allEvents, fileKey) => {
   }
 };
 
-// 处理通用数据（结束）
-
 /**
  * 生成 ICS 文件
  */
 const generateICS = async () => {
   const allEvents = [];
 
-  // 读取所有 JSON 数据
   await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
     const jsonData = await readJsonData(filePath);
-
-    // 遍历 JSON 数据并转换为事件
     Object.values(jsonData).forEach(records => {
-      if (processors[fileKey]) {
-        processors[fileKey](records, allEvents);
-      } else {
-        processors.common(records, allEvents, fileKey);
-      }
+      processors[fileKey] ? processors[fileKey](records, allEvents) : null;
     });
   }));
 
-  logInfo(`📌 事件总数: ${allEvents.length}`);
-
-  if (allEvents.length === 0) {
-    logError("⚠️ 没有可写入的事件，ICS 文件将为空！");
-    return;
-  }
-
-  // 生成 ICS 内容
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -276,12 +268,12 @@ const generateICS = async () => {
     'END:VCALENDAR'
   ].join('\r\n');
 
-  logInfo(`📂 生成 ICS 内容:\n${icsContent}`);
-
-  // 写入 ICS 文件
-  await fs.promises.writeFile(icsFilePath, icsContent, 'utf-8');
-  logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
+  try {
+    await fs.promises.writeFile(icsFilePath, icsContent, 'utf8');
+    logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
+  } catch (err) {
+    logError(`❌ 生成 ICS 文件失败: ${err.message}`);
+  }
 };
 
-// 运行 ICS 生成
 generateICS();
