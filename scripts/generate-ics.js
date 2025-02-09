@@ -105,25 +105,30 @@ const processors = {
   // 处理时辰数据
   shichen: (records, allEvents) => {
     records.Reconstruction?.forEach(recon => {
-      recon.data?.forEach(entry => {
-        const descParts = [
-          `${entry.date} ${entry.hours}`,
-          entry.hour,
-          entry.yi !== '无' ? entry.yi : null,
-          entry.ji,
-          entry.chong,
-          entry.sha,
-          entry.nayin,
-          entry.jiuxing
-        ].filter(Boolean).join(' ');
+      // 检查 recon.data 是否是数组
+      if (Array.isArray(recon.data)) {
+        recon.data.forEach(entry => {
+          const descParts = [
+            `${entry.date} ${entry.hours}`,
+            entry.hour,
+            entry.yi !== '无' ? entry.yi : null,
+            entry.ji,
+            entry.chong,
+            entry.sha,
+            entry.nayin,
+            entry.jiuxing
+          ].filter(Boolean).join(' ');
 
-        allEvents.push({
-          date: entry.date,
-          title: '时辰信息',
-          isAllDay: true,
-          description: descParts
+          allEvents.push({
+            date: entry.date,
+            title: '时辰信息',
+            isAllDay: true,
+            description: descParts
+          });
         });
-      });
+      } else {
+        logError(`⚠️ 文件 ${fileKey} 中的 recon.data 不是数组: ${JSON.stringify(recon.data)}`);
+      }
     });
   },
 
@@ -148,20 +153,25 @@ const processors = {
   // 处理带data数组的通用数据
   common: (records, allEvents, fileKey) => {
     records.Reconstruction?.forEach(recon => {
-      recon.data?.forEach(entry => {
-        const descParts = [
-          entry.name,
-          entry.range,
-          entry.zxtd
-        ].filter(Boolean).join(' ');
+      // 检查 recon.data 是否是数组
+      if (Array.isArray(recon.data)) {
+        recon.data.forEach(entry => {
+          const descParts = [
+            entry.name,
+            entry.range,
+            entry.zxtd
+          ].filter(Boolean).join(' ');
 
-        allEvents.push({
-          date: entry.date,
-          title: fileKey.toUpperCase(),
-          isAllDay: true,
-          description: descParts
+          allEvents.push({
+            date: entry.date,
+            title: fileKey.toUpperCase(),
+            isAllDay: true,
+            description: descParts
+          });
         });
-      });
+      } else {
+        logError(`⚠️ 文件 ${fileKey} 中的 recon.data 不是数组: ${JSON.stringify(recon.data)}`);
+      }
     });
   }
 };
