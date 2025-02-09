@@ -85,52 +85,6 @@ const readJsonData = async (filePath) => {
 /**
  * 处理不同文件类型的数据
  */
-/*const processors = {
-  // 处理节气数据
-  jieqi: (records, allEvents) => {
-    records.Reconstruction?.forEach(item => {
-      const date = item.date || item.data?.date;
-      if (!date) {
-        logError(`❌ 节气数据缺少日期: ${JSON.stringify(item)}`);
-        return;
-      }
-
-      allEvents.push({
-        date,
-        title: item.data?.name,
-        startTime: item.data?.time,
-        isAllDay: false,
-        description: ''
-      });
-    });
-  },
-*/
-/*
-const processors = {
-  // 处理节气数据
-  jieqi: (records, allEvents) => {
-    records.Reconstruction?.forEach(item => {
-      // 获取每个节气的 time 字段，提取出日期部分
-      const time = item.data?.time;
-      if (!time) {
-        logError(`❌ 节气数据缺少时间: ${JSON.stringify(item)}`);
-        return;
-      }
-
-      // 提取日期部分（格式：YYYY-MM-DD）
-      const date = time.split(' ')[0];
-
-      allEvents.push({
-        date,
-        title: item.data?.name,
-        startTime: time,
-        isAllDay: false,
-        description: ''
-      });
-    });
-  },
-};
-*/
 const processors = {
   // 处理节气数据
   jieqi: (records, allEvents) => {
@@ -159,47 +113,7 @@ const processors = {
       });
     });
   },
-};
-// 用于存储所有节气事件
-const allEvents = [];
-// 调用处理函数
-processors.jieqi(records, allEvents);
-// 打印所有事件
-console.log(allEvents);
 
-/*
-  // 处理时辰数据
-  shichen: (records, allEvents) => {
-    records.Reconstruction?.forEach(recon => {
-      // 检查 recon.data 是否是数组
-      if (Array.isArray(recon.data)) {
-        recon.data.forEach(entry => {
-          const descParts = [
-            `${entry.date} ${entry.hours}`,
-            entry.hour,
-            entry.yi !== '无' ? entry.yi : null,
-            entry.ji,
-            entry.chong,
-            entry.sha,
-            entry.nayin,
-            entry.jiuxing
-          ].filter(Boolean).join(' ');
-
-          allEvents.push({
-            date: entry.date,
-            title: '时辰信息',
-            isAllDay: true,
-            description: descParts
-          });
-        });
-      } else {
-        logError(`⚠️ 文件 ${fileKey} 中的 recon.data 不是数组: ${JSON.stringify(recon.data)}`);
-      }
-    });
-  },
-*/
-
-const processors = {
   // 处理时辰数据
   shichen: (records, allEvents) => {
     records.Reconstruction?.forEach(recon => {
@@ -229,69 +143,36 @@ const processors = {
         logError(`⚠️ recon.data 不是数组: ${JSON.stringify(recon.data)}`);
       }
     });
-  }
-};
+  },
 
-
-// 用于存储所有时辰事件
-const allEvents = [];
-// 调用处理函数
-processors.shichen(records, allEvents);
-// 打印处理后的时辰事件
-console.log(allEvents);
-
-
-
-/*
   // 处理节假日数据
   holidays: (records, allEvents) => {
     records.Reconstruction?.forEach(item => {
-      const descParts = item.data ? 
-        Object.entries(item.data)
+      // 遍历每个节假日的日期
+      Object.entries(item).forEach(([key, holiday]) => {
+        const { date, name, isOffDay } = holiday;
+
+        // 确保日期、节日名称和是否休假有效
+        if (!date || !name || isOffDay === undefined) {
+          logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
+          return;
+        }
+
+        // 生成描述信息
+        const descParts = Object.entries(holiday)
           .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
           .map(([k, v]) => `${k}: ${v}`)
-          .join(' | ') : '';
+          .join(' | ');
 
-      allEvents.push({
-        date: item.date,
-        title: `${item.data?.isOffDay ? '[休]' : '[班]'} ${item.data?.name}`,
-        isAllDay: true,
-        description: descParts
+        allEvents.push({
+          date, // 使用节假日的日期
+          title: `${isOffDay ? '[休]' : '[班]'} ${name}`, // 标题显示休假或上班
+          isAllDay: true, // 设为全天事件
+          description: descParts // 描述包含其他信息
+        });
       });
     });
   },
-*/
-
-// 处理节假日数据
-holidays: (records, allEvents) => {
-  records.Reconstruction?.forEach(item => {
-    // 遍历每个节假日的日期
-    Object.entries(item).forEach(([key, holiday]) => {
-      const { date, name, isOffDay } = holiday;
-
-      // 确保日期、节日名称和是否休假有效
-      if (!date || !name || isOffDay === undefined) {
-        logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
-        return;
-      }
-
-      // 生成描述信息
-      const descParts = Object.entries(holiday)
-        .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(' | ');
-
-      allEvents.push({
-        date, // 使用节假日的日期
-        title: `${isOffDay ? '[休]' : '[班]'} ${name}`, // 标题显示休假或上班
-        isAllDay: true, // 设为全天事件
-        description: descParts // 描述包含其他信息
-      });
-    });
-  });
-},
-
-
 
   // 处理带data数组的通用数据
   common: (records, allEvents, fileKey) => {
@@ -368,25 +249,20 @@ const generateICS = async () => {
     });
   }));
 
-  // 生成ICS内容
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Chinese Calendar//EN',
-    'CALSCALE:GREGORIAN',
-    ...allEvents.map(event => generateICSEvent(event)),
+    ...allEvents.map(generateICSEvent),
     'END:VCALENDAR'
   ].join('\r\n');
 
   try {
-    await fs.promises.writeFile(icsFilePath, icsContent);
-    logInfo(`✅ ICS文件生成成功！共包含 ${allEvents.length} 个事件`);
-    console.log('✅ ICS 文件成功写入:', icsFilePath); // 新增日志输出
-  } catch (error) {
-    logError(`❌ 写入ICS文件失败: ${error.message}`);
-    console.log('❌ 写入 ICS 文件失败:', error.message); // 错误输出
+    await fs.promises.writeFile(icsFilePath, icsContent, 'utf-8');
+    logInfo(`✅ 生成 ICS 文件: ${icsFilePath}`);
+  } catch (err) {
+    logError(`❌ 生成 ICS 文件失败: ${err.message}`);
   }
 };
 
-// 运行生成器
+// 生成 ICS 文件
 generateICS();
