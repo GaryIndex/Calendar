@@ -126,7 +126,7 @@ const processors = {
       });
     });
   },
-
+/*
   // 处理节假日数据
   holidays: (records, allEvents) => {
     records.Reconstruction?.forEach(item => {
@@ -143,6 +143,25 @@ const processors = {
       });
     });
   },
+  */
+
+// 处理节假日数据
+holidays: (records, allEvents) => {
+  records.Reconstruction?.forEach(item => {
+    const descParts = item.data ? 
+      Object.entries(item.data)
+        .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(' | ') : '';
+
+    allEvents.push({
+      date: item.date,
+      title: `${item.data?.isOffDay ? '[休]' : '[班]'} ${item.data?.name}`,
+      isAllDay: true,
+      description: descParts
+    });
+  });
+}
 
   // 处理带data数组的通用数据
   common: (records, allEvents, fileKey) => {
