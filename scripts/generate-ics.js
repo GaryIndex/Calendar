@@ -316,9 +316,34 @@ const generateICS = async () => {
     return;
   }
 
-  // 检查事件数据
-  logInfo(`📅 有效的事件数量: ${validEvents.length}`);
-  validEvents.forEach(event => {
+  // **修复：合并同一天的标题和备注，并去重**
+  const mergedEvents = validEvents.reduce((acc, event) => {
+    const existingEvent = acc.find(e => e.date === event.date);
+    
+    if (existingEvent) {
+      // **标题合并（去重）**
+      if (event.title) {
+        const titleSet = new Set(existingEvent.title ? existingEvent.title.split(' | ') : []);
+        titleSet.add(event.title);
+        existingEvent.title = [...titleSet].join(' | ');
+      }
+
+      // **备注合并（去重）**
+      if (event.description) {
+        const descSet = new Set(existingEvent.description ? existingEvent.description.split('\n') : []);
+        descSet.add(event.description);
+        existingEvent.description = [...descSet].join('\n');
+      }
+    } else {
+      acc.push({ ...event });
+    }
+    
+    return acc;
+  }, []);
+
+  // 检查合并后的事件数据
+  logInfo(`📅 合并后的事件数量: ${mergedEvents.length}`);
+  mergedEvents.forEach(event => {
     logInfo(`📝 事件详情: 日期 - ${event.date}, 标题 - ${event.title}, 备注 - ${event.description}`);
   });
 
@@ -326,7 +351,7 @@ const generateICS = async () => {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    ...validEvents.map(event => {
+    ...mergedEvents.map(event => {
       return `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`;
     }),
     'END:VCALENDAR'
@@ -352,14 +377,6 @@ const generateICS = async () => {
     }
   } catch (err) {
     logError(`❌ 生成 ICS 文件失败: ${err.message}`);
-  }
-};
-
-// 确保目录存在的函数
-const ensureDirExists = (filePath) => {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
   }
 };
 
