@@ -1,0 +1,53 @@
+[2025-02-09T21:41:53.219Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/holidays.json
+[2025-02-09T21:41:53.220Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/jieqi.json
+[2025-02-09T21:41:53.220Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/astro.json
+[2025-02-09T21:41:53.220Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/calendar.json
+[2025-02-09T21:41:53.220Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/shichen.json
+[2025-02-09T21:41:53.220Z] [INFO] 📂 初始化日志目录
+[2025-02-09T21:41:53.224Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/holidays.json, 数据量: 3
+[2025-02-09T21:41:53.224Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/jieqi.json, 数据量: 3
+[2025-02-09T21:41:53.224Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/astro.json, 数据量: 3
+[2025-02-09T21:41:53.225Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/calendar.json, 数据量: 3
+[2025-02-09T21:41:53.225Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/shichen.json, 数据量: 3
+[2025-02-09T21:41:53.225Z] [INFO] 📌 解析后的所有事件数据: [
+  {
+    "date": "2025-02-08"
+  },
+  {
+    "date": "2025-02-09"
+  },
+  {
+    "date": "2025-02-10"
+  },
+  {
+    "date": "2025-02-08",
+    "title": "水瓶座"
+  },
+  {
+    "date": "2025-02-09",
+    "title": "水瓶座"
+  },
+  {
+    "date": "2025-02-10",
+    "title": "水瓶座"
+  },
+  {
+    "date": "2025-02-08"
+  },
+  {
+    "date": "2025-02-09"
+  },
+  {
+    "date": "2025-02-10"
+  },
+  {
+    "date": "2025-02-08"
+  },
+  {
+    "date": "2025-02-09"
+  },
+  {
+    "date": "2025-02-10"
+  }
+]
+[2025-02-09T21:41:53.225Z] [ERROR] ❌ 没有有效的事件数据，无法生成 ICS 文件
