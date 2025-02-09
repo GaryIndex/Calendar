@@ -226,13 +226,28 @@ const generateICS = async () => {
       processors[fileKey] ? processors[fileKey](records, allEvents) : processors.common(records, allEvents, fileKey);
     });
   }));
-
+/*
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     ...allEvents.map(event => `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`),
     'END:VCALENDAR'
   ].join('\r\n');
+  */
+const icsContent = [
+  'BEGIN:VCALENDAR',
+  'VERSION:2.0',
+  ...allEvents.map(event => {
+    // 如果 event.date 为 undefined 或为空，跳过此事件
+    if (!event.date) {
+      logError(`❌ 无效事件日期: ${JSON.stringify(event)}`);
+      return ''; // 返回空字符串，避免生成无效事件
+    }
+
+    return `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`;
+  }).filter(Boolean), // 过滤掉空字符串
+  'END:VCALENDAR'
+].join('\r\n');
 
   await fs.promises.writeFile(icsFilePath, icsContent, 'utf-8');
   logInfo(`✅ 生成 ICS 文件: ${icsFilePath}`);
