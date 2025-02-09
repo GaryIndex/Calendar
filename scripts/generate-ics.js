@@ -2,10 +2,19 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import fs from 'fs';
-
+// utils.js
+//import fs from 'fs';
+import path from 'path';
+export const ensureDirExists = (filePath) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
 // 计算 __dirname（ESM 方式）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 // 日志文件路径
 const logFilePath = path.join(__dirname, './data/error.log');
