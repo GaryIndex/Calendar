@@ -91,6 +91,7 @@ const readJsonData = async (filePath) => {
 /**
  * 处理不同文件类型的数据
  */
+// 修改processors中的数据处理逻辑，使来自多个JSON文件的数据备注用换行符分开
 const processors = {
   // 处理节气数据
   jieqi: (records, allEvents) => {
@@ -105,13 +106,19 @@ const processors = {
         const date = time.split(' ')[0];
         const description = `节气: ${event.name}`;
 
-        allEvents.push({
-          date,
-          title: event.name,
-          startTime: time,
-          isAllDay: false,
-          description,
-        });
+        // 合并多个JSON文件的备注，使用换行符分开
+        const existingEvent = allEvents.find(e => e.date === date);
+        if (existingEvent) {
+          existingEvent.description += `\n${description}`;
+        } else {
+          allEvents.push({
+            date,
+            title: event.name,
+            startTime: time,
+            isAllDay: false,
+            description,
+          });
+        }
       });
     });
     logInfo("✅ 节气数据处理完成");
@@ -133,12 +140,18 @@ const processors = {
             entry.jiuxing
           ].filter(Boolean).join(' ');
 
-          allEvents.push({
-            date: entry.date,
-            title: entry.hour,
-            isAllDay: true,
-            description: descParts
-          });
+          // 合并多个JSON文件的备注，使用换行符分开
+          const existingEvent = allEvents.find(e => e.date === entry.date);
+          if (existingEvent) {
+            existingEvent.description += `\n${descParts}`;
+          } else {
+            allEvents.push({
+              date: entry.date,
+              title: entry.hour,
+              isAllDay: true,
+              description: descParts,
+            });
+          }
         });
       } else {
         logError(`⚠️ recon.data 不是数组: ${JSON.stringify(recon.data)}`);
@@ -164,12 +177,18 @@ const processors = {
           .map(([k, v]) => `${k}: ${v}`)
           .join(' | ');
 
-        allEvents.push({
-          date,
-          title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
-          isAllDay: true,
-          description: descParts
-        });
+        // 合并多个JSON文件的备注，使用换行符分开
+        const existingEvent = allEvents.find(e => e.date === date);
+        if (existingEvent) {
+          existingEvent.description += `\n${name} | ${descParts}`;
+        } else {
+          allEvents.push({
+            date,
+            title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
+            isAllDay: true,
+            description: `${name} | ${descParts}`,
+          });
+        }
       });
     });
     logInfo("✅ 节假日数据处理完成");
@@ -202,12 +221,18 @@ const processors = {
           .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
           .join(" | ");
 
-        allEvents.push({
-          date: dateStr,
-          title: "",  // 不设置标题
-          isAllDay: true,
-          description, // 所有值写进备注
-        });
+        // 合并多个JSON文件的备注，使用换行符分开
+        const existingEvent = allEvents.find(e => e.date === dateStr);
+        if (existingEvent) {
+          existingEvent.description += `\n${description}`;
+        } else {
+          allEvents.push({
+            date: dateStr,
+            title: "",  // 不设置标题
+            isAllDay: true,
+            description, // 所有值写进备注
+          });
+        }
 
         // 日期 +1 天
         currentDate.setDate(currentDate.getDate() + 1);
@@ -246,12 +271,18 @@ const processors = {
           .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
           .join(" | ");
 
-        allEvents.push({
-          date,  // 直接使用 JSON key 作为日期
-          title: "",  // 不设置标题
-          isAllDay: true,
-          description, // 所有值写进备注
-        });
+        // 合并多个JSON文件的备注，使用换行符分开
+        const existingEvent = allEvents.find(e => e.date === date);
+        if (existingEvent) {
+          existingEvent.description += `\n${description}`;
+        } else {
+          allEvents.push({
+            date,  // 直接使用 JSON key 作为日期
+            title: "",  // 不设置标题
+            isAllDay: true,
+            description, // 所有值写进备注
+          });
+        }
       });
     });
     logInfo("✅ 日历数据处理完成");
