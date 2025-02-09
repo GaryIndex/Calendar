@@ -12,7 +12,7 @@ import deepmerge from 'deepmerge';            // 使用 ES 模块导入 deepmerg
 
 const DATA_PATH = './data/Document';
 const LOG_PATH = './data/error.log';
-const START_DATE = '2025-02-08';
+const START_DATE = '2025-02-10';
 const MAX_RETRIES = 3;
 
 /**
