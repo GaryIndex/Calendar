@@ -295,6 +295,7 @@ common: (records, allEvents, fileKey) => {
     console.log(`✅ ${fileKey}: 数据处理完成，共生成 ${entries.length} 个事件`);
   });
 }
+*/
 /*
   common: (records, allEvents, fileKey) => {
     records.Reconstruction?.forEach(recon => {
@@ -320,7 +321,7 @@ common: (records, allEvents, fileKey) => {
     });
   }
 };
-
+*/
 
 /**
  * 生成ICS事件内容
