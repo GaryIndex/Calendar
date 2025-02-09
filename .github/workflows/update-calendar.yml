@@ -13,38 +13,12 @@ jobs:
       - name: 🛎️ 检出代码仓库
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # 确保完整历史，保证 `.ics` 文件能被跟踪
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-
-      - name: 📂 确保数据目录和文件存在
-        run: |
-          mkdir -p data/Document
-          for file in calendar.json astro.json shichen.json jieqi.json holidays.json; do
-            if [ ! -f "data/Document/$file" ]; then
-              echo "[]" > "data/Document/$file"
-            fi
-          done
-
-      - name: 🧑‍💻 缓存 Node.js 模块
-        uses: actions/cache@v2
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: ⚠️ 确保 `package-lock.json` 存在并非空
-        run: |
-          if [ ! -f "package-lock.json" ] || [ ! -s "package-lock.json" ]; then
-            echo "package-lock.json 文件缺失或为空！重新生成..."
-            npm install --package-lock-only
-          else
-            echo "package-lock.json 存在且不为空，跳过重新生成。"
-          fi
 
       - name: 📦 安装依赖
         run: npm ci
@@ -57,10 +31,18 @@ jobs:
           echo "📅 生成 ICS 文件..."
           node scripts/generate-ics.js
 
+      - name: ⚠️ 确保 `calendar.ics` 存在
+        run: |
+          if [ ! -f "scripts/calendar.ics" ]; then
+            echo "⚠️ calendar.ics 文件未找到，检查生成是否成功"
+            exit 1
+          fi
+
       - name: ⚙️ 检查是否有更改
         id: check_changes
         run: |
           echo "🔍 检查是否有更改..."
+          git status --porcelain
           if [[ -n "$(git status --porcelain)" ]]; then
             echo "📝 检测到更改"
             echo "changes=true" >> $GITHUB_ENV
@@ -75,13 +57,10 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@users.noreply.github.com"
 
-          # 执行 stash 和 pop 仅在有更改时
-          git stash || echo "没有要暂存的更改"
           git fetch origin main
           git pull --rebase origin main
-          git stash pop || echo "没有暂存的更改"
 
-          git add .
+          git add -f scripts/calendar.ics
           git commit -m "🔄 更新数据和 calendar.ics"
           git push origin main
 
@@ -93,4 +72,4 @@ jobs:
           branch: "update-calendar"
           commit-message: "更新数据和 calendar.ics"
           delete-branch: true
-          base: main  # 确保 PR 是基于 `main` 分支的
+          base: main
