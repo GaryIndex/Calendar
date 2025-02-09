@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 // 日志文件路径
 const logFilePath = path.join(__dirname, './data/error.log');
 
@@ -90,7 +87,10 @@ const processors = {
   jieqi: (records, allEvents) => {
     records.Reconstruction?.forEach(item => {
       const date = item.date || item.data?.date;
-      if (!date) return;
+      if (!date) {
+        logError(`❌ 节气数据缺少日期: ${JSON.stringify(item)}`);
+        return;
+      }
 
       allEvents.push({
         date,
@@ -180,6 +180,11 @@ const processors = {
  * 生成ICS事件内容
  */
 const generateICSEvent = (event) => {
+  if (!event.date) {
+    logError(`❌ 事件缺少日期: ${JSON.stringify(event)}`);
+    return ''; // 如果没有日期，跳过该事件
+  }
+
   let dtstart;
   if (event.isAllDay) {
     dtstart = `DTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}`;
