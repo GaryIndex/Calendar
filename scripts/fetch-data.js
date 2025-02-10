@@ -119,7 +119,7 @@ const flattenCalendarData = (data) => {
   flatData.liuyao = almanac?.liuyao || '';
   flatData.jiuxing = almanac?.jiuxing || '';
   flatData.taisui = almanac?.taisui || '';
-
+  
   // 提取 `lunar` 和 `almanac` 内的键值
   Object.assign(flatData, lunar, almanac);
 
