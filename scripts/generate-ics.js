@@ -120,40 +120,38 @@ const readJsonData = async (filePath) => {
  */
 // 处理节假日数据
 const processors = {
-  holidays: (records, allEvents) => {
-    logInfo("🛠️ 开始处理节假日数据");
-    
-    if (Array.isArray(records.Reconstruction)) {
-      records.Reconstruction.forEach(item => {
-        logInfo(`处理节假日条目: ${JSON.stringify(item)}`);
+  const holidays = (records, allEvents) => {
+  logInfo("🛠️ 开始处理节假日数据");
+  if (Array.isArray(records.Reconstruction)) {
+    records.Reconstruction.forEach(item => {
+      Object.entries(item).forEach(([date, holiday]) => {
+        logInfo(`处理节假日数据: ${JSON.stringify(holiday)}`);
         
-        Object.entries(item).forEach(([key, holiday]) => {
-          logInfo(`处理节假日数据: ${JSON.stringify(holiday)}`);
-          
-          const { date, name, isOffDay } = holiday;
-          
-          if (!date || !name || isOffDay === undefined) {
-            logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
-            return;
-          }
-          
-          const descParts = Object.entries(holiday)
-            .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(' | ');
-          
-          allEvents.push({
-            date,
-            title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
-            isAllDay: true,
-            description: descParts
-          });
+        const { date: holidayDate, name, isOffDay } = holiday;
+        // 检查是否缺少必要字段
+        if (!holidayDate || !name || isOffDay === undefined) {
+          logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
+          return;
+        }
+        // 生成描述部分
+        const descParts = Object.entries(holiday)
+          .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))  // 排除关键字段
+          .map(([k, v]) => `${v}`)  // 仅保留值部分
+          .join(' | ');  // 用 | 分隔
+        // 添加节假日事件到 allEvents
+        allEvents.push({
+          date: holidayDate,  // 使用节假日的日期
+          title: `${isOffDay ? '[休]' : '[班]'} ${name}`,  // 标题包含休息/上班标识
+          isAllDay: true,  // 设置为全天事件
+          description: descParts  // 描述包含其他字段的值
         });
+        logInfo(`添加节假日事件: ${holidayDate} - ${name}`);
       });
-      logInfo("✅ 节假日数据处理完成");
-    } else {
-      logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
-    }
+    });
+    logInfo("✅ 节假日数据处理完成");
+  } else {
+    logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
+  }
   },
   jieqi: (records, allEvents) => {
     logInfo("🛠️ 处理节气数据...");
