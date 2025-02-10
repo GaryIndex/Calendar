@@ -3,41 +3,23 @@ import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import fs from 'fs';
 
-// 计算 __dirname（ESM 方式）
+// **计算 __dirname**
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 日志文件路径
+// **日志文件路径**
 const logFilePath = path.join(__dirname, './data/error.log');
 
-// **确保目录存在**
-const ensureDirectoryExistence = async (filePath) => {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    await fs.promises.mkdir(dir, { recursive: true });
-    logInfo(`📂 目录创建成功: ${dir}`);
-  }
-};
-
-// **日志记录函数**
+// **日志记录**
 const writeLog = async (type, message) => {
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] [${type}] ${message}\n`;
-
-  try {
-    await fs.promises.appendFile(logFilePath, logMessage, 'utf8');
-    console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
-  } catch (err) {
-    console.log(`❌ 写入日志失败: ${err.message}`);
-  }
+  await fs.promises.appendFile(logFilePath, logMessage, 'utf8');
+  console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
 };
 
 const logInfo = (message) => writeLog("INFO", message);
 const logError = (message) => writeLog("ERROR", message);
-
-// **初始化日志目录**
-await ensureDirectoryExistence(logFilePath);
-logInfo('📂 日志目录已初始化');
 
 // **JSON 文件路径**
 const dataPaths = {
@@ -48,8 +30,37 @@ const dataPaths = {
   shichen: path.join(process.cwd(), 'data/Document/shichen.json'),
 };
 
-// **ICS 文件路径**
-const icsFilePath = path.join(__dirname, '../calendar.ics');
+// **读取 JSON**
+const readJsonData = async (filePath) => {
+  try {
+    if (!fs.existsSync(filePath)) {
+      logError(`❌ 文件不存在: ${filePath}`);
+      return {};
+    }
+
+    logInfo(`📂 读取文件: ${filePath}`);
+    const rawData = await fs.promises.readFile(filePath, 'utf-8');
+
+    if (!rawData.trim()) {
+      logError(`⚠️ 文件 ${filePath} 为空！`);
+      return {};
+    }
+
+    return JSON.parse(rawData);
+  } catch (error) {
+    logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
+    return {};
+  }
+};
+
+// **批量加载所有 JSON**
+const loadAllJsonData = async () => {
+  const jsonData = {};
+  for (const [key, filePath] of Object.entries(dataPaths)) {
+    jsonData[key] = await readJsonData(filePath);
+  }
+  return jsonData;
+};
 
 // **创建事件对象**
 export function createEvent({
@@ -65,7 +76,7 @@ export function createEvent({
   attachment = "",
   url = "",
   badge = "",
-  description,
+  description = "",
   priority = 0 
 }) {
   return {
@@ -86,60 +97,46 @@ export function createEvent({
   };
 }
 
-/**
- * **读取 JSON 数据**
- * @param {string} filePath - JSON 文件路径
- * @returns {Promise<Object>}
- */
-const readJsonData = async (filePath) => {
-  try {
-    if (!fs.existsSync(filePath)) {
-      logError(`❌ 文件不存在: ${filePath}`);
-      return {};
+// **处理数据**
+const processAllData = (jsonData, allEvents) => {
+  logInfo("📌 正在处理所有数据...");
+
+  for (const [key, data] of Object.entries(jsonData)) {
+    if (!data || Object.keys(data).length === 0) continue;
+
+    for (const date in data.Reconstruction) {
+      for (const entry of data.Reconstruction[date]) {
+        const event = createEvent({
+          date,
+          title: entry.name || "无标题",
+          description: Object.entries(entry).map(([k, v]) => `${k}: ${v}`).join(" "),
+          isAllDay: true
+        });
+
+        allEvents.push(event);
+      }
     }
+  }
 
-    logInfo(`📂 读取文件: ${filePath}`);
-    const rawData = await fs.promises.readFile(filePath, 'utf-8');
+  logInfo(`✅ 处理完成，共生成 ${allEvents.length} 个事件`);
+};
 
-    if (!rawData.trim()) {
-      logError(`⚠️ 文件 ${filePath} 为空！`);
-      return {};
-    }
+// **主流程**
+const main = async () => {
+  const allEvents = [];
+  const jsonData = await loadAllJsonData();
 
-    const data = JSON.parse(rawData);
-    logInfo(`✅ 成功解析 JSON: ${filePath}, 数据量: ${Object.keys(data).length}`);
-    return data;
-  } catch (error) {
-    logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
-    return {};
+  if (Object.values(jsonData).some(data => Object.keys(data).length > 0)) {
+    processAllData(jsonData, allEvents);
+    logInfo("🎉 所有数据处理完成！");
+  } else {
+    logError("❌ 没有可用的 JSON 数据！");
+    process.exit(1);
   }
 };
 
-/**
- * **批量读取所有 JSON 文件**
- * @returns {Promise<Object>} 返回所有 JSON 数据的集合
- */
-const loadAllJsonData = async () => {
-  const jsonData = {};
-
-  for (const [key, filePath] of Object.entries(dataPaths)) {
-    jsonData[key] = await readJsonData(filePath);
-  }
-
-  return jsonData;
-};
-
-// **加载 JSON 并处理数据**
-const allEvents = [];
-const jsonData = await loadAllJsonData(); // 加载所有 JSON 数据
-
-if (Object.values(jsonData).some(data => Object.keys(data).length > 0)) {
-  processAllData(jsonData, allEvents); // ✅ 这里传入 jsonData
-  logInfo("🎉 所有数据处理完成！");
-} else {
-  logError("❌ 没有可用的 JSON 数据！");
-  process.exit(1);
-}
+// **执行 `main()`**
+await main();
 
 /**
  * **数据处理器**
