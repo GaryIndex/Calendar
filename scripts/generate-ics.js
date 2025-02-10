@@ -338,39 +338,42 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
     'METHOD:PUBLISH',
     //--
     ...mergedEvents.map(event => {
-  // 解析日期，确保 YYYYMMDD 格式正确
-  const [year, month, day] = event.date.split('-');
-  const dateFormatted = `${year}${month.padStart(2, '0')}${day.padStart(2, '0')}`;
+        const [year, month, day] = event.date.split('-');
+        const dateFormatted = `${year}${month.padStart(2, '0')}${day.padStart(2, '0')}`;
 
-  let dtstart, dtend;
+        let dtstart, dtend;
 
-  if (event.startTime) {
-    // 事件有具体时间，格式化 HHMMSS
-    const [hour, minute, second] = event.startTime.split(':').map(Number);
-    const timeFormatted = event.startTime.replace(/:/g, '') + '00';
+        if (event.startTime) {
+            // 解析时间并格式化
+            const [hour, minute, second] = event.startTime.split(':').map(Number);
+            const timeFormatted = `${hour.toString().padStart(2, '0')}${minute.toString().padStart(2, '0')}${second.toString().padStart(2, '0')}`;
 
-    // 计算 +1 小时后的结束时间
-    const endTime = new Date(year, month - 1, day, hour + 1, minute, second);
-    const timeEndFormatted = endTime.toTimeString().slice(0, 8).replace(/:/g, '') + '00';
+            // 计算 +1 小时的结束时间
+            const endTime = new Date(year, month - 1, day, hour + 1, minute, second);
+            const endTimeFormatted = [
+                endTime.getHours().toString().padStart(2, '0'),
+                endTime.getMinutes().toString().padStart(2, '0'),
+                endTime.getSeconds().toString().padStart(2, '0')
+            ].join('');
 
-    dtstart = `DTSTART;TZID=Asia/Shanghai:${dateFormatted}T${timeFormatted}`;
-    dtend = `DTEND;TZID=Asia/Shanghai:${dateFormatted}T${timeEndFormatted}`;
-  } else {
-    // 全天事件
-    dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
-    dtend = ''; // 全天事件不需要 DTEND
-  }
-      return [
-        'BEGIN:VEVENT',
-        dtstart,
-        dtend ? dtend : '',
-        `SUMMARY:${event.title}`,
-        `DESCRIPTION:${event.description}`,
-        'END:VEVENT'
-      ].filter(Boolean).join('\r\n'); // 过滤空行
+            dtstart = `DTSTART;TZID=Asia/Shanghai:${dateFormatted}T${timeFormatted}`;
+            dtend = `DTEND;TZID=Asia/Shanghai:${dateFormatted}T${endTimeFormatted}`;
+        } else {
+            dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
+            dtend = ''; // 全天事件不需要 DTEND
+        }
+
+        return [
+            'BEGIN:VEVENT',
+            dtstart,
+            dtend ? dtend : '',
+            `SUMMARY:${event.title}`,
+            `DESCRIPTION:${event.description}`,
+            'END:VEVENT'
+        ].filter(Boolean).join('\r\n');
     }),
     'END:VCALENDAR'
-  ].join('\r\n');
+].join('\r\n');
 
   // ✅ 确保目录存在
   ensureDirExists(icsFilePath);
