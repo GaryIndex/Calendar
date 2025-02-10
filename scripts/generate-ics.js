@@ -237,32 +237,31 @@ astro: (records, allEvents) => {
   logInfo("✅ 天文数据处理完成");
 },
 // 处理 calendar.json
-calendar: (records, allEvents) => {
+//import { createEvent } from '../scripts/createEvent/createEvent.js';
+const calendar = (records, allEvents) => {
   logInfo("🛠️ 开始处理日历数据");
-
   Object.entries(records).forEach(([date, record]) => {
     record.Reconstruction?.forEach(entry => {
       if (!entry.data) {
         logError(`❌ calendar.json 缺少有效数据: ${JSON.stringify(entry)}`);
         return;
       }
-
       const { data } = entry;
-
       // 提取标题
       const title = extractTitle(data);
-
       // 提取备注
       const description = extractDescription(data);
-
-      // 生成事件对象
-      allEvents.push(createEvent(date, title, description));
+      // 生成事件对象（使用封装的 createEvent）
+      allEvents.push(createEvent({
+        date,
+        title,
+        description,
+        isAllDay: true
+      }));
     });
   });
-
   logInfo("✅ 日历数据处理完成");
 };
-
 /**
  * 提取事件标题（festival）
  * @param {Object} data - 日历数据
@@ -271,7 +270,6 @@ calendar: (records, allEvents) => {
 function extractTitle(data) {
   return (data.festivals && data.festivals.length > 0) ? data.festivals.join(", ") : "";
 }
-
 /**
  * 提取事件描述（备注）
  * @param {Object} data - 日历数据
@@ -280,38 +278,21 @@ function extractTitle(data) {
 function extractDescription(data) {
   const extractFields = ["data", "lunar", "almanac", "jishenfangwei"];
   const values = extractFields.flatMap(field => data[field] ? Object.values(data[field]) : []);
-
   // 提取特定字段，顺序不能变
   ["liuyao", "jiuxing", "taisui"].forEach(key => {
     if (data.almanac?.[key]) values.push(data.almanac[key]);
   });
-
   // 处理 pengzubaiji（数组用 `, ` 连接）
   if (Array.isArray(data.almanac?.pengzubaiji)) {
     values.push(data.almanac.pengzubaiji.join(", ")); 
   }
-
   // 转换并用 `|` 连接
   return values
     .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
     .join(" | ");
-}
+};
 
-/**
- * 创建事件对象
- * @param {string} date - 事件日期
- * @param {string} title - 事件标题
- * @param {string} description - 事件描述
- * @returns {Object} 事件对象
- */
-function createEvent(date, title, description) {
-  return {
-    date,
-    title,
-    isAllDay: true,
-    description
-  };
-}
+export { calendar };
 export default processors;
 /**
  * 生成 ICS 文件
