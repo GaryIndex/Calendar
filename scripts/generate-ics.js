@@ -141,26 +141,20 @@ const processors = {
     logInfo("✅ 节气数据处理完成");
   }
 };
-
-  // 处理时辰数据
+// 处理时辰数据
 shichen: (records, allEvents) => {
   logInfo("🛠️ 开始处理时辰数据");
   records.Reconstruction?.forEach(recon => {
     if (Array.isArray(recon.data)) {
       recon.data.forEach(entry => {
-        // 时间范围（如: 23:00-00:59）
         const hours = entry.hours;
         const hourRange = hours.split('-');
-        
         // 判断时间范围是否合法
         if (hourRange.length !== 2) {
           logError(`❌ 时辰数据时间格式无效: ${JSON.stringify(entry)}`);
           return;
         }
-
         const hourTitle = entry.hour;  // 用 `hour` 作为标题
-
-        // 过滤出仅在这个小时范围内的所有信息
         const descriptionParts = [
           entry.yi ? `宜: ${entry.yi}` : null,
           entry.ji ? `忌: ${entry.ji}` : null,
@@ -169,14 +163,21 @@ shichen: (records, allEvents) => {
           entry.nayin ? `纳音: ${entry.nayin}` : null,
           entry.jiuxing ? `九星: ${entry.jiuxing}` : null
         ].filter(Boolean).join(' | ');
-
-        // 创建事件对象
+        const startTime = hourRange[0];  // 开始时间
+        const endTime = hourRange[1];    // 结束时间
         allEvents.push({
-          date: entry.date,  // 事件的日期
-          title: hourTitle,  // 使用 `hour` 作为标题
-          startTime: hourRange[0],  // 开始时间为小时范围的起始时间
-          isAllDay: false,  // 不是全天事件
-          description: descriptionParts  // 在描述中只展示这个时间段的信息
+          date: entry.date,    // 事件的日期
+          title: hourTitle,    // 事件标题
+          location: "",        // 位置或视频通话（默认空）
+          isAllDay: false,     // 不是全天事件
+          startTime,           // 开始时间
+          endTime,             // 结束时间
+          travelTime: "",      // 行程时间为空
+          repeat: "",          // 重复设置为空
+          alarm: "",           // 提醒设置为空
+          attachment: "",      // 附件为空
+          url: "",             // URL为空
+          description: descriptionParts  // 事件描述
         });
       });
     } else {
