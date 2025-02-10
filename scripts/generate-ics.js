@@ -331,11 +331,21 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
   });
 
   // 生成 ICS 内容
-  const icsContent = [
+  const icsEvents = mergedEvents.map(event => {
+    // ... 解析事件代码 (如检查 startTime, date 是否有效)
+
+    if (isInvalid) return ''; // 空字符串会导致额外换行
+    return `BEGIN:VEVENT\r\nDTSTART...END:VEVENT`;
+}).filter(Boolean); // 过滤掉空字符串
+
+const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
+    ...icsEvents,
+    'END:VCALENDAR'
+].join('\r\n'); // 确保正确的换行格式
     //--
     ...mergedEvents.map(event => {
         const [year, month, day] = event.date.split('-').map(Number);
