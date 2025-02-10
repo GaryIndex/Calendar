@@ -98,9 +98,20 @@ export function createEvent({
 }
 
 // **处理数据**
+// 处理所有数据
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
 
+  // 处理不同数据源（如 astro.json, calendar.json 等）
+  Object.entries(jsonData).forEach(([source, data]) => {
+    if (processors[source]) {
+      processors[source](data, allEvents); // 使用 processors 对象调用对应的处理函数
+    } else {
+      logError(`❌ 未知数据源: ${source}`);
+    }
+  });
+
+  // 处理 Reconstruction 数据
   for (const [key, data] of Object.entries(jsonData)) {
     if (!data || Object.keys(data).length === 0) continue;
 
@@ -352,7 +363,7 @@ const processors = {
   shichen,
   calendar
 };
-
+/*
 // 处理所有数据
 const processAllData = (jsonData, allEvents) => {
   Object.entries(jsonData).forEach(([source, data]) => {
@@ -363,7 +374,7 @@ const processAllData = (jsonData, allEvents) => {
     }
   });
 };
-
+*/
 // 运行处理逻辑
 const jsonData = await loadAllJsonData();
 processAllData(jsonData, allEvents);
