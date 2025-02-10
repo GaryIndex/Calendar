@@ -130,7 +130,6 @@ const processors = {
   shichen: (data, allEvents) => {
     logInfo("🛠️ 处理时辰数据...");
     if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
-
     data.Reconstruction.forEach(entry => {
       if (!entry || typeof entry !== "object") return;
       Object.entries(entry).forEach(([date, entries]) => {
@@ -139,16 +138,13 @@ const processors = {
             logError(`❌ 缺少 hour 或 hours: ${JSON.stringify(event)}`);
             return;
           }
-
           let [startTime, endTime] = event.hours.split("-");
           if (startTime.length === 4) startTime = "0" + startTime; // 修正 `1:00` 为 `01:00`
           if (endTime.length === 4) endTime = "0" + endTime;
-
           const description = ["yi", "ji", "chong", "sha", "nayin", "jiuxing"]
-            .map(key => event[key] ? `${key}: ${event[key]}` : "")
+            .map(key => event[key] || "") // 只取值
             .filter(Boolean)
-            .join(" | ");
-
+            .join(" "); // 用空格分隔
           allEvents.push(createEvent({
             date,
             title: event.hour,
