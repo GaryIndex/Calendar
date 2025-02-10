@@ -89,33 +89,40 @@ const processors = {
    * **处理天文数据**
    */
   astro: (data, allEvents) => {
-    logInfo("🛠️ 处理天文数据...");
-    if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
+  logInfo("🛠️ 处理天文数据...");
+  if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
 
-    data.Reconstruction.forEach(entry => {
-      if (!entry || typeof entry !== "object" || !entry.data?.range) return;
+  data.Reconstruction.forEach(entry => {
+    if (!entry || typeof entry !== "object" || !entry.data?.range) return;
 
-      const [start, end] = entry.data.range.split("-").map(date => `2025-${date.replace(".", "-")}`);
-      let currentDate = new Date(start);
-      const endDate = new Date(end);
+    const { name, range, ...details } = entry.data;
 
-      while (currentDate <= endDate) {
-        const description = Object.entries(entry.data)
-          .filter(([key]) => key !== "range")
-          .map(([_, value]) => `${value}`)
-          .join(" | ");
+    // 解析 range，转换为完整日期（如 1.20 → 2025-01-20）
+    const [start, end] = range.split("-").map(date => `2025-${date.replace(".", "-")}`);
+    let currentDate = new Date(start);
+    const endDate = new Date(end);
 
-        allEvents.push(createEvent({
-          date: currentDate.toISOString().split("T")[0],
-          title: entry.data.name || "天文事件",
-          isAllDay: true,
-          description
-        }));
+    // 过滤掉 `range`，其余字段全部加入 description
+    const description = Object.entries(details)
+      .map(([_, value]) => `${value}`)
+      .join(" | ");
 
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-    });
-  },
+    // 遍历日期范围
+    while (currentDate <= endDate) {
+      const eventDate = currentDate.toISOString().split("T")[0]; // 生成 YYYY-MM-DD 格式
+
+      allEvents.push(createEvent({
+        date: eventDate,
+        title: name || "天文事件",
+        isAllDay: true,
+        description
+      }));
+
+      logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
+      currentDate.setDate(currentDate.getDate() + 1); // 日期加 1
+    }
+  });
+},
 
   /**
    * **处理时辰数据**
