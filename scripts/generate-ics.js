@@ -107,20 +107,20 @@ const processors = {
     logInfo("🛠️ 开始处理节气数据");
     
     if (!Array.isArray(records.Reconstruction)) {
-      logError(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
+      logInfo(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
       return;
     }
 
     records.Reconstruction.forEach(item => {
       if (!Array.isArray(item.data)) {
-        logError(`⚠️ Reconstruction 数据异常: ${JSON.stringify(item)}`);
+        logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(item)}`);
         return;
       }
 
       item.data.forEach(event => {
         const time = event.time;
         if (!time) {
-          logError(`❌ 节气数据缺少时间: ${JSON.stringify(event)}`);
+          logInfo(`❌ 节气数据缺少时间: ${JSON.stringify(event)}`);
           return;
         }
         const [date, startTime] = time.split(' ');
@@ -147,7 +147,7 @@ const processors = {
 const holidays = (records, allEvents) => {
   logInfo("🛠️ 开始处理节假日数据");
   if (!Array.isArray(records.Reconstruction)) {
-    logError(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
+    logInfo(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
     return;
   }
   records.Reconstruction.forEach(item => {
@@ -156,7 +156,7 @@ const holidays = (records, allEvents) => {
     holidaysArray.forEach(holiday => {
       const { date, name, isOffDay } = holiday;
       if (!date || !name || isOffDay === undefined) {
-        logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
+        logInfo(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
         return;
       }
       // 组装描述信息，排除 `date`, `name`, `isOffDay`
@@ -185,13 +185,13 @@ const astro = (records, allEvents) => {
   logInfo("🛠️ 开始处理天文数据");
 
   if (!Array.isArray(records.Reconstruction)) {
-    logError(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
+    logInfo(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
     return;
   }
 
   records.Reconstruction.forEach(entry => {
     if (!entry.data || !entry.data.range) {
-      logError(`❌ astro.json 缺少有效数据: ${JSON.stringify(entry)}`);
+      logInfo(`❌ astro.json 缺少有效数据: ${JSON.stringify(entry)}`);
       return;
     }
 
@@ -237,19 +237,19 @@ const calendar = (records, allEvents) => {
   logInfo("🛠️ 开始处理日历数据");
 
   if (!records || typeof records !== "object") {
-    logError(`❌ records 数据格式错误: ${JSON.stringify(records)}`);
+    logInfo(`❌ records 数据格式错误: ${JSON.stringify(records)}`);
     return;
   }
 
   Object.entries(records).forEach(([date, record]) => {
     if (!Array.isArray(record.Reconstruction)) {
-      logError(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
+      logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
       return;
     }
 
     record.Reconstruction.forEach(entry => {
       if (!entry.data) {
-        logError(`❌ calendar.json 缺少有效数据: ${JSON.stringify(entry)}`);
+        logInfo(`❌ calendar.json 缺少有效数据: ${JSON.stringify(entry)}`);
         return;
       }
 
