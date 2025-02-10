@@ -1,13 +1,15 @@
 // **处理数据**
-const utilsPath = new URL("./utils/utils.js", import.meta.url).pathname;
+import { loadAllJsonData, logInfo, logError } from './utils/utils.js'; // 确保路径正确
 
-import(utilsPath).then(({ loadAllJsonData, createEvent, logInfo, logError }) => {
-  (async () => {
+(async () => {
+  try {
     const jsonData = await loadAllJsonData();
     logInfo("✅ 成功加载所有 JSON 数据");
     console.log(jsonData);
-  })();
-});
+  } catch (error) {
+    logError(`❌ 加载 JSON 数据失败: ${error.message}`);
+  }
+})();
 
  // **数据处理器**
 const processors = {
