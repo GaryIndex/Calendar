@@ -100,31 +100,47 @@ const readJsonData = async (filePath) => {
 /**
  * 处理不同文件类型的数据
  */
+// 定义不同数据源的优先级
+const sourcePriority = {
+  jieqi: 1,  // 节气的优先级最高
+  astro: 2,  // 星座数据
+  shichen: 3, // 时辰数据
+  holiday: 4  // 节假日数据
+};
+
+
 const processors = {
   // 处理节气数据
   jieqi: (records, allEvents) => {
     logInfo("🛠️ 开始处理节气数据");
     records.Reconstruction?.forEach(item => {
       item.data?.forEach(event => {
-        const time = event.time;
+        const time = event.time; 
         if (!time) {
           logError(`❌ 节气数据缺少时间: ${JSON.stringify(event)}`);
           return;
         }
-        const date = time.split(' ')[0];
+        const [date, startTime] = time.split(' ');
         const description = `节气: ${event.name}`;
-
         allEvents.push({
-          date,
-          title: event.name,
-          startTime: time,
-          isAllDay: false,
-          description,
+          date,                     // 日期 YYYY-MM-DD
+          title: event.name,        // 标题 = 节气名称
+          location: "",             // 默认无
+          isAllDay: false,          // 节气事件带有具体时间，因此非全天
+          startTime,                // 开始时间 HH:mm:ss
+          endTime: "",              // 暂无结束时间（如果有规则可以设置）
+          travelTime: "",           // 默认无
+          repeat: "",               // 默认无
+          alarm: "",                // 默认无提醒
+          attachment: "",           // 默认无附件
+          url: "",                  // 默认无 URL
+          description               // 备注：节气信息
         });
       });
     });
     logInfo("✅ 节气数据处理完成");
-  },
+  }
+};
 
   // 处理时辰数据
 shichen: (records, allEvents) => {
