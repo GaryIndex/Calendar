@@ -365,7 +365,9 @@ const processAllData = (jsonData, allEvents) => {
 };
 
 // 运行处理逻辑
-processAllData(yourJsonData, allEvents);
+const jsonData = await loadAllJsonData();
+processAllData(jsonData, allEvents);
+//processAllData(yourJsonData, allEvents);
 
 /**
  * **生成 ICS 文件**
@@ -376,17 +378,22 @@ BEGIN:VEVENT
 SUMMARY:${event.title}
 DTSTART:${event.date.replace(/-/g, '')}T${event.startTime ? event.startTime.replace(/:/g, '') + '00' : '000000'}
 DTEND:${event.date.replace(/-/g, '')}T${event.endTime ? event.endTime.replace(/:/g, '') + '00' : '235959'}
-DESCRIPTION:${event.description}
+DESCRIPTION:${typeof event.description === 'string' ? event.description : JSON.stringify(event.description)}
 END:VEVENT`).join("\n");
 
-  await fs.promises.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
+  //await fs.promises.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
+  const icsFilePath = path.join(__dirname, 'calendar.ics');
   logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
 };
 
 // **执行流程**
 (async () => {
   const allEvents = [];
-  const [holidays, jieqi, astro, shichen, calendar] = await Promise.all(Object.values(dataPaths).map(readJsonData));
-  Object.values(processors).forEach(fn => fn({ Reconstruction: holidays }, allEvents));
+  //const [holidays, jieqi, astro, shichen, calendar] = await Promise.all(Object.values(dataPaths).map(readJsonData));
+  const jsonDataArray = await Promise.all(Object.values(dataPaths).map(async file => await readJsonData(file)));
+  const jsonData = Object.fromEntries(Object.keys(dataPaths).map((key, i) => [key, jsonDataArray[i]]));
+  //Object.values(processors).forEach(fn => fn({ Reconstruction: holidays }, allEvents));
+  const jsonData = await loadAllJsonData();
+  processAllData(jsonData, allEvents);
   await generateICS(allEvents);
 })();
