@@ -285,23 +285,37 @@ shichen: (records, allEvents) => {
  */
 const generateICS = async () => {
   const allEvents = [];
+  const ensureEventDefaults = (event) => ({
+    title: event.title || '',
+    location: event.location || '',
+    isAllDay: event.isAllDay ?? false,  // 默认为 false
+    startTime: event.startTime || '',
+    endTime: event.endTime || '',
+    travelTime: event.travelTime || '',
+    repeat: event.repeat || '',
+    alarm: event.alarm || '',
+    attachment: event.attachment || '',
+    url: event.url || '',
+    description: event.description || '',
+});
 
-  // 读取和处理所有 JSON 数据
-  await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
+// 处理 JSON 数据
+await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
     const jsonData = await readJsonData(filePath);
     Object.values(jsonData).forEach(records => {
-      if (processors[fileKey]) {
-        processors[fileKey](records, allEvents);
-      }
+        if (processors[fileKey]) {
+            processors[fileKey](records, allEvents);
+        }
     });
-  }));
+}));
 
-  // ✅ 记录到日志文件
-  logInfo(`📌 解析后的所有事件数据: ${JSON.stringify(allEvents, null, 2)}`);
+// 统一格式化所有事件
+allEvents = allEvents.map(ensureEventDefaults);
 
+// ✅ 记录到日志
+logInfo(`📌 解析后的所有事件数据: ${JSON.stringify(allEvents, null, 2)}`);
   // 过滤无效事件
   const validEvents = allEvents.filter(event => event.date && event.description);
-
   if (validEvents.length === 0) {
     logError('❌ 没有有效的事件数据，无法生成 ICS 文件');
     return;
