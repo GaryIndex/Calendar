@@ -100,14 +100,7 @@ const readJsonData = async (filePath) => {
 /**
  * 处理不同文件类型的数据
  */
-// 定义不同数据源的优先级
-const sourcePriority = {
-  jieqi: 1,  // 节气的优先级最高
-  astro: 2,  // 星座数据
-  shichen: 3, // 时辰数据
-  holiday: 4  // 节假日数据
-};
-
+import { createEvent } from '../scripts/createEvent/createEvent.js';
 
 const processors = {
   // 处理节气数据
@@ -122,26 +115,22 @@ const processors = {
         }
         const [date, startTime] = time.split(' ');
         const description = `节气: ${event.name}`;
-        allEvents.push({
-          date,                     // 日期 YYYY-MM-DD
-          title: event.name,        // 标题 = 节气名称
-          location: "",             // 默认无
-          isAllDay: false,          // 节气事件带有具体时间，因此非全天
-          startTime,                // 开始时间 HH:mm:ss
-          endTime: "",              // 暂无结束时间（如果有规则可以设置）
-          travelTime: "",           // 默认无
-          repeat: "",               // 默认无
-          alarm: "",                // 默认无提醒
-          attachment: "",           // 默认无附件
-          url: "",                  // 默认无 URL
-          badge:"",                 //角标
-          description               // 备注：节气信息
-        });
+
+        allEvents.push(
+          createEvent({
+            date,                // 日期 YYYY-MM-DD
+            title: event.name,   // 标题 = 节气名称
+            isAllDay: false,     // 节气事件带有具体时间，因此非全天
+            startTime,           // 开始时间 HH:mm:ss
+            description          // 备注：节气信息
+          })
+        );
       });
     });
     logInfo("✅ 节气数据处理完成");
   }
 };
+//export default processors;
 // 处理时辰数据
 shichen: (records, allEvents) => {
   logInfo("🛠️ 开始处理时辰数据");
@@ -150,12 +139,18 @@ shichen: (records, allEvents) => {
       recon.data.forEach(entry => {
         const hours = entry.hours;
         const hourRange = hours.split('-');
+
         // 判断时间范围是否合法
         if (hourRange.length !== 2) {
           logError(`❌ 时辰数据时间格式无效: ${JSON.stringify(entry)}`);
           return;
         }
-        const hourTitle = entry.hour;  // 用 `hour` 作为标题
+
+        const startTime = hourRange[0];  // 开始时间
+        const endTime = hourRange[1];    // 结束时间
+        const hourTitle = entry.hour;    // 事件标题（时辰）
+
+        // 组装描述信息
         const descriptionParts = [
           entry.yi ? `宜: ${entry.yi}` : null,
           entry.ji ? `忌: ${entry.ji}` : null,
@@ -164,23 +159,16 @@ shichen: (records, allEvents) => {
           entry.nayin ? `纳音: ${entry.nayin}` : null,
           entry.jiuxing ? `九星: ${entry.jiuxing}` : null
         ].filter(Boolean).join(' | ');
-        const startTime = hourRange[0];  // 开始时间
-        const endTime = hourRange[1];    // 结束时间
-        allEvents.push({
-          date: entry.date,    // 事件的日期
-          title: hourTitle,    // 事件标题
-          location: "",        // 位置或视频通话（默认空）
-          isAllDay: false,     // 不是全天事件
-          startTime,           // 开始时间
-          endTime,             // 结束时间
-          travelTime: "",      // 行程时间为空
-          repeat: "",          // 重复设置为空
-          alarm: "",           // 提醒设置为空
-          attachment: "",      // 附件为空
-          url: "",             // URL为空
-          badge:"",            //角标
-          description: descriptionParts  // 事件描述
-        });
+
+        // 使用 createEvent 封装
+        allEvents.push(createEvent({
+          date: entry.date,
+          title: hourTitle,
+          isAllDay: false,
+          startTime,
+          endTime,
+          description: descriptionParts
+        }));
       });
     } else {
       logError(`⚠️ recon.data 不是数组: ${JSON.stringify(recon.data)}`);
