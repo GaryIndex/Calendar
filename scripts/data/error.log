@@ -1243,6 +1243,7 @@
   }
 ]
 [2025-02-10T14:23:52.388Z] [ERROR] ❌ 没有有效的事件数据，无法生成 ICS 文件
+<<<<<<< Updated upstream
 [2025-02-10T15:36:34.429Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/holidays.json
 [2025-02-10T15:36:34.429Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/jieqi.json
 [2025-02-10T15:36:34.429Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/astro.json
@@ -1263,3 +1264,25 @@
 [2025-02-10T15:36:34.435Z] [INFO] 🛠️ 开始处理时辰数据
 [2025-02-10T15:36:34.435Z] [INFO] ✅ 时辰数据处理完成
 [2025-02-10T15:36:34.437Z] [INFO] ✅ ICS 文件成功生成: /home/runner/work/Calendar/Calendar/calendar.ics
+=======
+[2025-02-10T15:36:41.091Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/holidays.json
+[2025-02-10T15:36:41.091Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/jieqi.json
+[2025-02-10T15:36:41.092Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/astro.json
+[2025-02-10T15:36:41.092Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/calendar.json
+[2025-02-10T15:36:41.092Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/shichen.json
+[2025-02-10T15:36:41.092Z] [INFO] 📂 初始化日志目录
+[2025-02-10T15:36:41.096Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/holidays.json, 数据量: 1
+[2025-02-10T15:36:41.096Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/jieqi.json, 数据量: 1
+[2025-02-10T15:36:41.096Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/astro.json, 数据量: 1
+[2025-02-10T15:36:41.096Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/calendar.json, 数据量: 1
+[2025-02-10T15:36:41.096Z] [INFO] ✅ 成功解析 JSON: /home/runner/work/Calendar/Calendar/data/Document/shichen.json, 数据量: 1
+[2025-02-10T15:36:41.097Z] [INFO] 🛠️ 开始处理节假日数据
+[2025-02-10T15:36:41.097Z] [INFO] ✅ 节假日数据处理完成
+[2025-02-10T15:36:41.097Z] [INFO] 🛠️ 开始处理节气数据
+[2025-02-10T15:36:41.097Z] [INFO] ✅ 节气数据处理完成
+[2025-02-10T15:36:41.097Z] [INFO] 🛠️ 开始处理天文数据
+[2025-02-10T15:36:41.097Z] [INFO] ✅ 天文数据处理完成
+[2025-02-10T15:36:41.097Z] [INFO] 🛠️ 开始处理时辰数据
+[2025-02-10T15:36:41.097Z] [INFO] ✅ 时辰数据处理完成
+[2025-02-10T15:36:41.099Z] [INFO] ✅ ICS 文件成功生成: /home/runner/work/Calendar/Calendar/calendar.ics
+>>>>>>> Stashed changes
