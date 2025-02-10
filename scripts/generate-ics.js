@@ -251,6 +251,7 @@ const processors = {
     // 过滤掉无效 Reconstruction 数据
     const validEntries = record.Reconstruction.filter(entry => 
       entry && typeof entry === "object" &&
+      !(entry.hasOwnProperty("errno") || entry.hasOwnProperty("errmsg")) && // 确保没有 `errno` 或 `errmsg`
       entry.data && typeof entry.data === "object" &&
       Object.keys(entry.data).length > 0 // 确保 `data` 非空
     );
