@@ -224,23 +224,51 @@ const processors = {
     logError(`❌ records.Reconstruction 不是一个数组，实际类型是: ${typeof records.Reconstruction}`);
   }
 };
-shichen: (records, allEvents) => {
+const shichen = (records, allEvents) => {
   logInfo("🛠️ 处理时辰数据...");
-  // 遍历每个 Reconstruction 项
-  records.Reconstruction?.forEach(recon => {
-    logInfo(`处理时辰数据条目: ${JSON.stringify(recon)}`);
-    recon.data?.forEach(entry => {
-      logInfo(`处理时辰条目: ${JSON.stringify(entry)}`);
+
+  if (!records.Reconstruction || !Array.isArray(records.Reconstruction)) {
+    logError(`❌ 数据格式错误，Reconstruction 不是数组: ${JSON.stringify(records.Reconstruction)}`);
+    return;
+  }
+  records.Reconstruction.forEach(recon => {
+    if (!Array.isArray(recon.data)) {
+      logError(`❌ 数据格式错误，缺少 data 数组: ${JSON.stringify(recon)}`);
+      return;
+    }
+    recon.data.forEach(entry => {
+      if (!entry.date || !entry.hour || !entry.hours) {
+        logError(`❌ 缺少关键字段 (date, hour, hours): ${JSON.stringify(entry)}`);
+        return;
+      }
+      // 解析 hours 为 startTime 和 endTime
+      const [startTime, endTime] = entry.hours.split("-");
+      if (!startTime || !endTime) {
+        logError(`❌ hours 格式错误: ${entry.hours}`);
+        return;
+      }
+      // 组装 description 备注信息
+      const description = [
+        entry.yi ? `宜: ${entry.yi}` : "",
+        entry.ji ? `忌: ${entry.ji}` : "",
+        entry.chong ? `冲: ${entry.chong}` : "",
+        entry.sha ? `煞: ${entry.sha}` : "",
+        entry.nayin ? `纳音: ${entry.nayin}` : "",
+        entry.jiuxing ? `九星: ${entry.jiuxing}` : ""
+      ].filter(Boolean).join(" "); // 过滤掉空值
       allEvents.push(createEvent({
         date: entry.date,
-        title: entry.hour,
-        isAllDay: true,
-        description: JSON.stringify(entry)
+        title: entry.hour, // 事件标题
+        startTime, // 开始时间
+        endTime, // 结束时间
+        isAllDay: false, // 只在 hours 范围内显示
+        description
       }));
+      logInfo(`✅ 添加时辰事件: ${entry.date} ${startTime}-${endTime} ${entry.hour}`);
     });
   });
   logInfo("✅ 时辰数据处理完成");
-},
+};
 
 calendar: (records, allEvents) => {
   logInfo("🛠️ 处理万年历数据...");
