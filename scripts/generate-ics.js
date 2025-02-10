@@ -128,9 +128,6 @@ const processors = {
     logInfo("✅ 节气数据处理完成");
   }
 },
-//export default processors;
-// 处理时辰数据
-// 导入所需的函数
 //import { createEvent, logInfo, logError } from './utils.js'; // 根据实际路径调整
 // 时辰数据处理函数
 export const shichen = (records, allEvents) => {
