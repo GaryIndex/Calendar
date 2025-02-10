@@ -202,47 +202,42 @@ holidays: (records, allEvents) => {
   });
   logInfo("✅ 节假日数据处理完成");
 },
+// 处理天文数据 (astro.json)
+astro: (records, allEvents) => {
+  logInfo("🛠️ 开始处理天文数据");
+  records.Reconstruction?.forEach(entry => {
+    if (!entry.data || !entry.data.range) {
+      logError(`❌ astro.json 缺少有效数据: ${JSON.stringify(entry)}`);
+      return;
+    }
+    const { data } = entry;
+    const year = new Date().getFullYear(); // 获取当前年份
+    // 解析 range 字段，提取起止日期
+    const [start, end] = data.range.split("-").map(date => `${year}-${date.replace(".", "-")}`);
+    // 提取其他所有字段值作为描述
+    const description = Object.entries(data)
+      .filter(([key]) => key !== "range") // 过滤掉 range
+      .map(([_, value]) => (typeof value === "object" ? JSON.stringify(value) : value))
+      .join(" | "); // 使用 `|` 作为分隔符
+    // 计算日期范围
+    let currentDate = new Date(start);
+    const endDate = new Date(end);
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split("T")[0]; // 格式化 YYYY-MM-DD
+      // 使用 `createEvent` 统一封装
+      allEvents.push(createEvent({
+        date: dateStr,
+        title: "",           // 不设置标题
+        isAllDay: true,      // 全天事件
+        description          // 备注信息
+      }));
 
-  //处理astro.json
-  astro: (records, allEvents) => {
-    logInfo("🛠️ 开始处理天文数据");
-    records.Reconstruction?.forEach(entry => {
-      if (!entry.data || !entry.data.range) {
-        logError(`❌ astro.json 缺少有效数据: ${JSON.stringify(entry)}`);
-        return;
-      }
-
-      const { data } = entry;
-      const year = new Date().getFullYear(); // 获取当前年份
-
-      // 解析 range 字段，提取起止日期
-      const [start, end] = data.range.split("-").map(date => `${year}-${date.replace(".", "-")}`);
-
-      // 计算日期范围
-      let currentDate = new Date(start);
-      const endDate = new Date(end);
-
-      while (currentDate <= endDate) {
-        const dateStr = currentDate.toISOString().split("T")[0]; // 格式化 YYYY-MM-DD
-
-        // 提取所有值，不要键名
-        const description = Object.values(data)
-          .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
-          .join(" | ");
-
-        allEvents.push({
-          date: dateStr,
-          title: "",  // 不设置标题
-          isAllDay: true,
-          description, // 所有值写进备注
-        });
-
-        // 日期 +1 天
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-    });
-    logInfo("✅ 天文数据处理完成");
-  },
+      // 日期 +1 天
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  });
+  logInfo("✅ 天文数据处理完成");
+},
 
   //处理calendar.json
   calendar: (records, allEvents) => {
