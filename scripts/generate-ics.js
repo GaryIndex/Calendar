@@ -139,17 +139,14 @@ shichen: (records, allEvents) => {
       recon.data.forEach(entry => {
         const hours = entry.hours;
         const hourRange = hours.split('-');
-
         // 判断时间范围是否合法
         if (hourRange.length !== 2) {
           logError(`❌ 时辰数据时间格式无效: ${JSON.stringify(entry)}`);
           return;
         }
-
         const startTime = hourRange[0];  // 开始时间
         const endTime = hourRange[1];    // 结束时间
         const hourTitle = entry.hour;    // 事件标题（时辰）
-
         // 组装描述信息
         const descriptionParts = [
           entry.yi ? `宜: ${entry.yi}` : null,
@@ -176,33 +173,35 @@ shichen: (records, allEvents) => {
   });
   logInfo("✅ 时辰数据处理完成");
 },
-  // 处理节假日数据
-  holidays: (records, allEvents) => {
-    logInfo("🛠️ 开始处理节假日数据");
-    records.Reconstruction?.forEach(item => {
-      Object.entries(item).forEach(([key, holiday]) => {
-        const { date, name, isOffDay } = holiday;
-
-        if (!date || !name || isOffDay === undefined) {
-          logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
-          return;
-        }
-
-        const descParts = Object.entries(holiday)
-          .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
-          .map(([k, v]) => `${k}: ${v}`)
-          .join(' | ');
-
-        allEvents.push({
-          date,
-          title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
-          isAllDay: true,
-          description: descParts
-        });
-      });
+// 处理节假日数据
+holidays: (records, allEvents) => {
+  logInfo("🛠️ 开始处理节假日数据");
+  records.Reconstruction?.forEach(item => {
+    Object.entries(item).forEach(([key, holiday]) => {
+      const { date, name, isOffDay } = holiday;
+      if (!date || !name || isOffDay === undefined) {
+        logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
+        return;
+      }
+      // 组装描述信息，排除 `date`, `name`, `isOffDay`
+      const description = Object.entries(holiday)
+        .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(' | ');
+      // 生成角标（休 or 班）
+      const badge = isOffDay ? "休" : "班";
+      // 使用 createEvent 封装
+      allEvents.push(createEvent({
+        date,
+        title: name,                  // 事件标题 = 节假日名称
+        isAllDay: true,               // 节假日是全天事件
+        badge,                        // 角标，表示休息或上班
+        description                   // 备注信息
+      }));
     });
-    logInfo("✅ 节假日数据处理完成");
-  },
+  });
+  logInfo("✅ 节假日数据处理完成");
+},
 
   //处理astro.json
   astro: (records, allEvents) => {
