@@ -178,31 +178,39 @@ const processors = {
       logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
     }
   },
-  astro: (records, allEvents) => {
+  const astro = (records, allEvents) => {
   logInfo("🛠️ 处理天文数据...");
-  // 遍历每个 Reconstruction 项
-  records.Reconstruction?.forEach(entry => {
-    logInfo(`处理天文数据条目: ${JSON.stringify(entry)}`);
-    // 检查是否有 data 和 range
-    if (entry.data && entry.data.range) {
+  if (Array.isArray(records.Reconstruction)) {
+    records.Reconstruction.forEach(entry => {
+      logInfo(`处理天文条目: ${JSON.stringify(entry)}`);
+      // 确保有有效的 range 数据
+      if (!entry.data || !entry.data.range) return;
+      // 解析 range 为日期范围
       const [start, end] = entry.data.range.split("-").map(date => `2025-${date.replace(".", "-")}`);
-      logInfo(`解析时间范围: ${start} - ${end}`);
       let currentDate = new Date(start);
-      while (currentDate <= new Date(end)) {
-        logInfo(`生成日期: ${currentDate.toISOString().split("T")[0]}`);
+      const endDate = new Date(end);
+      // 处理日期范围内的每一天
+      while (currentDate <= endDate) {
+        // 构建备注，除了 range 之外的所有键值对作为备注，用 | 分割
+        const descParts = Object.entries(entry.data)
+          .filter(([key]) => key !== "range")
+          .map(([key, value]) => `${value}`)
+          .join(' | ');
+        // 添加事件
         allEvents.push(createEvent({
-          date: currentDate.toISOString().split("T")[0],
-          title: entry.data.name, // 使用 entry.data.name 获取星座名称
-          isAllDay: true,
-          description: JSON.stringify(entry.data)
+          date: currentDate.toISOString().split("T")[0], // 格式化日期
+          title: entry.data.name || "", // 使用 name 作为标题，若没有则为空
+          isAllDay: true, // 全日事件
+          description: `${descParts} | 日期范围: ${start} 到 ${end}` // 备注，加入日期范围
         }));
+        // 增加日期
         currentDate.setDate(currentDate.getDate() + 1);
       }
-    } else {
-      logInfo("跳过条目，缺少 data 或 range");
-    }
-  });
-  logInfo("✅ 天文数据处理完成");
+    });
+    logInfo("✅ 天文数据处理完成");
+  } else {
+    logError(`❌ records.Reconstruction 不是一个数组，实际类型是: ${typeof records.Reconstruction}`);
+  }
 },
 shichen: (records, allEvents) => {
   logInfo("🛠️ 处理时辰数据...");
