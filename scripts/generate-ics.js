@@ -269,6 +269,31 @@ const processors = {
     });
     logInfo("✅ 天文数据处理完成");
   }
+},
+// 处理万年历数据（calendar.json）
+processors.calendar = (records, allEvents) => {
+  logInfo("🛠️ 开始处理万年历数据");
+
+  Object.entries(records).forEach(([date, data]) => {
+    const reconstructions = data.Reconstruction || [];
+    
+    reconstructions.forEach(entry => {
+      // 移除不需要的字段
+      delete entry.errno;
+      delete entry.errmsg;
+
+      const title = entry.festivals || "万年历信息"; // 如果 festivals 为空，使用默认标题
+      const description = Object.values(entry).filter(Boolean).join(" | "); // 仅保留值，不显示键
+
+      allEvents.push(createEvent({
+        date,
+        title,
+        isAllDay: true,
+        description
+      }));
+    });
+  });
+  logInfo("✅ 万年历数据处理完成");
 };
 
 // 生成 ICS 文件
@@ -314,16 +339,16 @@ END:VCALENDAR`;
 (async () => {
   // 读取数据
   const allEvents = [];
-  const [holidaysData, jieqiData, astroData, calendarData, shichenData] = await Promise.all(
-    Object.values(dataPaths).map(readJsonData)
-  );
+  const [holidaysData, jieqiData, astroData, shichenData, calendarData] = await Promise.all(
+  Object.values(dataPaths).map(readJsonData)
+);
 
-  // 处理数据
-  processors.holidays(holidaysData, allEvents);
-  processors.jieqi(jieqiData, allEvents);
-  processors.astro(astroData, allEvents);
-  processors.shichen(shichenData, allEvents);
-
+// 处理所有数据源
+processors.holidays(holidaysData, allEvents);
+processors.jieqi(jieqiData, allEvents);
+processors.astro(astroData, allEvents);
+processors.shichen(shichenData, allEvents);
+processors.calendar(calendarData, allEvents); // ✅ 处理 calendar.json
   // 生成 ICS 文件
   await generateICS(allEvents);
 })();
