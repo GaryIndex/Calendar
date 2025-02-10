@@ -168,7 +168,7 @@ shichen: (records, allEvents) => {
     }
   });
   logInfo("✅ 时辰数据处理完成");
-}
+},
   // 处理节假日数据
   holidays: (records, allEvents) => {
     logInfo("🛠️ 开始处理节假日数据");
