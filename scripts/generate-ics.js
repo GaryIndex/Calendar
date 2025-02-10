@@ -2,6 +2,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import fs from 'fs';
+import { createEvent } from '../scripts/createEvent/createEvent.js';
 // utils.js
 //import fs from 'fs';
 //import path from 'path';
@@ -100,7 +101,6 @@ const readJsonData = async (filePath) => {
 /**
  * 处理不同文件类型的数据
  */
-import { createEvent } from '../scripts/createEvent/createEvent.js';
 const processors = {
   // 处理节气数据
   jieqi: (records, allEvents) => {
