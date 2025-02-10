@@ -3,6 +3,7 @@ import { loadAllJsonData, logInfo, logError } from './utils/utils.js'; // 确保
 
 (async () => {
   try {
+    logInfo("📂 开始加载所有 JSON 数据");
     const jsonData = await loadAllJsonData();
     logInfo("✅ 成功加载所有 JSON 数据");
     console.log(jsonData);
