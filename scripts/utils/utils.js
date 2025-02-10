@@ -11,26 +11,20 @@ const __dirname = path.dirname(__filename);
 const logDir = path.join(process.cwd(), "data");
 const logFilePath = path.join(logDir, "error.log");
 
-// **确保日志目录存在**
+// **日志记录**
 const ensureLogDir = async () => {
   try {
-    await fs.mkdir(logDir, { recursive: true }); // 递归创建 data 目录
+    await fs.mkdir(logDir, { recursive: true });
   } catch (error) {
     console.error(chalk.red(`❌ 创建日志目录失败: ${error.message}`));
   }
 };
 
-// **日志记录**
 const writeLog = async (type, message) => {
   await ensureLogDir();
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] [${type}] ${message}\n`;
-  try {
-    await fs.appendFile(logFilePath, logMessage, "utf8");
-  } catch (error) {
-    console.error(chalk.red(`❌ 写入日志失败: ${error.message}`));
-  }
-
+  await fs.appendFile(logFilePath, logMessage, "utf8");
   console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
 };
 
@@ -46,11 +40,7 @@ const dataPaths = {
   shichen: path.resolve("data/Document/shichen.json"),
 };
 
-/**
- * **读取 JSON 文件**
- * @param {string} filePath 文件路径
- * @returns {Promise<Object>} 解析后的 JSON 数据
- */
+// **读取 JSON 文件**
 export const readJsonData = async (filePath) => {
   try {
     await fs.access(filePath); // 检查文件是否存在
@@ -69,10 +59,7 @@ export const readJsonData = async (filePath) => {
   }
 };
 
-/**
- * **批量加载所有 JSON**
- * @returns {Promise<Object>} 包含所有 JSON 数据的对象
- */
+// **批量加载所有 JSON**
 export const loadAllJsonData = async () => {
   const entries = await Promise.all(
     Object.entries(dataPaths).map(async ([key, filePath]) => [key, await readJsonData(filePath)])
@@ -81,11 +68,7 @@ export const loadAllJsonData = async () => {
   return Object.fromEntries(entries);
 };
 
-/**
- * **创建标准化事件对象**
- * @param {Object} event 事件数据
- * @returns {Object} 格式化后的事件对象
- */
+// **创建标准化事件对象**
 export function createEvent({
   date,
   title,
