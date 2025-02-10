@@ -20,34 +20,40 @@ const processors = {
    * **处理节假日数据**
    */
   holidays: (data, allEvents) => {
-    logInfo("🛠️ 处理节假日数据...");
-    if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
-
-    data.Reconstruction.forEach(entry => {
-      if (!entry || typeof entry !== "object") return;
-      Object.entries(entry).forEach(([date, entries]) => {
-        entries.forEach(holiday => {
-          const { name, isOffDay } = holiday;
-          if (!name || isOffDay === undefined) {
-            logError(`❌ 缺少必要字段: ${JSON.stringify(holiday)}`);
-            return;
-          }
-          const descParts = Object.entries(holiday)
-            .filter(([k]) => !['name', 'isOffDay'].includes(k))
-            .map(([_, v]) => `${v}`)
-            .join(" | ");
-          allEvents.push(createEvent({
-            date,
-            title: `${isOffDay ? "[休]" : "[班]"} ${name}`,
-            isAllDay: true,
-            description: descParts
-          }));
-          logInfo(`✅ 添加节假日事件: ${date} - ${name}`);
-        });
-      });
+  logInfo("🛠️ 处理节假日数据...");
+  // 检查 Reconstruction 是否存在
+  if (!data || typeof data !== "object") {
+    return logError("❌ holidays 数据格式错误！");
+  }
+  // 获取 Reconstruction 数组
+  const reconstructionData = Object.values(data)[0]?.Reconstruction; // 取第一层对象的 Reconstruction
+  if (!Array.isArray(reconstructionData)) {
+    return logError(`❌ Reconstruction 数据不存在！数据结构: ${JSON.stringify(data, null, 2)}`);
+  }
+  // 遍历 Reconstruction
+  reconstructionData.forEach(entry => {
+    if (!entry || typeof entry !== "object") return;
+    Object.entries(entry).forEach(([date, holiday]) => {
+      if (!holiday || typeof holiday !== "object") return;
+      const { name, isOffDay } = holiday;
+      if (!date || !name || isOffDay === undefined) {
+        logError(`❌ 缺少必要字段: ${JSON.stringify(holiday)}`);
+        return;
+      }
+      const descParts = Object.entries(holiday)
+        .filter(([k]) => !['name', 'isOffDay'].includes(k))
+        .map(([_, v]) => `${v}`)
+        .join(" | ");
+      allEvents.push(createEvent({
+        date,
+        title: `${isOffDay ? "[休]" : "[班]"} ${name}`,
+        isAllDay: true,
+        description: descParts
+      }));
+      logInfo(`✅ 添加节假日事件: ${date} - ${name}`);
     });
-  },
-
+  });
+},
   /**
    * **处理节气数据**
    */
