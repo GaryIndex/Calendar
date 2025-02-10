@@ -2,8 +2,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import fs from 'fs';
-import { createEvent } from './scripts/createEvent/createEvent.js'; // 假设 createEvent 是你自定义的创建事件函数
-
+import { createEvent } from './scripts/createEvent/createEvent.js';// 假设 createEvent 是你自定义的创建事件函数
+//scripts/createEvent/createEvent.js
 // 计算 __dirname（ESM 方式）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
