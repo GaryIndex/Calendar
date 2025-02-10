@@ -332,70 +332,63 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
 
   // 生成 ICS 内容
   const icsEvents = mergedEvents.map(event => {
-    // ... 解析事件代码 (如检查 startTime, date 是否有效)
+    const [year, month, day] = event.date.split('-').map(Number);
 
-    if (isInvalid) return ''; // 空字符串会导致额外换行
-    return `BEGIN:VEVENT\r\nDTSTART...END:VEVENT`;
-}).filter(Boolean); // 过滤掉空字符串
+    if (isNaN(year) || isNaN(month) || isNaN(day)) {
+        console.error(`❌ 无效的日期格式: ${event.date}`);
+        return ''; // 跳过错误数据
+    }
+
+    const dateFormatted = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
+    let dtstart = '', dtend = '';
+
+    if (event.startTime) {
+        // 安全解析时间
+        const timeParts = event.startTime.split(':').map(Number);
+        if (timeParts.length !== 3 || timeParts.some(isNaN)) {
+            console.error(`❌ 无效的时间格式: ${event.startTime}`);
+            return ''; // 跳过错误数据
+        }
+
+        const [hour, minute, second] = timeParts;
+        const timeFormatted = `${String(hour).padStart(2, '0')}${String(minute).padStart(2, '0')}${String(second).padStart(2, '0')}`;
+
+        // 计算结束时间 (+1小时)
+        const endTime = new Date(year, month - 1, day, hour + 1, minute, second);
+        const endTimeFormatted = [
+            String(endTime.getHours()).padStart(2, '0'),
+            String(endTime.getMinutes()).padStart(2, '0'),
+            String(endTime.getSeconds()).padStart(2, '0')
+        ].join('');
+
+        dtstart = `DTSTART;TZID=Asia/Shanghai:${dateFormatted}T${timeFormatted}`;
+        dtend = `DTEND;TZID=Asia/Shanghai:${dateFormatted}T${endTimeFormatted}`;
+    } else {
+        // 全天事件
+        dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
+        dtend = ''; // 全天事件不需要 DTEND
+    }
+
+    const description = event.description ? `DESCRIPTION:${event.description}` : '';
+
+    return [
+        'BEGIN:VEVENT',
+        dtstart,
+        dtend,  // 这里不使用 `dtend ? dtend : ''`，避免空行问题
+        `SUMMARY:${event.title}`,
+        description, // 仅在有值时添加
+        'END:VEVENT'
+    ].filter(Boolean).join('\r\n'); // 过滤空字段
+}).filter(Boolean); // 过滤无效数据
 
 const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    ...icsEvents,
+    ...icsEvents, // 确保不会重复添加
     'END:VCALENDAR'
-].join('\r\n'); // 确保正确的换行格式
-    //--
-    ...mergedEvents.map(event => {
-        const [year, month, day] = event.date.split('-').map(Number);
-
-        if (isNaN(year) || isNaN(month) || isNaN(day)) {
-            console.error(`❌ 无效的日期格式: ${event.date}`);
-            return ''; // 跳过错误数据
-        }
-
-        const dateFormatted = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
-        let dtstart = '', dtend = '';
-
-        if (event.startTime) {
-            // 安全解析时间
-            const timeParts = event.startTime.split(':').map(Number);
-            if (timeParts.length !== 3 || timeParts.some(isNaN)) {
-                console.error(`❌ 无效的时间格式: ${event.startTime}`);
-                return ''; // 跳过错误数据
-            }
-
-            const [hour, minute, second] = timeParts;
-            const timeFormatted = `${String(hour).padStart(2, '0')}${String(minute).padStart(2, '0')}${String(second).padStart(2, '0')}`;
-
-            // 计算结束时间 (+1小时)
-            const endTime = new Date(year, month - 1, day, hour + 1, minute, second);
-            const endTimeFormatted = [
-                String(endTime.getHours()).padStart(2, '0'),
-                String(endTime.getMinutes()).padStart(2, '0'),
-                String(endTime.getSeconds()).padStart(2, '0')
-            ].join('');
-
-            dtstart = `DTSTART;TZID=Asia/Shanghai:${dateFormatted}T${timeFormatted}`;
-            dtend = `DTEND;TZID=Asia/Shanghai:${dateFormatted}T${endTimeFormatted}`;
-        } else {
-            // 全天事件
-            dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
-            dtend = ''; // 全天事件不需要 DTEND
-        }
-
-        return [
-            'BEGIN:VEVENT',
-            dtstart,
-            dtend ? dtend : '',
-            `SUMMARY:${event.title}`,
-            `DESCRIPTION:${event.description}`,
-            'END:VEVENT'
-        ].filter(Boolean).join('\r\n');
-    }),
-    'END:VCALENDAR'
-].join('\r\n');
+].join('\r\n'); // 确保换行正确
 
   // ✅ 确保目录存在
   ensureDirExists(icsFilePath);
