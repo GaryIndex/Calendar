@@ -251,7 +251,7 @@ const processors = {
       return;
     }
 
-    // 过滤掉无效 Reconstruction 数据
+    // ✅ 直接解包 `data`，不再保留 `errno` 和 `errmsg`
     const validEntries = record.Reconstruction
       .map(entry => entry.data) // 直接提取 `data`
       .filter(data => data && typeof data === "object" && Object.keys(data).length > 0);
