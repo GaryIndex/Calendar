@@ -345,6 +345,11 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
 
   // 生成 ICS 内容
   const icsEvents = mergedEvents.map(event => {
+    if (!event.date) {
+        console.error(`❌ 缺少日期:`, event);
+        return ''; // 跳过无效数据
+    }
+
     const [year, month, day] = event.date.split('-').map(Number);
 
     if (isNaN(year) || isNaN(month) || isNaN(day)) {
@@ -356,7 +361,7 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
     let dtstart = '', dtend = '';
 
     if (event.startTime) {
-        // 安全解析时间
+        // 解析时间
         const timeParts = event.startTime.split(':').map(Number);
         if (timeParts.length !== 3 || timeParts.some(isNaN)) {
             console.error(`❌ 无效的时间格式: ${event.startTime}`);
@@ -366,7 +371,7 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
         const [hour, minute, second] = timeParts;
         const timeFormatted = `${String(hour).padStart(2, '0')}${String(minute).padStart(2, '0')}${String(second).padStart(2, '0')}`;
 
-        // 计算结束时间 (+1小时)
+        // 计算 +1 小时的结束时间
         const endTime = new Date(year, month - 1, day, hour + 1, minute, second);
         const endTimeFormatted = [
             String(endTime.getHours()).padStart(2, '0'),
@@ -378,18 +383,23 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
         dtend = `DTEND;TZID=Asia/Shanghai:${dateFormatted}T${endTimeFormatted}`;
     } else {
         // 全天事件
+        const nextDay = new Date(year, month - 1, day + 1);
+        const nextDateFormatted = `${nextDay.getFullYear()}${String(nextDay.getMonth() + 1).padStart(2, '0')}${String(nextDay.getDate()).padStart(2, '0')}`;
+        
         dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
-        dtend = ''; // 全天事件不需要 DTEND
+        dtend = `DTEND;VALUE=DATE:${nextDateFormatted}`; // 全天事件加 DTEND
     }
 
-    const description = event.description ? `DESCRIPTION:${event.description}` : '';
+    // 设置默认标题，避免空值
+    const title = event.title && event.title.trim() ? event.title : '无标题';
+    const description = event.description && event.description.trim() ? `DESCRIPTION:${event.description}` : '';
 
     return [
         'BEGIN:VEVENT',
         dtstart,
-        dtend,  // 这里不使用 `dtend ? dtend : ''`，避免空行问题
-        `SUMMARY:${event.title}`,
-        description, // 仅在有值时添加
+        dtend,
+        `SUMMARY:${title}`,  // 确保标题存在
+        description,          // 仅在有值时添加
         'END:VEVENT'
     ].filter(Boolean).join('\r\n'); // 过滤空字段
 }).filter(Boolean); // 过滤无效数据
@@ -402,6 +412,8 @@ const icsContent = [
     ...icsEvents, // 确保不会重复添加
     'END:VCALENDAR'
 ].join('\r\n'); // 确保换行正确
+
+console.log(icsContent); // 调试输出，检查 ICS 生成是否正确
 
   // ✅ 确保目录存在
   ensureDirExists(icsFilePath);
