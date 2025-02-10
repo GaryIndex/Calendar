@@ -239,42 +239,32 @@ const processors = {
   // 处理 calendar.json
   calendar: (records, allEvents) => {
     logInfo("🛠️ 开始处理日历数据");
-
     if (!records || typeof records !== "object") {
       logInfo(`❌ records 数据格式错误: ${JSON.stringify(records)}`);
       return;
     }
-
     Object.entries(records).forEach(([date, record]) => {
-      if (!Array.isArray(record.Reconstruction)) {
+      if (!record || typeof record !== "object" || !Array.isArray(record.Reconstruction)) {
         logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
         return;
       }
-
-      record.Reconstruction.forEach(entry => {
-        if (!entry.data) {
-          logInfo(`❌ calendar.json 缺少有效数据: ${JSON.stringify(entry)}`);
-          return;
-        }
-
-        const { data } = entry;
-        const title = processors.extractTitle(data);
-        const description = processors.extractDescription(data);
-
-        console.log("📌 插入日历事件:", { date, title, description });
-
-        allEvents.push(createEvent({
-          date,
-          title,
-          description,
-          isAllDay: true
-        }));
-      });
+      record.Reconstruction
+        .filter(entry => entry.data) // 过滤掉无效数据（如 `errno`、`errmsg`）
+        .forEach(entry => {
+          const { data } = entry;
+          const title = processors.extractTitle(data);
+          const description = processors.extractDescription(data);
+          console.log("📌 插入日历事件:", { date, title, description });
+          allEvents.push(createEvent({
+            date,
+            title,
+            description,
+            isAllDay: true
+          }));
+        });
     });
-
     logInfo("✅ 日历数据处理完成");
   },
-
   /**
    * 提取事件标题（festival）
    * @param {Object} data - 日历数据
@@ -290,20 +280,29 @@ const processors = {
    * @returns {string} 备注
    */
   extractDescription: (data) => {
-    const extractFields = ["data", "lunar", "almanac", "jishenfangwei"];
-    const values = extractFields.flatMap(field => data[field] ? Object.values(data[field]) : []);
-
-    ["liuyao", "jiuxing", "taisui"].forEach(key => {
-      if (data.almanac?.[key]) values.push(data.almanac[key]);
-    });
-
-    if (Array.isArray(data.almanac?.pengzubaiji)) {
-      values.push(data.almanac.pengzubaiji.join(", ")); 
-    }
-
-    return values
-      .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
-      .join(" | ");
+  const extractFields = ["year", "leapYear", "month", "maxDayInMonth", "enMonth", "astro", "cnWeek", "enWeek", "weekInYear", "day", "dayInYear", "julianDay", "hour", "minute", "second", "lunar", "almanac"];
+  // 提取普通字段，排除空对象
+  const values = extractFields.flatMap(field => {
+    const fieldValue = data[field];
+    return (fieldValue && typeof fieldValue === "object" && Object.keys(fieldValue).length === 0) 
+      ? [] // 过滤掉空对象 `{}` 
+      : Object.values(fieldValue || {}); // 处理非空对象
+  });
+  // 处理 `jishenfangwei` 字段：只要值，不要键
+  if (data.almanac?.jishenfangwei) {
+    values.push(...Object.values(data.almanac.jishenfangwei));
+  }
+  // 处理其他特殊字段
+  ["liuyao", "jiuxing", "taisui"].forEach(key => {
+    if (data.almanac?.[key]) values.push(data.almanac[key]);
+  });
+  if (Array.isArray(data.almanac?.pengzubaiji)) {
+    values.push(data.almanac.pengzubaiji.join(", ")); 
+  }
+  return values
+    .map(value => (typeof value === "object" && Object.keys(value).length === 0 ? "" : value)) // 确保空对象不会被加入
+    .filter(value => value !== "") // 过滤掉空字符串
+    .join(" | ");
   }
 };
 
