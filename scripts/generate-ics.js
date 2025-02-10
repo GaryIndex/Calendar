@@ -55,7 +55,7 @@ const readJsonData = async (filePath) => {
 
 // **批量加载所有 JSON**
 const loadAllJsonData = async () => {
-  const jsonData = {};
+  const jsonDatawhat = {};
   for (const [key, filePath] of Object.entries(dataPaths)) {
     jsonData[key] = await readJsonData(filePath);
   }
@@ -376,7 +376,7 @@ const processAllData = (jsonData, allEvents) => {
 };
 */
 // 运行处理逻辑
-const jsonData = await loadAllJsonData();
+const jsonDatakok = await loadAllJsonData();
 processAllData(jsonData, allEvents);
 //processAllData(yourJsonData, allEvents);
 
@@ -402,9 +402,9 @@ END:VEVENT`).join("\n");
   const allEvents = [];
   //const [holidays, jieqi, astro, shichen, calendar] = await Promise.all(Object.values(dataPaths).map(readJsonData));
   const jsonDataArray = await Promise.all(Object.values(dataPaths).map(async file => await readJsonData(file)));
-  const jsonData = Object.fromEntries(Object.keys(dataPaths).map((key, i) => [key, jsonDataArray[i]]));
+  const jsonDatajust = Object.fromEntries(Object.keys(dataPaths).map((key, i) => [key, jsonDataArray[i]]));
   //Object.values(processors).forEach(fn => fn({ Reconstruction: holidays }, allEvents));
-  const jsonData = await loadAllJsonData();
+  const jsonDataand = await loadAllJsonData();
   processAllData(jsonData, allEvents);
   await generateICS(allEvents);
 })();
