@@ -239,31 +239,34 @@ const processors = {
   // 处理 calendar.json
   calendar: (records, allEvents) => {
   logInfo("🛠️ 开始处理日历数据");
+
   if (!records || typeof records !== "object") {
     logInfo(`❌ records 数据格式错误: ${JSON.stringify(records)}`);
     return;
   }
+
   Object.entries(records).forEach(([date, record]) => {
     if (!record || typeof record !== "object" || !Array.isArray(record.Reconstruction)) {
       logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
       return;
     }
+
     // 过滤掉无效 Reconstruction 数据
-    const validEntries = record.Reconstruction.filter(entry => 
-      entry && typeof entry === "object" &&
-      !(entry.hasOwnProperty("errno") || entry.hasOwnProperty("errmsg")) && // 确保没有 `errno` 或 `errmsg`
-      entry.data && typeof entry.data === "object" &&
-      Object.keys(entry.data).length > 0 // 确保 `data` 非空
-    );
+    const validEntries = record.Reconstruction
+      .map(entry => entry.data) // 直接提取 `data`
+      .filter(data => data && typeof data === "object" && Object.keys(data).length > 0);
+
     if (validEntries.length === 0) {
       logInfo(`⚠️ 过滤后无有效 Reconstruction 数据: ${JSON.stringify(record.Reconstruction)}`);
       return;
     }
-    validEntries.forEach(entry => {
-      const { data } = entry;
+
+    validEntries.forEach(data => {
       const title = processors.extractTitle(data);
       const description = processors.extractDescription(data);
+
       console.log("📌 插入日历事件:", { date, title, description });
+
       allEvents.push(createEvent({
         date,
         title,
