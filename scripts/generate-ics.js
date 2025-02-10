@@ -189,7 +189,7 @@ const processors = {
   } else {
     logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
   }
-},
+};
   const astro = (records, allEvents) => {
   logInfo("🛠️ 处理天文数据...");
   if (Array.isArray(records.Reconstruction)) {
@@ -270,26 +270,52 @@ const shichen = (records, allEvents) => {
   logInfo("✅ 时辰数据处理完成");
 };
 
-calendar: (records, allEvents) => {
+const calendar = (records, allEvents) => {
   logInfo("🛠️ 处理万年历数据...");
-  
-  // 遍历每个日期项
+
   Object.entries(records).forEach(([date, data]) => {
-    logInfo(`处理万年历日期: ${date}`);
-    
-    data.Reconstruction?.forEach(entry => {
-      logInfo(`处理万年历条目: ${JSON.stringify(entry)}`);
-      
+    if (!data.Reconstruction || !Array.isArray(data.Reconstruction)) {
+      logError(`❌ 数据格式错误，Reconstruction 不是数组: ${JSON.stringify(data)}`);
+      return;
+    }
+
+    logInfo(`📅 处理万年历日期: ${date}`);
+
+    data.Reconstruction.forEach(entry => {
+      if (!entry) {
+        logError(`❌ 无效的万年历条目: ${JSON.stringify(entry)}`);
+        return;
+      }
+
+      // 需要排除的键
+      const excludeKeys = new Set(["errno", "errmsg", "festivals", "solarTerms", "cnWeek"]);
+
+      // 拼接 description（去掉键名，只保留值）
+      const description = Object.entries(entry)
+        .filter(([key, value]) => value && !excludeKeys.has(key)) // 过滤掉空值和不需要的字段
+        .map(([_, value]) => (Array.isArray(value) ? value.join("｜") : value)) // 数组转换为 `｜` 连接的字符串
+        .join("｜"); // 连接所有字段
+
+      // 拼接标题
+      let title = entry.cnWeek || "万年历信息";
+      if (entry.festivals) {
+        title += ` ${entry.festivals}`; // 如果有节日，将节日作为额外标题
+      }
+
+      // 添加事件
       allEvents.push(createEvent({
         date,
-        title: entry.festivals || "万年历信息", // 使用 festivals 作为标题
+        title,
         isAllDay: true,
-        description: JSON.stringify(entry)
+        description
       }));
+
+      logInfo(`✅ 添加万年历事件: ${date} - ${title}`);
     });
   });
+
   logInfo("✅ 万年历数据处理完成");
-}
+};
 };
 
 export default processors;
