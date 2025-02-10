@@ -152,7 +152,7 @@ const processors = {
   } else {
     logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
   }
-},
+};
   const jieqi = (records, allEvents) => {
   logInfo("🛠️ 处理节气数据...");
 
@@ -223,7 +223,7 @@ const processors = {
   } else {
     logError(`❌ records.Reconstruction 不是一个数组，实际类型是: ${typeof records.Reconstruction}`);
   }
-},
+};
 shichen: (records, allEvents) => {
   logInfo("🛠️ 处理时辰数据...");
   // 遍历每个 Reconstruction 项
@@ -241,6 +241,7 @@ shichen: (records, allEvents) => {
   });
   logInfo("✅ 时辰数据处理完成");
 },
+
 calendar: (records, allEvents) => {
   logInfo("🛠️ 处理万年历数据...");
   
