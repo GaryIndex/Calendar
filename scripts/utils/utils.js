@@ -7,9 +7,39 @@ import fs from "fs/promises";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// **确保日志目录存在**
+const logDir = path.join(process.cwd(), "data");
+const logFilePath = path.join(logDir, "error.log");
+// **日志记录**
+const ensureLogDir = async () => {
+  try {
+    await fs.mkdir(logDir, { recursive: true }); // 递归创建 data 目录
+  } catch (error) {
+    console.error(chalk.red(`❌ 创建日志目录失败: ${error.message}`));
+  }
+};
+const writeLog = async (type, message) => {
+  await ensureLogDir();
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] [${type}] ${message}\n`;
+  await fs.appendFile(logFilePath, logMessage, "utf8");
+  console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
+};
+export const logInfo = (message) => writeLog("INFO", message);
+export const logError = (message) => writeLog("ERROR", message);
+/*
+import path from "path";
+import { fileURLToPath } from "url";
+import chalk from "chalk";
+import fs from "fs/promises";
+
+// **计算 __dirname**
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // **日志文件路径**
 const logFilePath = path.join(__dirname, "./data/error.log");
-
+*/
 /**
  * **日志记录**
  * @param {string} type 日志类型 ("INFO" | "ERROR")
