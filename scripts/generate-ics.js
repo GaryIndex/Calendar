@@ -140,7 +140,6 @@ const processors = {
         );
       });
     });
-
     logInfo("✅ 节气数据处理完成");
   }
 };
@@ -178,7 +177,7 @@ const holidays = (records, allEvents) => {
   });
   logInfo("✅ 节假日数据处理完成");
 };
-export { holidays };
+// export { holidays };
 
 // 处理天文数据 (astro.json)
 const astro = (records, allEvents) => {
@@ -230,7 +229,7 @@ const astro = (records, allEvents) => {
 
   logInfo("✅ 天文数据处理完成");
 };
-export { astro };
+// export { astro };
 
 // 处理 calendar.json
 const calendar = (records, allEvents) => {
@@ -302,8 +301,7 @@ function extractDescription(data) {
     .join(" | ");
 }
 
-export { calendar };
-export default processors;
+// export { calendar };
 /**
  * 生成 ICS 文件
  */
@@ -482,3 +480,4 @@ console.log(icsContent); // 调试输出，检查 ICS 生成是否正确
 
 // 执行生成 ICS
 generateICS();
+export default processors;
