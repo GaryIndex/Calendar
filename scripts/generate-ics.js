@@ -361,7 +361,13 @@ const calendar = (records, allEvents) => {
 
   logInfo("✅ 万年历数据处理完成");
 };
-
+const processors = {};
+processors.holidays = holidays;
+processors.jieqi = jieqi;
+processors.shichen = shichen;
+processors.astro = (data, allEvents) => {};
+processors.calendar = (data, allEvents) => {};
+/*
 // 使用 processors 进行调用
 const processors = {
   holidays,
@@ -370,6 +376,7 @@ const processors = {
   shichen,
   calendar
 };
+*/
 /*
 // 处理所有数据
 const processAllData = (jsonData, allEvents) => {
