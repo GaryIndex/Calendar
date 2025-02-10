@@ -127,7 +127,7 @@ const processors = {
     });
     logInfo("✅ 节气数据处理完成");
   }
-},
+};
 //import { createEvent, logInfo, logError } from './utils.js'; // 根据实际路径调整
 // 时辰数据处理函数
 export const shichen = (records, allEvents) => {
