@@ -54,13 +54,15 @@ const readJsonData = async (filePath) => {
 };
 
 // **批量加载所有 JSON**
+// 只在这个函数中声明 jsonData，确保没有全局声明
 const loadAllJsonData = async () => {
-  const jsonDatawhat = {};
+  const jsonData = {};  // 在这个函数中声明，不会影响其他地方
   for (const [key, filePath] of Object.entries(dataPaths)) {
     jsonData[key] = await readJsonData(filePath);
   }
   return jsonData;
 };
+// 如果你有其他函数需要访问 JSON 数据，可以将其传递给它们
 
 // **创建事件对象**
 export function createEvent({
