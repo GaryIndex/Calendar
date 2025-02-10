@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import deepmerge from 'deepmerge';
 
 const DATA_PATH = './data/Document';
-const LOG_PATH = './data/error.log';
+const LOG_PATH = './data/errors.log';
 const START_DATE = '2025-02-10';
 const MAX_RETRIES = 3;
 
