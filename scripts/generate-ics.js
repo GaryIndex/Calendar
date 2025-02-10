@@ -2,8 +2,61 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import fs from 'fs';
-import { createEvent } from './scripts/createEvent/createEvent.js';// 假设 createEvent 是你自定义的创建事件函数
-//scripts/createEvent/createEvent.js
+
+/**
+ * 创建事件对象
+ * @param {Object} params - 事件参数
+ * @param {string} params.date - 事件的日期（格式: YYYY-MM-DD）
+ * @param {string} params.title - 事件标题
+ * @param {string} [params.location=""] - 位置或视频通话（默认为空）
+ * @param {boolean} [params.isAllDay=false] - 是否全天事件（默认为 false）
+ * @param {string} [params.startTime=""] - 开始时间（格式: HH:mm:ss，默认为空）
+ * @param {string} [params.endTime=""] - 结束时间（格式: HH:mm:ss，默认为空）
+ * @param {string} [params.travelTime=""] - 行程时间（默认为空）
+ * @param {string} [params.repeat=""] - 重复设置（默认为空）
+ * @param {string} [params.alarm=""] - 提醒设置（默认为空）
+ * @param {string} [params.attachment=""] - 附件（默认为空）
+ * @param {string} [params.url=""] - URL（默认为空）
+ * @param {string} [params.badge=""] - 角标（如“休”或“班”，默认为空）
+ * @param {string} params.description - 事件描述（拼接的备注信息）
+ * @param {number} [params.priority=0] - 事件优先级（数值越高，优先级越高，默认为 0）
+ * 
+ * @returns {Object} 事件对象
+ */
+export function createEvent({
+  date,
+  title,
+  location = "",
+  isAllDay = false,
+  startTime = "",
+  endTime = "",
+  travelTime = "",
+  repeat = "",
+  alarm = "",
+  attachment = "",
+  url = "",
+  badge = "",
+  description,
+  priority = 0 // 🔥 新增优先级字段，默认 0
+}) {
+  return {
+    date,
+    title,
+    location,
+    isAllDay,
+    startTime,
+    endTime,
+    travelTime,
+    repeat,
+    alarm,
+    attachment,
+    url,
+    badge,
+    description,
+    priority // 🔥 返回优先级字段
+  };
+}
+
 // 计算 __dirname（ESM 方式）
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -199,139 +252,78 @@ const processors = {
         const dateStr = currentDate.toISOString().split("T")[0]; // 格式化 YYYY-MM-DD
 
         // 提取所有值，不要键名
-        const description = Object.values(data)
-          .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
+        const description = Object.entries(data)
+          .filter(([key]) => key !== "range")
+          .map(([key, value]) => `${key}: ${value}`)
           .join(" | ");
 
         allEvents.push(createEvent({
           date: dateStr,
-          title: "",  // 不设置标题
-          isAllDay: true,
-          description, // 所有值写进备注
+          title: entry.name,
+          description,
+          isAllDay: true
         }));
 
-        // 日期 +1 天
-        currentDate.setDate(currentDate.getDate() + 1);
+        currentDate.setDate(currentDate.getDate() + 1); // 增加一天
       }
     });
     logInfo("✅ 天文数据处理完成");
-  },
-
-  // 处理日历数据
-  calendar: (records, allEvents) => {
-    logInfo("🛠️ 开始处理日历数据");
-    Object.entries(records).forEach(([date, record]) => {
-      record.Reconstruction?.forEach(entry => {
-        if (!entry.data) {
-          logError(`❌ calendar.json 缺少有效数据: ${JSON.stringify(entry)}`);
-          return;
-        }
-
-        const { data } = entry;
-
-        // 需要提取的对象字段
-        const extractFields = ["data", "lunar", "almanac", "jishenfangwei"];
-
-        // 提取数据并转换为数组
-        const values = extractFields.flatMap(field => 
-          data[field] ? Object.values(data[field]) : []
-        );
-
-        // 额外提取单个值
-        ["liuyao", "jiuxing", "taisui"].forEach(key => {
-          if (data.almanac?.[key]) values.push(data.almanac[key]);
-        });
-
-        // 将所有值拼接成字符串
-        const description = values
-          .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
-          .join(" | ");
-
-        allEvents.push(createEvent({
-          date,  // 直接使用 JSON key 作为日期
-          title: "",  // 不设置标题
-          isAllDay: true,
-          description, // 所有值写进备注
-        }));
-      });
-    });
-    logInfo("✅ 日历数据处理完成");
-  },
+  }
 };
 
-/**
- * 生成 ICS 文件
- */
-const generateICS = async () => {
-  const allEvents = [];
+// 生成 ICS 文件
+const generateICS = async (events) => {
+  const icsData = events.map(event => `
+BEGIN:VEVENT
+SUMMARY:${event.title}
+DTSTART:${event.date}T${event.startTime.replace(":", "")}00
+DTEND:${event.date}T${event.endTime.replace(":", "")}00
+DESCRIPTION:${event.description}
+LOCATION:${event.location}
+STATUS:${event.isAllDay ? 'ALL DAY' : 'CONFIRMED'}
+ATTENDEE;CN="None":MAILTO:none@example.com
+END:VEVENT`).join("\n");
 
-  // 读取和处理所有 JSON 数据
-  await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
-    const jsonData = await readJsonData(filePath);
-    Object.values(jsonData).forEach(records => {
-      if (processors[fileKey]) {
-        processors[fileKey](records, allEvents);
-      }
-    });
-  }));
+  const icsContent = `BEGIN:VEVENT
+BEGIN:VEVENT
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Your Company//NONSGML v1.0//EN
+CALSCALE:GREGORIAN
+BEGIN:VTIMEZONE
+TZID:Asia/Shanghai
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0800
+TZOFFSETTO:+0800
+TZNAME:CST
+DTSTART:19700101T000000
+END:DAYLIGHT
+END:VTIMEZONE
+${icsData}
+END:VEVENT
+END:VCALENDAR`;
 
-  // ✅ 记录到日志文件
-  logInfo(`📌 解析后的所有事件数据: ${JSON.stringify(allEvents, null, 2)}`);
-
-  // 过滤无效事件
-  const validEvents = allEvents.filter(event => event.date && event.description);
-  
-  if (validEvents.length === 0) {
-    logError('❌ 没有有效的事件数据，无法生成 ICS 文件');
-    return;
-  }
-
-  // 检查事件数据
-  logInfo(`📅 有效的事件数量: ${validEvents.length}`);
-  validEvents.forEach(event => {
-    logInfo(`📝 事件详情: 日期 - ${event.date}, 标题 - ${event.title}, 备注 - ${event.description}`);
-  });
-
-  // 生成 ICS 内容
-  const icsContent = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    ...validEvents.map(event => {
-      return `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}\r\nSUMMARY:${event.title}\r\nDESCRIPTION:${event.description}\r\nEND:VEVENT`;
-    }),
-    'END:VCALENDAR'
-  ].join('\r\n');
-
-  // ✅ 先确保目录存在
-  ensureDirExists(icsFilePath);
-
-  // ✅ 记录目标 ICS 文件路径
-  logInfo(`📂 目标 ICS 文件路径: ${path.resolve(icsFilePath)}`);
-
-  // ✅ 使用同步写入，确保数据写入成功
   try {
-    fs.writeFileSync(icsFilePath, icsContent, 'utf8');
-    logInfo(`✅ ICS 文件同步写入成功: ${icsFilePath}`);
-
-    // ✅ 读取 `.ics` 文件，确保写入正确
-    if (fs.existsSync(icsFilePath)) {
-      const writtenContent = fs.readFileSync(icsFilePath, 'utf8');
-      logInfo(`📖 读取已写入的 ICS 文件内容:\n${writtenContent}`);
-    } else {
-      logError(`❌ 读取失败，ICS 文件未写入: ${icsFilePath}`);
-    }
+    await fs.promises.writeFile(icsFilePath, icsContent);
+    logInfo(`✅ ICS 文件成功生成: ${icsFilePath}`);
   } catch (err) {
     logError(`❌ 生成 ICS 文件失败: ${err.message}`);
   }
 };
 
-// 确保目录存在的函数
-const ensureDirExists = (filePath) => {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-};
+(async () => {
+  // 读取数据
+  const allEvents = [];
+  const [holidaysData, jieqiData, astroData, calendarData, shichenData] = await Promise.all(
+    Object.values(dataPaths).map(readJsonData)
+  );
 
-// 执行生成 ICS
-generateICS();
+  // 处理数据
+  processors.holidays(holidaysData, allEvents);
+  processors.jieqi(jieqiData, allEvents);
+  processors.astro(astroData, allEvents);
+  processors.shichen(shichenData, allEvents);
+
+  // 生成 ICS 文件
+  await generateICS(allEvents);
+})();
