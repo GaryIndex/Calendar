@@ -103,7 +103,6 @@ export function createEvent({
 // 处理所有数据
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
-
   // 处理不同数据源（如 astro.json, calendar.json 等）
   Object.entries(jsonData).forEach(([source, data]) => {
     if (processors[source]) {
@@ -111,26 +110,23 @@ const processAllData = (jsonData, allEvents) => {
     } else {
       logError(`❌ 未知数据源: ${source}`);
     }
-  });
-
-  // 处理 Reconstruction 数据
-  for (const [key, data] of Object.entries(jsonData)) {
-    if (!data || Object.keys(data).length === 0) continue;
-
-    for (const date in data.Reconstruction) {
-      for (const entry of data.Reconstruction[date]) {
-        const event = createEvent({
-          date,
-          title: entry.name || "无标题",
-          description: Object.entries(entry).map(([k, v]) => `${k}: ${v}`).join(" "),
-          isAllDay: true
+    // 处理 Reconstruction 数据
+    if (data && data.Reconstruction) {
+      for (const [date, entries] of Object.entries(data.Reconstruction)) {
+        entries.forEach(entry => {
+          const event = createEvent({
+            date,
+            title: entry.name || "无标题",
+            description: Object.entries(entry)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join(" "),
+            isAllDay: true
+          });
+          allEvents.push(event);
         });
-
-        allEvents.push(event);
       }
     }
-  }
-
+  });
   logInfo(`✅ 处理完成，共生成 ${allEvents.length} 个事件`);
 };
 
