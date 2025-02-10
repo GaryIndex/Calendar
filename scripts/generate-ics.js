@@ -130,7 +130,7 @@ const processors = {
 },
 //export default processors;
 // 处理时辰数据
-shichen: (records, allEvents) => {
+const shichen: (records, allEvents) => {
   logInfo("🛠️ 开始处理时辰数据");
   records.Reconstruction?.forEach(recon => {
     if (Array.isArray(recon.data)) {
