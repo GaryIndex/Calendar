@@ -5,8 +5,8 @@ import { loadAllJsonData, createEvent, logInfo, logError } from "./scripts/utils
   logInfo("✅ 成功加载所有 JSON 数据");
   console.log(jsonData);
 })();
- * **数据处理器**
- */
+
+ // **数据处理器**
 const processors = {
   /**
    * **处理节假日数据**
