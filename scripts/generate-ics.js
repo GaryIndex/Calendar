@@ -326,7 +326,11 @@ await Promise.all(Object.entries(dataPaths).map(async ([fileKey, filePath]) => {
 }));
 
 // 统一格式化所有事件
-allEvents = allEvents.map(ensureEventDefaults);
+allEvents.forEach((event, index) => {
+    allEvents[index] = ensureEventDefaults(event);
+});
+//let allEvents = [...];  // 确保 allEvents 是用 let 声明的
+//allEvents = allEvents.map(ensureEventDefaults);
 
 // ✅ 记录到日志
 logInfo(`📌 解析后的所有事件数据: ${JSON.stringify(allEvents, null, 2)}`);
