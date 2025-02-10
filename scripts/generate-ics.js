@@ -144,40 +144,29 @@ const processors = {
     logInfo("✅ 节气数据处理完成");
   }
 };
-
-// 处理节假日数据
 const holidays = (records, allEvents) => {
   logInfo("🛠️ 开始处理节假日数据");
-
   if (!Array.isArray(records.Reconstruction)) {
     logError(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
     return;
   }
-
   records.Reconstruction.forEach(item => {
-    if (!Array.isArray(item.data)) {
-      logError(`⚠️ Reconstruction 数据异常: ${JSON.stringify(item)}`);
-      return;
-    }
-
-    item.data.forEach(holiday => {
+    // item 是对象，遍历它的值
+    const holidaysArray = Object.values(item);
+    holidaysArray.forEach(holiday => {
       const { date, name, isOffDay } = holiday;
       if (!date || !name || isOffDay === undefined) {
         logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
         return;
       }
-
       // 组装描述信息，排除 `date`, `name`, `isOffDay`
       const description = Object.entries(holiday)
         .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
         .map(([k, v]) => `${k}: ${v}`)
         .join(' | ');
-
       // 生成角标（休 or 班）
       const badge = isOffDay ? "休" : "班";
-
       console.log("📌 插入节假日事件:", { date, title: name, badge, description });
-
       allEvents.push(createEvent({
         date,
         title: name,         
@@ -187,7 +176,6 @@ const holidays = (records, allEvents) => {
       }));
     });
   });
-
   logInfo("✅ 节假日数据处理完成");
 };
 export { holidays };
