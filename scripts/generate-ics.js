@@ -134,6 +134,7 @@ const processors = {
           alarm: "",                // 默认无提醒
           attachment: "",           // 默认无附件
           url: "",                  // 默认无 URL
+          badge:"",                 //角标
           description               // 备注：节气信息
         });
       });
@@ -177,6 +178,7 @@ shichen: (records, allEvents) => {
           alarm: "",           // 提醒设置为空
           attachment: "",      // 附件为空
           url: "",             // URL为空
+          badge:"",            //角标
           description: descriptionParts  // 事件描述
         });
       });
