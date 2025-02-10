@@ -127,35 +127,48 @@ const processors = {
   },
 
   // 处理时辰数据
-  shichen: (records, allEvents) => {
-    logInfo("🛠️ 开始处理时辰数据");
-    records.Reconstruction?.forEach(recon => {
-      if (Array.isArray(recon.data)) {
-        recon.data.forEach(entry => {
-          const descParts = [
-            `${entry.date} ${entry.hours}`,
-            entry.yi !== '无' ? entry.yi : null,
-            entry.ji,
-            entry.chong,
-            entry.sha,
-            entry.nayin,
-            entry.jiuxing
-          ].filter(Boolean).join(' ');
+shichen: (records, allEvents) => {
+  logInfo("🛠️ 开始处理时辰数据");
+  records.Reconstruction?.forEach(recon => {
+    if (Array.isArray(recon.data)) {
+      recon.data.forEach(entry => {
+        // 时间范围（如: 23:00-00:59）
+        const hours = entry.hours;
+        const hourRange = hours.split('-');
+        
+        // 判断时间范围是否合法
+        if (hourRange.length !== 2) {
+          logError(`❌ 时辰数据时间格式无效: ${JSON.stringify(entry)}`);
+          return;
+        }
 
-          allEvents.push({
-            date: entry.date,
-            title: entry.hour,
-            isAllDay: true,
-            description: descParts
-          });
+        const hourTitle = entry.hour;  // 用 `hour` 作为标题
+
+        // 过滤出仅在这个小时范围内的所有信息
+        const descriptionParts = [
+          entry.yi ? `宜: ${entry.yi}` : null,
+          entry.ji ? `忌: ${entry.ji}` : null,
+          entry.chong ? `冲: ${entry.chong}` : null,
+          entry.sha ? `煞: ${entry.sha}` : null,
+          entry.nayin ? `纳音: ${entry.nayin}` : null,
+          entry.jiuxing ? `九星: ${entry.jiuxing}` : null
+        ].filter(Boolean).join(' | ');
+
+        // 创建事件对象
+        allEvents.push({
+          date: entry.date,  // 事件的日期
+          title: hourTitle,  // 使用 `hour` 作为标题
+          startTime: hourRange[0],  // 开始时间为小时范围的起始时间
+          isAllDay: false,  // 不是全天事件
+          description: descriptionParts  // 在描述中只展示这个时间段的信息
         });
-      } else {
-        logError(`⚠️ recon.data 不是数组: ${JSON.stringify(recon.data)}`);
-      }
-    });
-    logInfo("✅ 时辰数据处理完成");
-  },
-
+      });
+    } else {
+      logError(`⚠️ recon.data 不是数组: ${JSON.stringify(recon.data)}`);
+    }
+  });
+  logInfo("✅ 时辰数据处理完成");
+}
   // 处理节假日数据
   holidays: (records, allEvents) => {
     logInfo("🛠️ 开始处理节假日数据");
