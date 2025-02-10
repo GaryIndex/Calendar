@@ -103,13 +103,13 @@ export function createEvent({
 // 处理所有数据
 // 确保 processors 对象提前定义并初始化
 const processors = {
+  ...{ holidays, jieqi, shichen, calendar, astro}, // 现有的 `holidays`, `jieqi`, `shichen`
   astro: (data, allEvents) => {
-    // 处理 astro 数据的逻辑
+    // 处理 astro 数据
   },
   calendar: (data, allEvents) => {
-    // 处理 calendar 数据的逻辑
-  },
-  // 其他数据源的处理函数
+    // 处理 calendar 数据
+  }
 };
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
@@ -361,12 +361,6 @@ const calendar = (records, allEvents) => {
 
   logInfo("✅ 万年历数据处理完成");
 };
-const processors = {};
-processors.holidays = holidays;
-processors.jieqi = jieqi;
-processors.shichen = shichen;
-processors.astro = (data, allEvents) => {};
-processors.calendar = (data, allEvents) => {};
 /*
 // 使用 processors 进行调用
 const processors = {
