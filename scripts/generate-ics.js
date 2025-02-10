@@ -238,33 +238,41 @@ const processors = {
 
   // 处理 calendar.json
   calendar: (records, allEvents) => {
-    logInfo("🛠️ 开始处理日历数据");
-    if (!records || typeof records !== "object") {
-      logInfo(`❌ records 数据格式错误: ${JSON.stringify(records)}`);
+  logInfo("🛠️ 开始处理日历数据");
+  if (!records || typeof records !== "object") {
+    logInfo(`❌ records 数据格式错误: ${JSON.stringify(records)}`);
+    return;
+  }
+  Object.entries(records).forEach(([date, record]) => {
+    if (!record || typeof record !== "object" || !Array.isArray(record.Reconstruction)) {
+      logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
       return;
     }
-    Object.entries(records).forEach(([date, record]) => {
-      if (!record || typeof record !== "object" || !Array.isArray(record.Reconstruction)) {
-        logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
-        return;
-      }
-      record.Reconstruction
-        .filter(entry => entry.data) // 过滤掉无效数据（如 `errno`、`errmsg`）
-        .forEach(entry => {
-          const { data } = entry;
-          const title = processors.extractTitle(data);
-          const description = processors.extractDescription(data);
-          console.log("📌 插入日历事件:", { date, title, description });
-          allEvents.push(createEvent({
-            date,
-            title,
-            description,
-            isAllDay: true
-          }));
-        });
+    // 过滤掉无效 Reconstruction 数据
+    const validEntries = record.Reconstruction.filter(entry => 
+      entry && typeof entry === "object" &&
+      entry.data && typeof entry.data === "object" &&
+      Object.keys(entry.data).length > 0 // 确保 `data` 非空
+    );
+    if (validEntries.length === 0) {
+      logInfo(`⚠️ 过滤后无有效 Reconstruction 数据: ${JSON.stringify(record.Reconstruction)}`);
+      return;
+    }
+    validEntries.forEach(entry => {
+      const { data } = entry;
+      const title = processors.extractTitle(data);
+      const description = processors.extractDescription(data);
+      console.log("📌 插入日历事件:", { date, title, description });
+      allEvents.push(createEvent({
+        date,
+        title,
+        description,
+        isAllDay: true
+      }));
     });
-    logInfo("✅ 日历数据处理完成");
-  },
+  });
+  logInfo("✅ 日历数据处理完成");
+},
   /**
    * 提取事件标题（festival）
    * @param {Object} data - 日历数据
