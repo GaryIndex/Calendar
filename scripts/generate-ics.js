@@ -58,29 +58,33 @@ const processors = {
    * **处理节气数据**
    */
   jieqi: (data, allEvents) => {
-    logInfo("🛠️ 处理节气数据...");
-    if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
-
-    data.Reconstruction.forEach(entry => {
-      if (!entry || typeof entry !== "object") return;
-      Object.entries(entry).forEach(([date, entries]) => {
-        entries.forEach(event => {
-          if (!event.time || !event.name) {
-            logError(`❌ 缺少 name 或 time: ${JSON.stringify(event)}`);
-            return;
-          }
-          allEvents.push(createEvent({
-            date,
-            title: event.name,
-            startTime: event.time.split(" ")[1] || "", // 仅保留时间部分
-            isAllDay: false,
-            description: `节气: ${event.name}`
-          }));
-        });
-      });
+  logInfo("🛠️ 处理节气数据...");
+  // 确保我们正确获取到 Reconstruction 数据并且它是数组
+  if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
+  // 遍历 Reconstruction 数组
+  data.Reconstruction.forEach(entry => {
+    if (!entry || typeof entry !== "object") return;
+    // 遍历 entry 中的 data 数组，忽略 errno 和 errmsg
+    const events = entry.data || [];
+    events.forEach(event => {
+      // 确保 name 和 time 字段存在
+      if (!event.name || !event.time) {
+        logError(`❌ 缺少 name 或 time: ${JSON.stringify(event)}`);
+        return;
+      }
+      // 提取时间部分，并创建事件
+      const startTime = event.time.split(" ")[1] || "";  // 提取时间部分
+      allEvents.push(createEvent({
+        date: event.time.split(" ")[0],  // 使用日期部分作为事件的日期
+        title: event.name,
+        startTime,
+        isAllDay: false,
+        description: `节气: ${event.name}`
+      }));
+      logInfo(`✅ 添加节气事件: ${event.time} - ${event.name}`);
     });
-  },
-
+  });
+},
   /**
    * **处理天文数据**
    */
