@@ -1,6 +1,10 @@
 // **处理数据**
-import { loadAllJsonData, createEvent, logInfo, logError } from "./utils.js"; // 你的工具函数
-/**
+import { loadAllJsonData, createEvent, logInfo, logError } from "./scripts/utils/utils.js";
+(async () => {
+  const jsonData = await loadAllJsonData();
+  logInfo("✅ 成功加载所有 JSON 数据");
+  console.log(jsonData);
+})();
  * **数据处理器**
  */
 const processors = {
