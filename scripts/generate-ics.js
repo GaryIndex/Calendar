@@ -119,8 +119,7 @@ const readJsonData = async (filePath) => {
  * **数据处理器**
  */
 // 处理节假日数据
-const processors = {
-  const holidays = (records, allEvents) => {
+const holidays = (records, allEvents) => {
   logInfo("🛠️ 开始处理节假日数据");
   if (Array.isArray(records.Reconstruction)) {
     records.Reconstruction.forEach(item => {
@@ -153,9 +152,10 @@ const processors = {
     logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
   }
 };
-  const jieqi = (records, allEvents) => {
-  logInfo("🛠️ 处理节气数据...");
 
+// 处理节气数据
+const jieqi = (records, allEvents) => {
+  logInfo("🛠️ 处理节气数据...");
   if (Array.isArray(records.Reconstruction)) {
     records.Reconstruction.forEach(item => {
       if (!Array.isArray(item.data)) {
@@ -190,7 +190,9 @@ const processors = {
     logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
   }
 };
-  const astro = (records, allEvents) => {
+
+// 处理天文数据
+const astro = (records, allEvents) => {
   logInfo("🛠️ 处理天文数据...");
   if (Array.isArray(records.Reconstruction)) {
     records.Reconstruction.forEach(entry => {
@@ -224,9 +226,10 @@ const processors = {
     logError(`❌ records.Reconstruction 不是一个数组，实际类型是: ${typeof records.Reconstruction}`);
   }
 };
+
+// 处理时辰数据
 const shichen = (records, allEvents) => {
   logInfo("🛠️ 处理时辰数据...");
-
   if (!records.Reconstruction || !Array.isArray(records.Reconstruction)) {
     logError(`❌ 数据格式错误，Reconstruction 不是数组: ${JSON.stringify(records.Reconstruction)}`);
     return;
@@ -270,6 +273,7 @@ const shichen = (records, allEvents) => {
   logInfo("✅ 时辰数据处理完成");
 };
 
+// 处理万年历数据
 const calendar = (records, allEvents) => {
   logInfo("🛠️ 处理万年历数据...");
 
@@ -316,9 +320,29 @@ const calendar = (records, allEvents) => {
 
   logInfo("✅ 万年历数据处理完成");
 };
+
+// 使用 processors 进行调用
+const processors = {
+  holidays,
+  jieqi,
+  astro,
+  shichen,
+  calendar
 };
 
-export default processors;
+// 处理所有数据
+const processAllData = (jsonData, allEvents) => {
+  Object.entries(jsonData).forEach(([source, data]) => {
+    if (processors[source]) {
+      processors[source](data, allEvents); // 使用 processors 对象调用对应的处理函数
+    } else {
+      logError(`❌ 未知数据源: ${source}`);
+    }
+  });
+};
+
+// 运行处理逻辑
+processAllData(yourJsonData, allEvents);
 
 /**
  * **生成 ICS 文件**
