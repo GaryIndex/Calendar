@@ -119,34 +119,34 @@ const readJsonData = async (filePath) => {
  * **数据处理器**
  */
 // 处理节假日数据
-holidays: (records, allEvents) => {
-  logInfo("🛠️ 开始处理节假日数据");
-  // 确保 Reconstruction 存在且是数组
-  if (Array.isArray(records.Reconstruction)) {
-    records.Reconstruction.forEach(item => {
-      Object.entries(item).forEach(([key, holiday]) => {
-        const { date, name, isOffDay } = holiday;
-        if (!date || !name || isOffDay === undefined) {
-          logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
-          return;
-        }
-        const descParts = Object.entries(holiday)
-          .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
-          .map(([k, v]) => `${k}: ${v}`)
-          .join(' | ');
-        allEvents.push({
-          date,
-          title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
-          isAllDay: true,
-          description: descParts
+const processors = {
+  holidays: (records, allEvents) => {
+    logInfo("🛠️ 开始处理节假日数据");
+    if (Array.isArray(records.Reconstruction)) {
+      records.Reconstruction.forEach(item => {
+        Object.entries(item).forEach(([key, holiday]) => {
+          const { date, name, isOffDay } = holiday;
+          if (!date || !name || isOffDay === undefined) {
+            logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
+            return;
+          }
+          const descParts = Object.entries(holiday)
+            .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(' | ');
+          allEvents.push({
+            date,
+            title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
+            isAllDay: true,
+            description: descParts
+          });
         });
       });
-    });
-    logInfo("✅ 节假日数据处理完成");
-  } else {
-    logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
-  }
-},
+      logInfo("✅ 节假日数据处理完成");
+    } else {
+      logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
+    }
+  },
 
   jieqi: (records, allEvents) => {
     logInfo("🛠️ 处理节气数据...");
@@ -215,6 +215,8 @@ holidays: (records, allEvents) => {
     logInfo("✅ 万年历数据处理完成");
   }
 };
+
+export default processors;
 
 /**
  * **生成 ICS 文件**
