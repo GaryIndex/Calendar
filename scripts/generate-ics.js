@@ -130,7 +130,10 @@ const processors = {
 },
 //export default processors;
 // 处理时辰数据
-const shichen = (records, allEvents) => {
+// 导入所需的函数
+//import { createEvent, logInfo, logError } from './utils.js'; // 根据实际路径调整
+// 时辰数据处理函数
+export const shichen = (records, allEvents) => {
   logInfo("🛠️ 开始处理时辰数据");
   records.Reconstruction?.forEach(recon => {
     if (Array.isArray(recon.data)) {
