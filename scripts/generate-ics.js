@@ -122,18 +122,26 @@ const readJsonData = async (filePath) => {
 const processors = {
   holidays: (records, allEvents) => {
     logInfo("🛠️ 开始处理节假日数据");
+    
     if (Array.isArray(records.Reconstruction)) {
       records.Reconstruction.forEach(item => {
+        logInfo(`处理节假日条目: ${JSON.stringify(item)}`);
+        
         Object.entries(item).forEach(([key, holiday]) => {
+          logInfo(`处理节假日数据: ${JSON.stringify(holiday)}`);
+          
           const { date, name, isOffDay } = holiday;
+          
           if (!date || !name || isOffDay === undefined) {
             logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
             return;
           }
+          
           const descParts = Object.entries(holiday)
             .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
             .map(([k, v]) => `${k}: ${v}`)
             .join(' | ');
+          
           allEvents.push({
             date,
             title: `${isOffDay ? '[休]' : '[班]'} ${name}`,
@@ -147,78 +155,92 @@ const processors = {
       logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
     }
   },
-
   jieqi: (records, allEvents) => {
-  logInfo("🛠️ 处理节气数据...");
-  
-  if (Array.isArray(records.Reconstruction)) {
-    records.Reconstruction.forEach(item => {
-      item.data?.forEach(event => {
-        if (!event.time) return;
-        const date = event.time.split(' ')[0];
-        allEvents.push(createEvent({
-          date,
-          title: event.name,
-          startTime: event.time,
-          isAllDay: false,
-          description: `节气: ${event.name}`
-        }));
+    logInfo("🛠️ 处理节气数据...");
+    if (Array.isArray(records.Reconstruction)) {
+      records.Reconstruction.forEach(item => {
+        logInfo(`处理节气条目: ${JSON.stringify(item)}`);
+        item.data?.forEach(event => {
+          logInfo(`处理节气事件: ${JSON.stringify(event)}`);
+          if (!event.time) return;
+          const date = event.time.split(' ')[0];
+          allEvents.push(createEvent({
+            date,
+            title: event.name,
+            startTime: event.time,
+            isAllDay: false,
+            description: `节气: ${event.name}`
+          }));
+        });
       });
-    });
-    logInfo("✅ 节气数据处理完成");
-  } else {
-    logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
-  }
-},
-
+      logInfo("✅ 节气数据处理完成");
+    } else {
+      logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
+    }
+  },
   astro: (records, allEvents) => {
-    logInfo("🛠️ 处理天文数据...");
-    records.Reconstruction?.forEach(entry => {
-      if (!entry.data || !entry.data.range) return;
+  logInfo("🛠️ 处理天文数据...");
+  // 遍历每个 Reconstruction 项
+  records.Reconstruction?.forEach(entry => {
+    logInfo(`处理天文数据条目: ${JSON.stringify(entry)}`);
+    // 检查是否有 data 和 range
+    if (entry.data && entry.data.range) {
       const [start, end] = entry.data.range.split("-").map(date => `2025-${date.replace(".", "-")}`);
+      logInfo(`解析时间范围: ${start} - ${end}`);
       let currentDate = new Date(start);
       while (currentDate <= new Date(end)) {
+        logInfo(`生成日期: ${currentDate.toISOString().split("T")[0]}`);
         allEvents.push(createEvent({
           date: currentDate.toISOString().split("T")[0],
-          title: entry.name,
+          title: entry.data.name, // 使用 entry.data.name 获取星座名称
           isAllDay: true,
           description: JSON.stringify(entry.data)
         }));
         currentDate.setDate(currentDate.getDate() + 1);
       }
+    } else {
+      logInfo("跳过条目，缺少 data 或 range");
+    }
+  });
+  logInfo("✅ 天文数据处理完成");
+},
+shichen: (records, allEvents) => {
+  logInfo("🛠️ 处理时辰数据...");
+  // 遍历每个 Reconstruction 项
+  records.Reconstruction?.forEach(recon => {
+    logInfo(`处理时辰数据条目: ${JSON.stringify(recon)}`);
+    recon.data?.forEach(entry => {
+      logInfo(`处理时辰条目: ${JSON.stringify(entry)}`);
+      allEvents.push(createEvent({
+        date: entry.date,
+        title: entry.hour,
+        isAllDay: true,
+        description: JSON.stringify(entry)
+      }));
     });
-    logInfo("✅ 天文数据处理完成");
-  },
-
-  shichen: (records, allEvents) => {
-    logInfo("🛠️ 处理时辰数据...");
-    records.Reconstruction?.forEach(recon => {
-      recon.data?.forEach(entry => {
-        allEvents.push(createEvent({
-          date: entry.date,
-          title: entry.hour,
-          isAllDay: true,
-          description: JSON.stringify(entry)
-        }));
-      });
+  });
+  logInfo("✅ 时辰数据处理完成");
+},
+calendar: (records, allEvents) => {
+  logInfo("🛠️ 处理万年历数据...");
+  
+  // 遍历每个日期项
+  Object.entries(records).forEach(([date, data]) => {
+    logInfo(`处理万年历日期: ${date}`);
+    
+    data.Reconstruction?.forEach(entry => {
+      logInfo(`处理万年历条目: ${JSON.stringify(entry)}`);
+      
+      allEvents.push(createEvent({
+        date,
+        title: entry.festivals || "万年历信息", // 使用 festivals 作为标题
+        isAllDay: true,
+        description: JSON.stringify(entry)
+      }));
     });
-    logInfo("✅ 时辰数据处理完成");
-  },
-
-  calendar: (records, allEvents) => {
-    logInfo("🛠️ 处理万年历数据...");
-    Object.entries(records).forEach(([date, data]) => {
-      data.Reconstruction?.forEach(entry => {
-        allEvents.push(createEvent({
-          date,
-          title: entry.festivals || "万年历信息",
-          isAllDay: true,
-          description: JSON.stringify(entry)
-        }));
-      });
-    });
-    logInfo("✅ 万年历数据处理完成");
-  }
+  });
+  logInfo("✅ 万年历数据处理完成");
+}
 };
 
 export default processors;
