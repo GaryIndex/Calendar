@@ -1,4 +1,5 @@
 // **处理数据**
+import { dataPaths } from './utils/utils.js';  // 确保路径正确
 import { loadAllJsonData, logInfo, logError } from './utils/utils.js'; // 确保路径正确
 
 (async () => {
