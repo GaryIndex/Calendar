@@ -197,16 +197,20 @@ const astro = (records, allEvents) => {
 
     const { data } = entry;
     const year = new Date().getFullYear();
-    const [start, end] = data.range.split("-").map(date => `${year}-${date.replace(".", "-")}`);
 
-    const description = Object.entries(data)
-      .filter(([key]) => key !== "range")
-      .map(([_, value]) => (typeof value === "object" ? JSON.stringify(value) : value))
+    // 处理 range 字段，并正确转换日期
+    const [start, end] = data.range.split("-").map(date => `${year}-${date.replace(".", "-")}`);
+    
+    // 提取值而非键
+    const description = Object.values(data)
+      .filter(value => value !== data.range)  // 排除 range 字段
+      .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
       .join(" | ");
 
     let currentDate = new Date(start);
     const endDate = new Date(end);
 
+    // 持续插入日期，直到结束日期
     while (currentDate <= endDate) {
       const dateStr = currentDate.toISOString().split("T")[0];
 
@@ -219,6 +223,7 @@ const astro = (records, allEvents) => {
         description        
       }));
 
+      // 日期递增
       currentDate.setDate(currentDate.getDate() + 1);
     }
   });
