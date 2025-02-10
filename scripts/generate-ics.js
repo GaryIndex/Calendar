@@ -105,7 +105,7 @@ const processors = {
   // 处理节气数据
   jieqi: (records, allEvents) => {
     logInfo("🛠️ 开始处理节气数据");
-    
+
     if (!Array.isArray(records.Reconstruction)) {
       logInfo(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
       return;
@@ -141,165 +141,171 @@ const processors = {
       });
     });
     logInfo("✅ 节气数据处理完成");
-  }
-};
-const holidays = (records, allEvents) => {
-  logInfo("🛠️ 开始处理节假日数据");
-  if (!Array.isArray(records.Reconstruction)) {
-    logInfo(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
-    return;
-  }
-  records.Reconstruction.forEach(item => {
-    // item 是对象，遍历它的值
-    const holidaysArray = Object.values(item);
-    holidaysArray.forEach(holiday => {
-      const { date, name, isOffDay } = holiday;
-      if (!date || !name || isOffDay === undefined) {
-        logInfo(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
-        return;
-      }
-      // 组装描述信息，排除 `date`, `name`, `isOffDay`
-      const description = Object.entries(holiday)
-        .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(' | ');
-      // 生成角标（休 or 班）
-      const badge = isOffDay ? "休" : "班";
-      console.log("📌 插入节假日事件:", { date, title: name, badge, description });
-      allEvents.push(createEvent({
-        date,
-        title: name,         
-        isAllDay: true,      
-        badge,              
-        description          
-      }));
+  },
+
+  // 处理节假日数据
+  holidays: (records, allEvents) => {
+    logInfo("🛠️ 开始处理节假日数据");
+
+    if (!Array.isArray(records.Reconstruction)) {
+      logInfo(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
+      return;
+    }
+
+    records.Reconstruction.forEach(item => {
+      // item 是对象，遍历它的值
+      const holidaysArray = Object.values(item);
+      holidaysArray.forEach(holiday => {
+        const { date, name, isOffDay } = holiday;
+        if (!date || !name || isOffDay === undefined) {
+          logInfo(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
+          return;
+        }
+
+        // 组装描述信息，排除 `date`, `name`, `isOffDay`
+        const description = Object.entries(holiday)
+          .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(' | ');
+
+        // 生成角标（休 or 班）
+        const badge = isOffDay ? "休" : "班";
+
+        console.log("📌 插入节假日事件:", { date, title: name, badge, description });
+
+        allEvents.push(createEvent({
+          date,
+          title: name,         
+          isAllDay: true,      
+          badge,              
+          description          
+        }));
+      });
     });
-  });
-  logInfo("✅ 节假日数据处理完成");
-};
-// export { holidays };
+    logInfo("✅ 节假日数据处理完成");
+  },
 
-// 处理天文数据 (astro.json)
-const astro = (records, allEvents) => {
-  logInfo("🛠️ 开始处理天文数据");
+  // 处理天文数据 (astro.json)
+  astro: (records, allEvents) => {
+    logInfo("🛠️ 开始处理天文数据");
 
-  if (!Array.isArray(records.Reconstruction)) {
-    logInfo(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
-    return;
-  }
-
-  records.Reconstruction.forEach(entry => {
-    if (!entry.data || !entry.data.range) {
-      logInfo(`❌ astro.json 缺少有效数据: ${JSON.stringify(entry)}`);
+    if (!Array.isArray(records.Reconstruction)) {
+      logInfo(`❌ Reconstruction 不是数组: ${JSON.stringify(records)}`);
       return;
     }
 
-    const { data } = entry;
-    const year = new Date().getFullYear();
-
-    // 处理 range 字段，并正确转换日期
-    const [start, end] = data.range.split("-").map(date => `${year}-${date.replace(".", "-")}`);
-    
-    // 提取值而非键
-    const description = Object.values(data)
-      .filter(value => value !== data.range)  // 排除 range 字段
-      .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
-      .join(" | ");
-
-    let currentDate = new Date(start);
-    const endDate = new Date(end);
-
-    // 持续插入日期，直到结束日期
-    while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split("T")[0];
-
-      console.log("📌 插入天文事件:", { date: dateStr, description });
-
-      allEvents.push(createEvent({
-        date: dateStr,
-        title: "",         
-        isAllDay: true,    
-        description        
-      }));
-
-      // 日期递增
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-  });
-
-  logInfo("✅ 天文数据处理完成");
-};
-// export { astro };
-
-// 处理 calendar.json
-const calendar = (records, allEvents) => {
-  logInfo("🛠️ 开始处理日历数据");
-
-  if (!records || typeof records !== "object") {
-    logInfo(`❌ records 数据格式错误: ${JSON.stringify(records)}`);
-    return;
-  }
-
-  Object.entries(records).forEach(([date, record]) => {
-    if (!Array.isArray(record.Reconstruction)) {
-      logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
-      return;
-    }
-
-    record.Reconstruction.forEach(entry => {
-      if (!entry.data) {
-        logInfo(`❌ calendar.json 缺少有效数据: ${JSON.stringify(entry)}`);
+    records.Reconstruction.forEach(entry => {
+      if (!entry.data || !entry.data.range) {
+        logInfo(`❌ astro.json 缺少有效数据: ${JSON.stringify(entry)}`);
         return;
       }
 
       const { data } = entry;
-      const title = extractTitle(data);
-      const description = extractDescription(data);
+      const year = new Date().getFullYear();
 
-      console.log("📌 插入日历事件:", { date, title, description });
+      // 处理 range 字段，并正确转换日期
+      const [start, end] = data.range.split("-").map(date => `${year}-${date.replace(".", "-")}`);
 
-      allEvents.push(createEvent({
-        date,
-        title,
-        description,
-        isAllDay: true
-      }));
+      // 提取值而非键
+      const description = Object.values(data)
+        .filter(value => value !== data.range)  // 排除 range 字段
+        .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
+        .join(" | ");
+
+      let currentDate = new Date(start);
+      const endDate = new Date(end);
+
+      // 持续插入日期，直到结束日期
+      while (currentDate <= endDate) {
+        const dateStr = currentDate.toISOString().split("T")[0];
+
+        console.log("📌 插入天文事件:", { date: dateStr, description });
+
+        allEvents.push(createEvent({
+          date: dateStr,
+          title: "",         
+          isAllDay: true,    
+          description        
+        }));
+
+        // 日期递增
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
     });
-  });
 
-  logInfo("✅ 日历数据处理完成");
-};
+    logInfo("✅ 天文数据处理完成");
+  },
 
-/**
- * 提取事件标题（festival）
- * @param {Object} data - 日历数据
- * @returns {string} 标题
- */
-function extractTitle(data) {
-  return (data.festivals && data.festivals.length > 0) ? data.festivals.join(", ") : "";
-}
+  // 处理 calendar.json
+  calendar: (records, allEvents) => {
+    logInfo("🛠️ 开始处理日历数据");
 
-/**
- * 提取事件描述（备注）
- * @param {Object} data - 日历数据
- * @returns {string} 备注
- */
-function extractDescription(data) {
-  const extractFields = ["data", "lunar", "almanac", "jishenfangwei"];
-  const values = extractFields.flatMap(field => data[field] ? Object.values(data[field]) : []);
+    if (!records || typeof records !== "object") {
+      logInfo(`❌ records 数据格式错误: ${JSON.stringify(records)}`);
+      return;
+    }
 
-  ["liuyao", "jiuxing", "taisui"].forEach(key => {
-    if (data.almanac?.[key]) values.push(data.almanac[key]);
-  });
+    Object.entries(records).forEach(([date, record]) => {
+      if (!Array.isArray(record.Reconstruction)) {
+        logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
+        return;
+      }
 
-  if (Array.isArray(data.almanac?.pengzubaiji)) {
-    values.push(data.almanac.pengzubaiji.join(", ")); 
+      record.Reconstruction.forEach(entry => {
+        if (!entry.data) {
+          logInfo(`❌ calendar.json 缺少有效数据: ${JSON.stringify(entry)}`);
+          return;
+        }
+
+        const { data } = entry;
+        const title = processors.extractTitle(data);
+        const description = processors.extractDescription(data);
+
+        console.log("📌 插入日历事件:", { date, title, description });
+
+        allEvents.push(createEvent({
+          date,
+          title,
+          description,
+          isAllDay: true
+        }));
+      });
+    });
+
+    logInfo("✅ 日历数据处理完成");
+  },
+
+  /**
+   * 提取事件标题（festival）
+   * @param {Object} data - 日历数据
+   * @returns {string} 标题
+   */
+  extractTitle: (data) => {
+    return (data.festivals && data.festivals.length > 0) ? data.festivals.join(", ") : "";
+  },
+
+  /**
+   * 提取事件描述（备注）
+   * @param {Object} data - 日历数据
+   * @returns {string} 备注
+   */
+  extractDescription: (data) => {
+    const extractFields = ["data", "lunar", "almanac", "jishenfangwei"];
+    const values = extractFields.flatMap(field => data[field] ? Object.values(data[field]) : []);
+
+    ["liuyao", "jiuxing", "taisui"].forEach(key => {
+      if (data.almanac?.[key]) values.push(data.almanac[key]);
+    });
+
+    if (Array.isArray(data.almanac?.pengzubaiji)) {
+      values.push(data.almanac.pengzubaiji.join(", ")); 
+    }
+
+    return values
+      .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
+      .join(" | ");
   }
-
-  return values
-    .map(value => (typeof value === "object" ? JSON.stringify(value) : value))
-    .join(" | ");
-}
+};
 
 // export { calendar };
 /**
