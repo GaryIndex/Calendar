@@ -1,6 +1,6 @@
 // **处理数据**
 //import { dataPaths } from './utils/utils.js';  // 确保路径正确
-import { readJsonData, dataPaths } from './utils/utils.js';
+//import { readJsonData, dataPaths } from './utils/utils.js';
 //import { loadAllJsonData, logInfo, logError } from './utils/utils.js'; // 确保路径正确
 import { readJsonData, dataPaths, loadAllJsonData, logInfo, logError, createEvent } from './utils/utils.js';
 (async () => {
