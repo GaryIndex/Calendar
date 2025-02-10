@@ -116,6 +116,32 @@ const readJsonData = async (filePath) => {
 };
 
 /**
+ * **批量读取所有 JSON 文件**
+ * @returns {Promise<Object>} 返回所有 JSON 数据的集合
+ */
+const loadAllJsonData = async () => {
+  const jsonData = {};
+
+  for (const [key, filePath] of Object.entries(dataPaths)) {
+    jsonData[key] = await readJsonData(filePath);
+  }
+
+  return jsonData;
+};
+
+// **加载 JSON 并处理数据**
+const allEvents = [];
+const jsonData = await loadAllJsonData(); // 加载所有 JSON 数据
+
+if (Object.values(jsonData).some(data => Object.keys(data).length > 0)) {
+  processAllData(jsonData, allEvents); // ✅ 这里传入 jsonData
+  logInfo("🎉 所有数据处理完成！");
+} else {
+  logError("❌ 没有可用的 JSON 数据！");
+  process.exit(1);
+}
+
+/**
  * **数据处理器**
  */
 // 处理节假日数据
