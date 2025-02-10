@@ -1,5 +1,6 @@
 // **处理数据**
 const utilsPath = new URL("./scripts/utils/utils.js", import.meta.url).pathname;
+
 import(utilsPath).then(({ loadAllJsonData, createEvent, logInfo, logError }) => {
   (async () => {
     const jsonData = await loadAllJsonData();
