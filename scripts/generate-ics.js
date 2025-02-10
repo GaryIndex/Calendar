@@ -152,30 +152,44 @@ const processors = {
   } else {
     logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
   }
-  },
-  jieqi: (records, allEvents) => {
-    logInfo("🛠️ 处理节气数据...");
-    if (Array.isArray(records.Reconstruction)) {
-      records.Reconstruction.forEach(item => {
-        logInfo(`处理节气条目: ${JSON.stringify(item)}`);
-        item.data?.forEach(event => {
-          logInfo(`处理节气事件: ${JSON.stringify(event)}`);
-          if (!event.time) return;
-          const date = event.time.split(' ')[0];
-          allEvents.push(createEvent({
-            date,
-            title: event.name,
-            startTime: event.time,
-            isAllDay: false,
-            description: `节气: ${event.name}`
-          }));
-        });
+},
+  const jieqi = (records, allEvents) => {
+  logInfo("🛠️ 处理节气数据...");
+
+  if (Array.isArray(records.Reconstruction)) {
+    records.Reconstruction.forEach(item => {
+      if (!Array.isArray(item.data)) {
+        logError(`❌ 数据格式错误，缺少 data 数组: ${JSON.stringify(item)}`);
+        return;
+      }
+
+      item.data.forEach(event => {
+        logInfo(`处理节气事件: ${JSON.stringify(event)}`);
+
+        if (!event.time || !event.name) {
+          logError(`❌ 缺少关键字段 (name 或 time): ${JSON.stringify(event)}`);
+          return;
+        }
+
+        const date = event.time.split(' ')[0]; // 提取日期部分
+
+        allEvents.push(createEvent({
+          date,
+          title: event.name, // 标题使用节气名称
+          startTime: event.time, // 具体时间
+          isAllDay: false, // 不是全天事件
+          description: `节气: ${event.name}` // 描述添加节气名称
+        }));
+
+        logInfo(`✅ 添加节气事件: ${date} - ${event.name}`);
       });
-      logInfo("✅ 节气数据处理完成");
-    } else {
-      logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
-    }
-  },
+    });
+
+    logInfo("✅ 节气数据处理完成");
+  } else {
+    logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
+  }
+},
   const astro = (records, allEvents) => {
   logInfo("🛠️ 处理天文数据...");
   if (Array.isArray(records.Reconstruction)) {
