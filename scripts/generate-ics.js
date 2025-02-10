@@ -338,27 +338,39 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
     'METHOD:PUBLISH',
     //--
     ...mergedEvents.map(event => {
-        const [year, month, day] = event.date.split('-');
-        const dateFormatted = `${year}${month.padStart(2, '0')}${day.padStart(2, '0')}`;
+        const [year, month, day] = event.date.split('-').map(Number);
 
-        let dtstart, dtend;
+        if (isNaN(year) || isNaN(month) || isNaN(day)) {
+            console.error(`❌ 无效的日期格式: ${event.date}`);
+            return ''; // 跳过错误数据
+        }
+
+        const dateFormatted = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
+        let dtstart = '', dtend = '';
 
         if (event.startTime) {
-            // 解析时间并格式化
-            const [hour, minute, second] = event.startTime.split(':').map(Number);
-            const timeFormatted = `${hour.toString().padStart(2, '0')}${minute.toString().padStart(2, '0')}${second.toString().padStart(2, '0')}`;
+            // 安全解析时间
+            const timeParts = event.startTime.split(':').map(Number);
+            if (timeParts.length !== 3 || timeParts.some(isNaN)) {
+                console.error(`❌ 无效的时间格式: ${event.startTime}`);
+                return ''; // 跳过错误数据
+            }
 
-            // 计算 +1 小时的结束时间
+            const [hour, minute, second] = timeParts;
+            const timeFormatted = `${String(hour).padStart(2, '0')}${String(minute).padStart(2, '0')}${String(second).padStart(2, '0')}`;
+
+            // 计算结束时间 (+1小时)
             const endTime = new Date(year, month - 1, day, hour + 1, minute, second);
             const endTimeFormatted = [
-                endTime.getHours().toString().padStart(2, '0'),
-                endTime.getMinutes().toString().padStart(2, '0'),
-                endTime.getSeconds().toString().padStart(2, '0')
+                String(endTime.getHours()).padStart(2, '0'),
+                String(endTime.getMinutes()).padStart(2, '0'),
+                String(endTime.getSeconds()).padStart(2, '0')
             ].join('');
 
             dtstart = `DTSTART;TZID=Asia/Shanghai:${dateFormatted}T${timeFormatted}`;
             dtend = `DTEND;TZID=Asia/Shanghai:${dateFormatted}T${endTimeFormatted}`;
         } else {
+            // 全天事件
             dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
             dtend = ''; // 全天事件不需要 DTEND
         }
