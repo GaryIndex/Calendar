@@ -360,10 +360,6 @@ const deduplicatedEvents = Array.from(uniqueEvents.values());
     dtstart = `DTSTART;VALUE=DATE:${dateFormatted}`;
     dtend = ''; // 全天事件不需要 DTEND
   }
-}
-//);
-//--
-
       return [
         'BEGIN:VEVENT',
         dtstart,
