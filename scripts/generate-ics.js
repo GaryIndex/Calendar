@@ -149,8 +149,10 @@ const processors = {
   },
 
   jieqi: (records, allEvents) => {
-    logInfo("🛠️ 处理节气数据...");
-    records.Reconstruction?.forEach(item => {
+  logInfo("🛠️ 处理节气数据...");
+  
+  if (Array.isArray(records.Reconstruction)) {
+    records.Reconstruction.forEach(item => {
       item.data?.forEach(event => {
         if (!event.time) return;
         const date = event.time.split(' ')[0];
@@ -164,7 +166,10 @@ const processors = {
       });
     });
     logInfo("✅ 节气数据处理完成");
-  },
+  } else {
+    logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
+  }
+},
 
   astro: (records, allEvents) => {
     logInfo("🛠️ 处理天文数据...");
