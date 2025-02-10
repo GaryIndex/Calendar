@@ -101,6 +101,16 @@ export function createEvent({
 
 // **处理数据**
 // 处理所有数据
+// 确保 processors 对象提前定义并初始化
+const processors = {
+  astro: (data, allEvents) => {
+    // 处理 astro 数据的逻辑
+  },
+  calendar: (data, allEvents) => {
+    // 处理 calendar 数据的逻辑
+  },
+  // 其他数据源的处理函数
+};
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
   // 处理不同数据源（如 astro.json, calendar.json 等）
@@ -129,7 +139,6 @@ const processAllData = (jsonData, allEvents) => {
   });
   logInfo(`✅ 处理完成，共生成 ${allEvents.length} 个事件`);
 };
-
 // **主流程**
 const main = async () => {
   const allEvents = [];
