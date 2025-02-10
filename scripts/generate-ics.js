@@ -172,7 +172,7 @@ export const shichen = (records, allEvents) => {
   logInfo("✅ 时辰数据处理完成");
 };
 // 处理节假日数据
-holidays: (records, allEvents) => {
+const holidays: (records, allEvents) => {
   logInfo("🛠️ 开始处理节假日数据");
   records.Reconstruction?.forEach(item => {
     Object.entries(item).forEach(([key, holiday]) => {
@@ -199,9 +199,10 @@ holidays: (records, allEvents) => {
     });
   });
   logInfo("✅ 节假日数据处理完成");
-},
+};
+export { holidays }; // 🔥 正确导出
 // 处理天文数据 (astro.json)
-astro: (records, allEvents) => {
+const astro: (records, allEvents) => {
   logInfo("🛠️ 开始处理天文数据");
   records.Reconstruction?.forEach(entry => {
     if (!entry.data || !entry.data.range) {
@@ -235,7 +236,8 @@ astro: (records, allEvents) => {
     }
   });
   logInfo("✅ 天文数据处理完成");
-},
+}
+export { astro }; // 🔥 正确导出
 // 处理 calendar.json
 //import { createEvent } from '../scripts/createEvent/createEvent.js';
 const calendar = (records, allEvents) => {
