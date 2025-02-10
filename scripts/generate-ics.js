@@ -239,34 +239,40 @@ const processors = {
   // 处理 calendar.json
   calendar: (records, allEvents) => {
   logInfo("🛠️ 开始处理日历数据");
-
   if (!records || typeof records !== "object") {
     logInfo(`❌ records 数据格式错误: ${JSON.stringify(records)}`);
     return;
   }
-
   Object.entries(records).forEach(([date, record]) => {
     if (!record || typeof record !== "object" || !Array.isArray(record.Reconstruction)) {
       logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
       return;
     }
-
-    // ✅ 直接解包 `data`，不再保留 `errno` 和 `errmsg`
+    // 过滤掉无效 Reconstruction 数据
     const validEntries = record.Reconstruction
-      .map(entry => entry.data) // 直接提取 `data`
+      .map(entry => entry.data || entry) // 直接解包 `data`
       .filter(data => data && typeof data === "object" && Object.keys(data).length > 0);
-
     if (validEntries.length === 0) {
       logInfo(`⚠️ 过滤后无有效 Reconstruction 数据: ${JSON.stringify(record.Reconstruction)}`);
       return;
     }
-
     validEntries.forEach(data => {
+      // 确保 `festivals` 是数组
+      if (!Array.isArray(data.festivals)) {
+        logInfo(`❌ festivals 数据格式错误: ${JSON.stringify(data.festivals)}`);
+      }
+      if (data.almanac && !Array.isArray(data.almanac.pengzubaiji)) {
+        logInfo(`❌ pengzubaiji 数据格式错误: ${JSON.stringify(data.almanac.pengzubaiji)}`);
+      }
+      // 确保 `liuyao`、`jiuxing`、`taisui` 是字符串
+      ["liuyao", "jiuxing", "taisui"].forEach(key => {
+        if (data.almanac && typeof data.almanac[key] !== "string") {
+          logInfo(`❌ ${key} 数据格式错误: ${JSON.stringify(data.almanac[key])}`);
+        }
+      });
       const title = processors.extractTitle(data);
       const description = processors.extractDescription(data);
-
       console.log("📌 插入日历事件:", { date, title, description });
-
       allEvents.push(createEvent({
         date,
         title,
