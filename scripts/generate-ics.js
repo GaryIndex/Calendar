@@ -170,12 +170,25 @@ const processors = {
       Object.entries(entry).forEach(([date, entries]) => {
         entries.forEach(event => {
           const description = Object.entries(event)
-            .filter(([key]) => !["errno", "errmsg", "festivals", "solarTerms", "cnWeek"].includes(key))
-            .map(([_, value]) => (Array.isArray(value) ? value.join(" | ") : value))
+            .filter(([key]) => !["errno", "errmsg", "weekInYear", "day", "dayInYear", "julianDay", "minute", "second", "year", "month", "maxDayInMonth", "enMonth", "enWeek"].includes(key))
+            .map(([key, value]) => {
+              if (key === "pengzubaiji" && Array.isArray(value)) {
+                return value.join(", ");
+              }
+              return (Array.isArray(value) ? value.join(" | ") : value);
+            })
             .join(" | ");
 
           let title = event.cnWeek || "万年历信息";
           if (event.festivals) title += ` ${event.festivals}`;
+
+          // 处理 leapYear 和 leapMonth
+          let leapYear = event.leapYear === true ? "闰年" : "";
+          let leapMonth = event.leapMonth ? `闰${event.leapMonth}月` : "";
+          
+          if (leapYear || leapMonth) {
+            description = `${leapYear} ${leapMonth} | ${description}`.trim();
+          }
 
           allEvents.push(createEvent({
             date,
@@ -186,8 +199,7 @@ const processors = {
         });
       });
     });
-  }
-};
+  };
 /**
  * **处理所有数据**
  */
