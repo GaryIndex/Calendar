@@ -246,7 +246,7 @@ const processors = {
   }
 
   Object.entries(records).forEach(([date, record]) => {
-    if (!record || typeof record !== "object" || !Array.isArray(record.Reconstruction)) {
+    if (!record?.Reconstruction || !Array.isArray(record.Reconstruction)) {
       logInfo(`⚠️ Reconstruction 数据异常: ${JSON.stringify(record)}`);
       return;
     }
@@ -301,22 +301,24 @@ const processors = {
 
   logInfo("✅ 日历数据处理完成");
 },
-  /**
-   * 提取事件标题（festival）
-   * @param {Object} data - 日历数据
-   * @returns {string} 标题
-   */
-  extractTitle: (data) => {
-    return (data.festivals && data.festivals.length > 0) ? data.festivals.join(", ") : "";
-  },
 
-  /**
-   * 提取事件描述（备注）
-   * @param {Object} data - 日历数据
-   * @returns {string} 备注
-   */
-  extractDescription: (data) => {
+/**
+ * 提取事件标题（festival）
+ * @param {Object} data - 日历数据
+ * @returns {string} 标题
+ */
+extractTitle: (data) => {
+  return (data.festivals && typeof data.festivals === "string") ? data.festivals : "";
+},
+
+/**
+ * 提取事件描述（备注）
+ * @param {Object} data - 日历数据
+ * @returns {string} 备注
+ */
+extractDescription: (data) => {
   const extractFields = ["year", "leapYear", "month", "maxDayInMonth", "enMonth", "astro", "cnWeek", "enWeek", "weekInYear", "day", "dayInYear", "julianDay", "hour", "minute", "second", "lunar", "almanac"];
+  
   // 提取普通字段，排除空对象
   const values = extractFields.flatMap(field => {
     const fieldValue = data[field];
@@ -324,14 +326,18 @@ const processors = {
       ? [] // 过滤掉空对象 `{}` 
       : Object.values(fieldValue || {}); // 处理非空对象
   });
+
   // 处理 `jishenfangwei` 字段：只要值，不要键
   if (data.almanac?.jishenfangwei) {
     values.push(...Object.values(data.almanac.jishenfangwei));
   }
+
   // 处理其他特殊字段
   ["liuyao", "jiuxing", "taisui"].forEach(key => {
     if (data.almanac?.[key]) values.push(data.almanac[key]);
   });
+  
+  // 处理 `pengzubaiji`
   if (Array.isArray(data.almanac?.pengzubaiji)) {
     values.push(data.almanac.pengzubaiji.join(", ")); 
   }
@@ -339,9 +345,7 @@ const processors = {
     .map(value => (typeof value === "object" && Object.keys(value).length === 0 ? "" : value)) // 确保空对象不会被加入
     .filter(value => value !== "") // 过滤掉空字符串
     .join(" | ");
-  }
-};
-
+}
 
 // export { calendar };
 /**
