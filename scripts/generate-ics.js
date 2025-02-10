@@ -98,19 +98,9 @@ export function createEvent({
     priority
   };
 }
-
 // **处理数据**
 // 处理所有数据
 // 确保 processors 对象提前定义并初始化
-const processors = {
-  ...{ holidays, jieqi, shichen, calendar, astro}, // 现有的 `holidays`, `jieqi`, `shichen`
-  astro: (data, allEvents) => {
-    // 处理 astro 数据
-  },
-  calendar: (data, allEvents) => {
-    // 处理 calendar 数据
-  }
-};
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
   // 处理不同数据源（如 astro.json, calendar.json 等）
@@ -143,7 +133,6 @@ const processAllData = (jsonData, allEvents) => {
 const main = async () => {
   const allEvents = [];
   const jsonData = await loadAllJsonData();
-
   if (Object.values(jsonData).some(data => Object.keys(data).length > 0)) {
     processAllData(jsonData, allEvents);
     logInfo("🎉 所有数据处理完成！");
@@ -152,7 +141,6 @@ const main = async () => {
     process.exit(1);
   }
 };
-
 // **执行 `main()`**
 await main();
 
@@ -160,229 +148,187 @@ await main();
  * **数据处理器**
  */
 // 处理节假日数据
-const holidays = (records, allEvents) => {
-  logInfo("🛠️ 开始处理节假日数据");
-  if (Array.isArray(records.Reconstruction)) {
-    records.Reconstruction.forEach(item => {
-      Object.entries(item).forEach(([date, holiday]) => {
-        logInfo(`处理节假日数据: ${JSON.stringify(holiday)}`);
-        
-        const { date: holidayDate, name, isOffDay } = holiday;
-        // 检查是否缺少必要字段
-        if (!holidayDate || !name || isOffDay === undefined) {
-          logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
+// **处理数据**
+// 处理所有数据
+// 确保 processors 对象提前定义并初始化
+const processors = {
+  holidays: (data, allEvents) => {
+    logInfo("🛠️ 开始处理节假日数据");
+    if (Array.isArray(data.Reconstruction)) {
+      data.Reconstruction.forEach(item => {
+        Object.entries(item).forEach(([date, holiday]) => {
+          logInfo(`处理节假日数据: ${JSON.stringify(holiday)}`);
+          const { date: holidayDate, name, isOffDay } = holiday;
+          // 检查是否缺少必要字段
+          if (!holidayDate || !name || isOffDay === undefined) {
+            logError(`❌ 节假日数据缺失关键字段: ${JSON.stringify(holiday)}`);
+            return;
+          }
+          // 生成描述部分
+          const descParts = Object.entries(holiday)
+            .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))  // 排除关键字段
+            .map(([k, v]) => `${v}`)  // 仅保留值部分
+            .join(' | ');  // 用 | 分隔
+          // 添加节假日事件到 allEvents
+          allEvents.push({
+            date: holidayDate,  // 使用节假日的日期
+            title: `${isOffDay ? '[休]' : '[班]'} ${name}`,  // 标题包含休息/上班标识
+            isAllDay: true,  // 设置为全天事件
+            description: descParts  // 描述包含其他字段的值
+          });
+          logInfo(`添加节假日事件: ${holidayDate} - ${name}`);
+        });
+      });
+      logInfo("✅ 节假日数据处理完成");
+    } else {
+      logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(data.Reconstruction)}`);
+    }
+  },
+  jieqi: (data, allEvents) => {
+    logInfo("🛠️ 处理节气数据...");
+    if (Array.isArray(data.Reconstruction)) {
+      data.Reconstruction.forEach(item => {
+        if (!Array.isArray(item.data)) {
+          logError(`❌ 数据格式错误，缺少 data 数组: ${JSON.stringify(item)}`);
           return;
         }
-        // 生成描述部分
-        const descParts = Object.entries(holiday)
-          .filter(([k]) => !['date', 'name', 'isOffDay'].includes(k))  // 排除关键字段
-          .map(([k, v]) => `${v}`)  // 仅保留值部分
-          .join(' | ');  // 用 | 分隔
-        // 添加节假日事件到 allEvents
-        allEvents.push({
-          date: holidayDate,  // 使用节假日的日期
-          title: `${isOffDay ? '[休]' : '[班]'} ${name}`,  // 标题包含休息/上班标识
-          isAllDay: true,  // 设置为全天事件
-          description: descParts  // 描述包含其他字段的值
+        item.data.forEach(event => {
+          logInfo(`处理节气事件: ${JSON.stringify(event)}`);
+          if (!event.time || !event.name) {
+            logError(`❌ 缺少关键字段 (name 或 time): ${JSON.stringify(event)}`);
+            return;
+          }
+          const date = event.time.split(' ')[0]; // 提取日期部分
+          allEvents.push(createEvent({
+            date,
+            title: event.name, // 标题使用节气名称
+            startTime: event.time, // 具体时间
+            isAllDay: false, // 不是全天事件
+            description: `节气: ${event.name}` // 描述添加节气名称
+          }));
+          logInfo(`✅ 添加节气事件: ${date} - ${event.name}`);
         });
-        logInfo(`添加节假日事件: ${holidayDate} - ${name}`);
       });
-    });
-    logInfo("✅ 节假日数据处理完成");
-  } else {
-    logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
-  }
-};
-
-// 处理节气数据
-const jieqi = (records, allEvents) => {
-  logInfo("🛠️ 处理节气数据...");
-  if (Array.isArray(records.Reconstruction)) {
-    records.Reconstruction.forEach(item => {
-      if (!Array.isArray(item.data)) {
-        logError(`❌ 数据格式错误，缺少 data 数组: ${JSON.stringify(item)}`);
+      logInfo("✅ 节气数据处理完成");
+    } else {
+      logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(data.Reconstruction)}`);
+    }
+  },
+  astro: (data, allEvents) => {
+    logInfo("🛠️ 处理天文数据...");
+    if (Array.isArray(data.Reconstruction)) {
+      data.Reconstruction.forEach(entry => {
+        logInfo(`处理天文条目: ${JSON.stringify(entry)}`);
+        // 确保有有效的 range 数据
+        if (!entry.data || !entry.data.range) return;
+        // 解析 range 为日期范围
+        const [start, end] = entry.data.range.split("-").map(date => `2025-${date.replace(".", "-")}`);
+        let currentDate = new Date(start);
+        const endDate = new Date(end);
+        // 处理日期范围内的每一天
+        while (currentDate <= endDate) {
+          // 构建备注，除了 range 之外的所有键值对作为备注，用 | 分割
+          const descParts = Object.entries(entry.data)
+            .filter(([key]) => key !== "range")
+            .map(([key, value]) => `${value}`)
+            .join(' | ');
+          // 添加事件
+          allEvents.push(createEvent({
+            date: currentDate.toISOString().split("T")[0], // 格式化日期
+            title: entry.data.name || "", // 使用 name 作为标题，若没有则为空
+            isAllDay: true, // 全日事件
+            description: `${descParts} | 日期范围: ${start} 到 ${end}` // 备注，加入日期范围
+          }));
+          // 增加日期
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      });
+      logInfo("✅ 天文数据处理完成");
+    } else {
+      logError(`❌ records.Reconstruction 不是一个数组，实际类型是: ${typeof data.Reconstruction}`);
+    }
+  },
+  shichen: (data, allEvents) => {
+    logInfo("🛠️ 处理时辰数据...");
+    if (!data.Reconstruction || !Array.isArray(data.Reconstruction)) {
+      logError(`❌ 数据格式错误，Reconstruction 不是数组: ${JSON.stringify(data.Reconstruction)}`);
+      return;
+    }
+    data.Reconstruction.forEach(recon => {
+      if (!Array.isArray(recon.data)) {
+        logError(`❌ 数据格式错误，缺少 data 数组: ${JSON.stringify(recon)}`);
         return;
       }
-
-      item.data.forEach(event => {
-        logInfo(`处理节气事件: ${JSON.stringify(event)}`);
-
-        if (!event.time || !event.name) {
-          logError(`❌ 缺少关键字段 (name 或 time): ${JSON.stringify(event)}`);
+      recon.data.forEach(entry => {
+        if (!entry.date || !entry.hour || !entry.hours) {
+          logError(`❌ 缺少关键字段 (date, hour, hours): ${JSON.stringify(entry)}`);
           return;
         }
-
-        const date = event.time.split(' ')[0]; // 提取日期部分
-
+        // 解析 hours 为 startTime 和 endTime
+        const [startTime, endTime] = entry.hours.split("-");
+        if (!startTime || !endTime) {
+          logError(`❌ hours 格式错误: ${entry.hours}`);
+          return;
+        }
+        // 组装 description 备注信息
+        const description = [
+          entry.yi ? `宜: ${entry.yi}` : "",
+          entry.ji ? `忌: ${entry.ji}` : "",
+          entry.chong ? `冲: ${entry.chong}` : "",
+          entry.sha ? `煞: ${entry.sha}` : "",
+          entry.nayin ? `纳音: ${entry.nayin}` : "",
+          entry.jiuxing ? `九星: ${entry.jiuxing}` : ""
+        ].filter(Boolean).join(" "); // 过滤掉空值
+        allEvents.push(createEvent({
+          date: entry.date,
+          title: entry.hour, // 事件标题
+          startTime, // 开始时间
+          endTime, // 结束时间
+          isAllDay: false, // 只在 hours 范围内显示
+          description
+        }));
+        logInfo(`✅ 添加时辰事件: ${entry.date} ${startTime}-${endTime} ${entry.hour}`);
+      });
+    });
+    logInfo("✅ 时辰数据处理完成");
+  },
+  calendar: (data, allEvents) => {
+    logInfo("🛠️ 处理万年历数据...");
+    Object.entries(data).forEach(([date, dataEntry]) => {
+      if (!dataEntry.Reconstruction || !Array.isArray(dataEntry.Reconstruction)) {
+        logError(`❌ 数据格式错误，Reconstruction 不是数组: ${JSON.stringify(dataEntry)}`);
+        return;
+      }
+      logInfo(`📅 处理万年历日期: ${date}`);
+      dataEntry.Reconstruction.forEach(entry => {
+        if (!entry) {
+          logError(`❌ 无效的万年历条目: ${JSON.stringify(entry)}`);
+          return;
+        }
+        // 需要排除的键
+        const excludeKeys = new Set(["errno", "errmsg", "festivals", "solarTerms", "cnWeek"]);
+        // 拼接 description（去掉键名，只保留值）
+        const description = Object.entries(entry)
+          .filter(([key, value]) => value && !excludeKeys.has(key)) // 过滤掉空值和不需要的字段
+          .map(([_, value]) => (Array.isArray(value) ? value.join("｜") : value)) // 数组转换为 `｜` 连接的字符串
+          .join("｜"); // 连接所有字段
+        // 拼接标题
+        let title = entry.cnWeek || "万年历信息";
+        if (entry.festivals) {
+          title += ` ${entry.festivals}`; // 如果有节日，将节日作为额外标题
+        }
         allEvents.push(createEvent({
           date,
-          title: event.name, // 标题使用节气名称
-          startTime: event.time, // 具体时间
-          isAllDay: false, // 不是全天事件
-          description: `节气: ${event.name}` // 描述添加节气名称
+          title,
+          description,
+          isAllDay: true
         }));
-
-        logInfo(`✅ 添加节气事件: ${date} - ${event.name}`);
+        logInfo(`✅ 添加万年历事件: ${date} - ${title}`);
       });
     });
-
-    logInfo("✅ 节气数据处理完成");
-  } else {
-    logError(`❌ records.Reconstruction 不是一个数组: ${JSON.stringify(records.Reconstruction)}`);
+    logInfo("✅ 万年历数据处理完成");
   }
 };
-
-// 处理天文数据
-const astro = (records, allEvents) => {
-  logInfo("🛠️ 处理天文数据...");
-  if (Array.isArray(records.Reconstruction)) {
-    records.Reconstruction.forEach(entry => {
-      logInfo(`处理天文条目: ${JSON.stringify(entry)}`);
-      // 确保有有效的 range 数据
-      if (!entry.data || !entry.data.range) return;
-      // 解析 range 为日期范围
-      const [start, end] = entry.data.range.split("-").map(date => `2025-${date.replace(".", "-")}`);
-      let currentDate = new Date(start);
-      const endDate = new Date(end);
-      // 处理日期范围内的每一天
-      while (currentDate <= endDate) {
-        // 构建备注，除了 range 之外的所有键值对作为备注，用 | 分割
-        const descParts = Object.entries(entry.data)
-          .filter(([key]) => key !== "range")
-          .map(([key, value]) => `${value}`)
-          .join(' | ');
-        // 添加事件
-        allEvents.push(createEvent({
-          date: currentDate.toISOString().split("T")[0], // 格式化日期
-          title: entry.data.name || "", // 使用 name 作为标题，若没有则为空
-          isAllDay: true, // 全日事件
-          description: `${descParts} | 日期范围: ${start} 到 ${end}` // 备注，加入日期范围
-        }));
-        // 增加日期
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-    });
-    logInfo("✅ 天文数据处理完成");
-  } else {
-    logError(`❌ records.Reconstruction 不是一个数组，实际类型是: ${typeof records.Reconstruction}`);
-  }
-};
-
-// 处理时辰数据
-const shichen = (records, allEvents) => {
-  logInfo("🛠️ 处理时辰数据...");
-  if (!records.Reconstruction || !Array.isArray(records.Reconstruction)) {
-    logError(`❌ 数据格式错误，Reconstruction 不是数组: ${JSON.stringify(records.Reconstruction)}`);
-    return;
-  }
-  records.Reconstruction.forEach(recon => {
-    if (!Array.isArray(recon.data)) {
-      logError(`❌ 数据格式错误，缺少 data 数组: ${JSON.stringify(recon)}`);
-      return;
-    }
-    recon.data.forEach(entry => {
-      if (!entry.date || !entry.hour || !entry.hours) {
-        logError(`❌ 缺少关键字段 (date, hour, hours): ${JSON.stringify(entry)}`);
-        return;
-      }
-      // 解析 hours 为 startTime 和 endTime
-      const [startTime, endTime] = entry.hours.split("-");
-      if (!startTime || !endTime) {
-        logError(`❌ hours 格式错误: ${entry.hours}`);
-        return;
-      }
-      // 组装 description 备注信息
-      const description = [
-        entry.yi ? `宜: ${entry.yi}` : "",
-        entry.ji ? `忌: ${entry.ji}` : "",
-        entry.chong ? `冲: ${entry.chong}` : "",
-        entry.sha ? `煞: ${entry.sha}` : "",
-        entry.nayin ? `纳音: ${entry.nayin}` : "",
-        entry.jiuxing ? `九星: ${entry.jiuxing}` : ""
-      ].filter(Boolean).join(" "); // 过滤掉空值
-      allEvents.push(createEvent({
-        date: entry.date,
-        title: entry.hour, // 事件标题
-        startTime, // 开始时间
-        endTime, // 结束时间
-        isAllDay: false, // 只在 hours 范围内显示
-        description
-      }));
-      logInfo(`✅ 添加时辰事件: ${entry.date} ${startTime}-${endTime} ${entry.hour}`);
-    });
-  });
-  logInfo("✅ 时辰数据处理完成");
-};
-
-// 处理万年历数据
-const calendar = (records, allEvents) => {
-  logInfo("🛠️ 处理万年历数据...");
-
-  Object.entries(records).forEach(([date, data]) => {
-    if (!data.Reconstruction || !Array.isArray(data.Reconstruction)) {
-      logError(`❌ 数据格式错误，Reconstruction 不是数组: ${JSON.stringify(data)}`);
-      return;
-    }
-
-    logInfo(`📅 处理万年历日期: ${date}`);
-
-    data.Reconstruction.forEach(entry => {
-      if (!entry) {
-        logError(`❌ 无效的万年历条目: ${JSON.stringify(entry)}`);
-        return;
-      }
-
-      // 需要排除的键
-      const excludeKeys = new Set(["errno", "errmsg", "festivals", "solarTerms", "cnWeek"]);
-
-      // 拼接 description（去掉键名，只保留值）
-      const description = Object.entries(entry)
-        .filter(([key, value]) => value && !excludeKeys.has(key)) // 过滤掉空值和不需要的字段
-        .map(([_, value]) => (Array.isArray(value) ? value.join("｜") : value)) // 数组转换为 `｜` 连接的字符串
-        .join("｜"); // 连接所有字段
-
-      // 拼接标题
-      let title = entry.cnWeek || "万年历信息";
-      if (entry.festivals) {
-        title += ` ${entry.festivals}`; // 如果有节日，将节日作为额外标题
-      }
-
-      // 添加事件
-      allEvents.push(createEvent({
-        date,
-        title,
-        isAllDay: true,
-        description
-      }));
-
-      logInfo(`✅ 添加万年历事件: ${date} - ${title}`);
-    });
-  });
-
-  logInfo("✅ 万年历数据处理完成");
-};
-/*
-// 使用 processors 进行调用
-const processors = {
-  holidays,
-  jieqi,
-  astro,
-  shichen,
-  calendar
-};
-*/
-/*
-// 处理所有数据
-const processAllData = (jsonData, allEvents) => {
-  Object.entries(jsonData).forEach(([source, data]) => {
-    if (processors[source]) {
-      processors[source](data, allEvents); // 使用 processors 对象调用对应的处理函数
-    } else {
-      logError(`❌ 未知数据源: ${source}`);
-    }
-  });
-};
-*/
 // 运行处理逻辑
 const jsonDatakok = await loadAllJsonData();
 processAllData(jsonData, allEvents);
