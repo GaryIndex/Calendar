@@ -228,12 +228,44 @@ const processors = {
 /**
  * **处理所有数据**
  */
+// 日志函数
+const logInfo = (message) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] [INFO] ${message}`);
+};
+
+const logError = (message) => {
+  const timestamp = new Date().toISOString();
+  console.error(`[${timestamp}] [ERROR] ${message}`);
+};
+
+// 事件创建函数（确保统一格式）
+const createEvent = ({ date, title = "无标题", description = "", isAllDay =  false, startTime = "", endTime = "", travelTime = "", repeat = "", alarm = "", attachment = "", url = "", badge = "", priority = 0 }) => {
+  return {
+    date,
+    title,
+    description,
+    isAllDay,
+    startTime,
+    endTime,
+    travelTime,
+    repeat,
+    alarm,
+    attachment,
+    url,
+    badge,
+    priority
+  };
+};
+// 处理所有数据
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
   // **先处理 Reconstruction**
   Object.entries(jsonData).forEach(([source, data]) => {
     if (data.Reconstruction) {
+      logInfo(`📅 正在处理数据源: ${source}`);
       Object.entries(data.Reconstruction).forEach(([date, entries]) => {
+        logInfo(`🎯 正在处理日期: ${date}`);
         entries.forEach(entry => {
           const event = createEvent({
             date,
@@ -244,57 +276,75 @@ const processAllData = (jsonData, allEvents) => {
             isAllDay: true
           });
           allEvents.push(event);
+          logInfo(`✅ 添加事件: ${event.date} - ${event.title}`);
         });
       });
     }
   });
   // **再执行 processors**
   Object.entries(jsonData).forEach(([source, data]) => {
-    if (processors[source]) processors[source](data, allEvents);
+    if (processors[source]) {
+      logInfo(`🔧 开始处理数据源: ${source}`);
+      processors[source](data, allEvents);
+    }
   });
   logInfo(`✅ 处理完成，共生成 ${allEvents.length} 个事件`);
 };
-/**
- * **主流程**
- */
-const main = async () => {
-  const allEvents = [];
-  const jsonData = await loadAllJsonData();
-  processAllData(jsonData, allEvents);
-  logInfo("🎉 所有数据处理完成！");
-};
-// **执行 `main()`**
-await main();
-// **处理数据**
-/**
- * **生成 ICS 文件**
- */
+
+// 生成 ICS 文件
 const generateICS = async (events) => {
-  const icsData = events.map(event => `
+  logInfo(`📝 正在生成 ICS 文件...`);
+  const icsData = events.map(event => {
+    // 打印每个事件的详细数据
+    logInfo(`🎯 生成 ICS 事件: ${JSON.stringify(event)}`);
+    const startTimeFormatted = event.startTime ? event.startTime.replace(":", "") + "00" : "000000";  // 默认值
+    const endTimeFormatted = event.endTime ? event.endTime.replace(":", "") + "00" : "235959";      // 默认值
+    return `
 BEGIN:VEVENT
 SUMMARY:${event.title}
-DTSTART:${event.date.replace(/-/g, '')}T${event.startTime ? event.startTime.replace(/:/g, '') + '00' : '000000'}
-DTEND:${event.date.replace(/-/g, '')}T${event.endTime ? event.endTime.replace(/:/g, '') + '00' : '235959'}
+DTSTART:${event.date.replace(/-/g, '')}T${startTimeFormatted}
+DTEND:${event.date.replace(/-/g, '')}T${endTimeFormatted}
 DESCRIPTION:${typeof event.description === 'string' ? event.description : JSON.stringify(event.description)}
-END:VEVENT`).join("\n");
-  //await fs.promises.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
+END:VEVENT`;
+  }).join("\n");
+  // 打印生成的 ICS 内容（调试用）
+  logInfo(`生成的 ICS 数据: \n${icsData}`);
   const icsFilePath = path.join(__dirname, 'calendar.ics');
+  await fs.promises.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
   logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
 };
-// **执行流程**
-(async () => {
-  const allEvents = [];
-  // 读取所有 JSON 文件
+// 加载所有 JSON 数据
+const loadAllJsonData = async () => {
+  logInfo("📂 正在加载 JSON 文件...");
   const jsonDataArray = await Promise.all(Object.values(dataPaths).map(async file => await readJsonData(file)));
   const jsonDatajust = Object.fromEntries(Object.keys(dataPaths).map((key, i) => [key, jsonDataArray[i]]));
-  // 确保 JSON 数据正确加载
-  if (!jsonDatajust || Object.keys(jsonDatajust).length === 0) {
-    logError("❌ 读取 JSON 数据失败！");
+  // 调试：打印 JSON 数据结构
+  logInfo("✅ JSON 文件加载完成:", JSON.stringify(jsonDatajust, null, 2));
+  return jsonDatajust;
+};
+
+// 主流程
+const main = async () => {
+  const allEvents = [];
+  logInfo("📥 正在加载所有 JSON 数据...");
+  const jsonData = await loadAllJsonData();
+  if (!jsonData || Object.keys(jsonData).length === 0) {
+    logError("❌ 没有可用的 JSON 数据！");
     return;
   }
+  logInfo("✅ JSON 数据加载成功！");
   // 调试：打印 JSON 数据结构
-  console.log("✅ jsonDatajust:", JSON.stringify(jsonDatajust, null, 2));
-  // 传入正确的 JSON 数据
-  processAllData(jsonDatajust, allEvents);
+  console.log("✅ jsonData:", JSON.stringify(jsonData, null, 2));
+  logInfo("📌 开始处理所有数据...");
+  processAllData(jsonData, allEvents);
+  logInfo("🎉 所有数据处理完成！");
   await generateICS(allEvents);
+};
+// 执行流程
+(async () => {
+  try {
+    await main();  // 执行主流程
+  } catch (err) {
+    logError(`❌ 程序运行失败: ${err.message}`);
+  }
 })();
