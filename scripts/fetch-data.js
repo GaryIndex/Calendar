@@ -47,13 +47,17 @@ export const logError = (message) => writeLog("ERROR", message);
 //import path from 'path';
 // 获取当前文件的目录路径
 //const __dirname = path.dirname(new URL(import.meta.url).pathname);
+//import path from 'path';
+
+// 使用 __dirname 获取当前文件的目录路径
 const DATA_PATH = path.join(__dirname, './data/Document');
+// 使用 path.resolve 确保每个文件的路径都是绝对路径
 export const dataPaths = {
-  holidays: path.resolve(`${DATA_PATH}/holidays.json`),
-  jieqi: path.resolve(`${DATA_PATH}/jieqi.json`),
-  astro: path.resolve(`${DATA_PATH}/astro.json`),
-  calendar: path.resolve(`${DATA_PATH}/calendar.json`),
-  shichen: path.resolve(`${DATA_PATH}/shichen.json`),
+  holidays: path.resolve(DATA_PATH, 'holidays.json'),
+  jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
+  astro: path.resolve(DATA_PATH, 'astro.json'),
+  calendar: path.resolve(DATA_PATH, 'calendar.json'),
+  shichen: path.resolve(DATA_PATH, 'shichen.json'),
 };
 /*
 // **读取 JSON 文件**
