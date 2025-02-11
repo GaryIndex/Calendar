@@ -95,20 +95,30 @@ const processors = {
   astro: (data, allEvents) => {
   logInfo("🛠️ 处理天文数据...");
   if (!Array.isArray(data.Reconstruction)) return logError("❌ astro Reconstruction 数据不存在！");
+  
   data.Reconstruction.forEach(entry => {
     if (!entry || typeof entry !== "object" || !entry.data?.range) return;
     const { name, range, ...details } = entry.data;
-    // 解析 range，转换为完整日期（如 1.20 → 2025-01-20）
-    const [start, end] = range.split("-").map(date => `2025-${date.replace(".", "-")}`);
-    let currentDate = new Date(start);
-    const endDate = new Date(end);
+
+    // 解析 `range`，获取 `startMonth.startDay - endMonth.endDay`
+    const [start, end] = range.split("-").map(date => date.replace(".", "-"));
+    
+    // 获取当前数据的年份
+    const year = entry.date ? entry.date.split("-")[0] : new Date().getFullYear(); // 动态获取年份
+
+    // 解析完整日期（如 `1-20` → `2025-01-20`）
+    const startDate = new Date(`${year}-${start}`);
+    const endDate = new Date(`${year}-${end}`);
+
     // 过滤掉 `range`，其余字段全部加入 description
     const description = Object.entries(details)
-      .map(([_, value]) => `${value}`)
+      .map(([key, value]) => `${key}: ${value}`)
       .join(" | ");
-    // 遍历日期范围
+
+    // 遍历日期范围，确保每天都生成数据
+    let currentDate = new Date(startDate);
     while (currentDate <= endDate) {
-      const eventDate = currentDate.toISOString().split("T")[0]; // 生成 YYYY-MM-DD 格式
+      const eventDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD 格式
       allEvents.push(createEvent({
         date: eventDate,
         title: name || "天文事件",
@@ -116,7 +126,7 @@ const processors = {
         description
       }));
       logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
-      currentDate.setDate(currentDate.getDate() + 1); // 日期加 1
+      currentDate.setDate(currentDate.getDate() + 1); // 日期 +1
     }
   });
 },
