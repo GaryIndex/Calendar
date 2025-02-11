@@ -32,7 +32,7 @@ const processors = {
   // 获取 Reconstruction 数组
   const reconstructionData = Object.values(data)[0]?.Reconstruction; // 取第一层对象的 Reconstruction
   if (!Array.isArray(reconstructionData)) {
-    return logError(`❌ Reconstruction 数据不存在！数据结构: ${JSON.stringify(data, null, 2)}`);
+    return logError(`❌ holidays Reconstruction 数据不存在！数据结构: ${JSON.stringify(data, null, 2)}`);
   }
   // 遍历 Reconstruction
   reconstructionData.forEach(entry => {
@@ -65,16 +65,16 @@ const processors = {
   logInfo("🛠️ 处理节气数据...");
   // 确保 Reconstruction 存在并且是数组
   if (!Array.isArray(data.Reconstruction) || data.Reconstruction.length === 0) {
-    return logError("❌ Reconstruction 数据不存在！");
+    return logError("❌ jieqi Reconstruction 数据不存在！");
   }
   // 遍历 Reconstruction 数组（过滤掉 errno 和 errmsg）
   data.Reconstruction.forEach(entry => {
     if (!entry || typeof entry !== "object" || !Array.isArray(entry.data)) {
-      return logError(`❌ Reconstruction 数据格式错误: ${JSON.stringify(entry)}`);
+      return logError(`❌ jieqi Reconstruction 数据格式错误: ${JSON.stringify(entry)}`);
     }
     entry.data.forEach(event => {
       if (!event.name || !event.time) {
-        logError(`❌ 缺少 name 或 time: ${JSON.stringify(event)}`);
+        logError(`❌ jieqi 缺少 name 或 time: ${JSON.stringify(event)}`);
         return;
       }
       const [date, startTime] = event.time.split(" ");
@@ -94,7 +94,7 @@ const processors = {
    */
   astro: (data, allEvents) => {
   logInfo("🛠️ 处理天文数据...");
-  if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
+  if (!Array.isArray(data.Reconstruction)) return logError("❌ astro Reconstruction 数据不存在！");
   data.Reconstruction.forEach(entry => {
     if (!entry || typeof entry !== "object" || !entry.data?.range) return;
     const { name, range, ...details } = entry.data;
@@ -126,15 +126,15 @@ const processors = {
   shichen: (data, allEvents) => {
     logInfo("🛠️ 处理时辰数据...");
     if (!Array.isArray(data.Reconstruction)) {
-        return logError("❌ Reconstruction 数据不存在！");
+        return logError("❌ shichen Reconstruction 数据不存在！");
     }
     data.Reconstruction.forEach(entry => {
         if (!entry || typeof entry !== "object" || !entry.data) {
-            return logError("❌ 无效的时辰数据！", entry);
+            return logError("❌ shichen 无效的时辰数据！", entry);
         }
         entry.data.forEach(event => {
             if (!event.hour || !event.hours) {
-                logError(`❌ 缺少 hour 或 hours: ${JSON.stringify(event)}`);
+                logError(`❌ shichen 缺少 hour 或 hours: ${JSON.stringify(event)}`);
                 return;
             }
             let [startTime, endTime] = event.hours.split("-");
@@ -163,7 +163,7 @@ const processors = {
     // 遍历日期键
     Object.entries(data).forEach(([date, obj]) => {
         if (!obj.Reconstruction || !Array.isArray(obj.Reconstruction)) {
-            return logError(`❌ ${date} 的 Reconstruction 数据不存在！`);
+            return logError(`❌ calendar ${date} 的 Reconstruction 数据不存在！`);
         }
         obj.Reconstruction.forEach(event => {
             if (!event || typeof event !== "object") return;
