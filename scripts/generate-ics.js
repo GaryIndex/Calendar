@@ -5,6 +5,10 @@ import chalk from "chalk";
 import fs from "fs/promises"; // 读取/写入文件
 import { readJsonData, dataPaths, loadAllJsonData, logInfo, logError, createEvent } from './utils/utils.js';
 // 在 ESM 环境中定义 __dirname
+const icsFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'calendar.ics');
+/*
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const icsFilePath = path.join(__dirname, 'calendar.ics');
 (async () => {
@@ -17,6 +21,7 @@ const icsFilePath = path.join(__dirname, 'calendar.ics');
     logError(`❌ 加载 JSON 数据失败: ${error.message}`);
   }
 })();
+*/
 
  // **数据处理器**
 const processors = {
@@ -230,22 +235,28 @@ const processors = {
  */
 // 日志函数
 // 数据源优先级设置
-const sourcePriority = {
-  "calendar.json": 1,  // 低优先级
-  "astro.json": 2,     // 中等优先级
-  "shichen.json": 3    // 高优先级
-};
 
-// 日志函数
-const logInfo1 = (message) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [INFO 1] ${message}`);
+// **确保日志目录存在**
+const logDir = path.join(process.cwd(), "data");
+const logFilePath = path.join(logDir, "error.log");
+// **日志记录**
+const ensureLogDir = async () => {
+  try {
+    await fs.mkdir(logDir, { recursive: true });
+  } catch (error) {
+    console.error(chalk.red(`❌ 创建日志目录失败: ${error.message}`));
+  }
 };
-const logError1 = (message) => {
+const writeLog = async (type, message) => {
+  await ensureLogDir();
   const timestamp = new Date().toISOString();
-  console.error(`[${timestamp}] [ERROR 1] ${message}`);
+  const logMessage = `[${timestamp}] [${type}] ${message}\n`;
+  await fs.appendFile(logFilePath, logMessage, "utf8");
+  console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
 };
-// 处理所有数据
+export const logInfo = (message) => writeLog("INFO", message);
+export const logError = (message) => writeLog("ERROR", message);
+// **处理所有数据**
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
   const eventsByDate = {}; // 用于按照日期合并事件数据
@@ -265,6 +276,7 @@ const processAllData = (jsonData, allEvents) => {
           const title = entry.name || "无标题";
           const description = entry.description || "无描述";
           const isAllDay = entry.isAllDay !== undefined ? entry.isAllDay : true;
+          const attachment = entry.attachment || "";
           // 合并：优先级高的数据展示在前面，且合并标题和描述
           let event;
           if (!existingEvent) {
@@ -272,7 +284,8 @@ const processAllData = (jsonData, allEvents) => {
               date,
               title,
               description,
-              isAllDay
+              isAllDay,
+              attachment
             });
             event.source = source;  // 记录数据源
             eventsByDate[date].push(event);
@@ -282,8 +295,11 @@ const processAllData = (jsonData, allEvents) => {
             const combinedDescription = existingEvent.description + " | " + description;
             existingEvent.title = combinedTitle;
             existingEvent.description = combinedDescription;
+            // 合并附件（如果存在）
+            if (entry.attachment) {
+              existingEvent.attachment = existingEvent.attachment ? existingEvent.attachment + " | " + entry.attachment : entry.attachment;
+            }
           }
-
           logInfo(`✅ 添加或更新事件: ${date} - ${title}`);
         });
       });
@@ -299,11 +315,10 @@ const processAllData = (jsonData, allEvents) => {
       allEvents.push(event);
     });
   });
-
   logInfo(`✅ 处理完成，共生成 ${allEvents.length} 个事件`);
 };
 
-// 生成 ICS 文件
+// **生成 ICS 文件**
 const generateICS = async (events) => {
   logInfo(`📝 正在生成 ICS 文件...`);
   const icsData = events.map(event => {
@@ -317,6 +332,7 @@ SUMMARY:${event.title}
 DTSTART:${event.date.replace(/-/g, '')}T${startTimeFormatted}
 DTEND:${event.date.replace(/-/g, '')}T${endTimeFormatted}
 DESCRIPTION:${typeof event.description === 'string' ? event.description : JSON.stringify(event.description)}
+ATTACHMENT:${event.attachment}
 END:VEVENT`;
   }).join("\n");
   // 打印生成的 ICS 内容（调试用）
@@ -325,18 +341,7 @@ END:VEVENT`;
   await fs.promises.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
   logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
 };
-
-// 加载所有 JSON 数据
-const loadAllJsonData = async () => {
-  logInfo("📂 正在加载 JSON 文件...");
-  const jsonDataArray = await Promise.all(Object.values(dataPaths).map(async file => await readJsonData(file)));
-  const jsonDatajust = Object.fromEntries(Object.keys(dataPaths).map((key, i) => [key, jsonDataArray[i]]));
-  // 调试：打印 JSON 数据结构
-  logInfo("✅ JSON 文件加载完成:", JSON.stringify(jsonDatajust, null, 2));
-  return jsonDatajust;
-};
-
-// 主流程
+// **主流程**
 const main = async () => {
   const allEvents = [];
   logInfo("📥 正在加载所有 JSON 数据...");
@@ -346,8 +351,6 @@ const main = async () => {
     return;
   }
   logInfo("✅ JSON 数据加载成功！");
-  // 调试：打印 JSON 数据结构
-  console.log("✅ jsonData:", JSON.stringify(jsonData, null, 2));
   logInfo("📌 开始处理所有数据...");
   processAllData(jsonData, allEvents);
   logInfo("🎉 所有数据处理完成！");
