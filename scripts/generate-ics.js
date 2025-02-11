@@ -6,7 +6,7 @@ import fs from "fs/promises"; // 读取/写入文件
 //import { loadAllJsonData, logInfo, createEvent, } from './fetch-data.js';
 import { loadAllJsonData, logInfo, createEvent, dataPaths } from './fetch-data.js';
 // 在 ESM 环境中定义 __dirname
-const icsFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'calendar.ics');
+//const icsFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'calendar.ics');
 /*
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
