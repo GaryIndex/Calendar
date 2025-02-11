@@ -233,29 +233,9 @@ const logInfo1 = (message) => {
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] [INFO 1] ${message}`);
 };
-
 const logError1 = (message) => {
   const timestamp = new Date().toISOString();
   console.error(`[${timestamp}] [ERROR 1] ${message}`);
-};
-
-// 事件创建函数（确保统一格式）
-const createEvent = ({ date, title = "无标题", description = "", isAllDay =  false, startTime = "", endTime = "", travelTime = "", repeat = "", alarm = "", attachment = "", url = "", badge = "", priority = 0 }) => {
-  return {
-    date,
-    title,
-    description,
-    isAllDay,
-    startTime,
-    endTime,
-    travelTime,
-    repeat,
-    alarm,
-    attachment,
-    url,
-    badge,
-    priority
-  };
 };
 // 处理所有数据
 const processAllData = (jsonData, allEvents) => {
