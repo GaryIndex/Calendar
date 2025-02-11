@@ -18,15 +18,6 @@ const ensureDirectoryExists = async (dir) => {
   }
 };
 
-// 记录日志
-const writeLog = async (type, message) => {
-  await ensureLogDir();
-  const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] [${type}] ${message}\n`;
-  await fs.appendFile(logFilePath, logMessage, "utf8");
-  console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
-};
-
 // 确保日志目录存在
 const ensureLogDir = async () => {
   try {
@@ -34,6 +25,15 @@ const ensureLogDir = async () => {
   } catch (error) {
     console.error(`❌ 创建日志目录失败: ${error.message}`);
   }
+};
+
+// 记录日志
+const writeLog = async (type, message) => {
+  await ensureLogDir();
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] [${type}] ${message}\n`;
+  await fs.appendFile(logFilePath, logMessage, "utf8");
+  console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
 };
 
 // 读取增量同步文件
@@ -60,10 +60,10 @@ const fetchDataFromApi = async (url, params = {}, retries = 3) => {
     if (typeof response.data !== 'object') {
       throw new Error(`API 数据格式错误: ${JSON.stringify(response.data).slice(0, 100)}...`);
     }
-    await logMessage(`✅ API 请求成功: ${url}`);
+    await writeLog('INFO', `✅ API 请求成功: ${url}`);
     return response.data;
   } catch (error) {
-    await logMessage(`❌ API 请求失败: ${url} | 剩余重试次数: ${retries} | 错误: ${error.message}`);
+    await writeLog('ERROR', `❌ API 请求失败: ${url} | 剩余重试次数: ${retries} | 错误: ${error.message}`);
     if (retries > 0) {
       await new Promise(resolve => setTimeout(resolve, 2000));
       return fetchDataFromApi(url, params, retries - 1);
@@ -102,7 +102,7 @@ const saveYearlyData = async (fileName, date, newData) => {
   });
   existingData[date] = { Reconstruction: [newData] };
   await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
-  await logMessage(`✅ ${fileName} (${date}) 数据保存成功`);
+  await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
 };
 
 // 扁平化 calendar 数据
@@ -124,7 +124,7 @@ const flattenCalendarData = (data) => {
 
 // 数据抓取
 const fetchData = async () => {
-  await logMessage('🚀 开始数据抓取...');
+  await writeLog('INFO', '🚀 开始数据抓取...');
   await ensureDirectoryExists(DATA_PATH);
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
   const startDate = moment('2025-02-11').tz('Asia/Shanghai');
@@ -132,10 +132,10 @@ const fetchData = async () => {
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD');
     if (incrementData[dateStr]) {
-      await logMessage(`⏩ 跳过已查询的日期: ${dateStr}`);
+      await writeLog('INFO', `⏩ 跳过已查询的日期: ${dateStr}`);
       continue;
     }
-    await logMessage(`📅 处理日期: ${dateStr}`);
+    await writeLog('INFO', `📅 处理日期: ${dateStr}`);
     try {
       const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
         fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr }),
@@ -154,36 +154,17 @@ const fetchData = async () => {
       await saveYearlyData('shichen.json', dateStr, shichenData);
       // 记录已查询的日期
       await saveIncrementData(dateStr);
-      await logMessage(`✅ ${dateStr} 数据保存成功`);
+      await writeLog('INFO', `✅ ${dateStr} 数据保存成功`);
     } catch (error) {
-      await logMessage(`⚠️ ${dateStr} 处理失败: ${error.message}`);
+      await writeLog('ERROR', `⚠️ ${dateStr} 处理失败: ${error.message}`);
     }
   }
-  await logMessage('🎉 所有数据抓取完成！');
+  await writeLog('INFO', '🎉 所有数据抓取完成！');
 };
-
 // 执行数据抓取
 fetchData().catch(async (error) => {
-  await logMessage(`🔥 任务失败: ${error.message}`);
-  process.exit(1);
+  await writeLog('ERROR', `🔥 数据抓取失败: ${error.message}`);
 });
-
-// 加载所有 JSON 数据
-const loadAllJsonData = async () => {
-  const loadAllJsonDatadata = {};
-  for (const [key, filePath] of Object.entries(dataPaths)) {
-    try {
-      const content = await fs.readFile(filePath, 'utf8');
-      loadAllJsonDatadata[key] = JSON.parse(content);
-      console.log(`${key} loadAllJsonData 数据加载成功`);
-    } catch (error) {
-      console.error(`加载loadAllJsonData ${key} 时出错: ${error.message}`);
-    }
-  }
-  return loadAllJsonDatadata;
-};
-
-export { loadAllJsonData };
 // **创建标准化事件对象**
 export function createEvent({
   date,
