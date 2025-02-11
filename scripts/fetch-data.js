@@ -1,5 +1,5 @@
 import path from "path";
-import { fileURLToPath } from "url";
+//import { fileURLToPath } from "url";
 import fs from "fs/promises";
 import axios from "axios";
 import moment from "moment-timezone";
@@ -10,9 +10,12 @@ import chalk from 'chalk';
 //import { loadAllJsonData, logInfo, createEvent } from './utils/utils.js';
 // 在 ESM 环境中定义 __dirname
 // **计算 __dirname**
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+//const __filename = fileURLToPath(import.meta.url);
+//const __dirname = path.dirname(__filename);
+//import path from 'path';
 
+// 直接使用 new URL 和 path.dirname 获取当前目录路径
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 // **确保日志目录存在**
 const logDir = path.join(process.cwd(), "data");
 const logFilePath = path.join(logDir, "error.log");
@@ -41,7 +44,10 @@ export const logInfo = (message) => writeLog("INFO", message);
 export const logError = (message) => writeLog("ERROR", message);
 
 // **JSON 文件路径**
-const DATA_PATH = './data/Document';
+//import path from 'path';
+// 获取当前文件的目录路径
+//const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const DATA_PATH = path.join(__dirname, './data/Document');
 export const dataPaths = {
   holidays: path.resolve(`${DATA_PATH}/holidays.json`),
   jieqi: path.resolve(`${DATA_PATH}/jieqi.json`),
