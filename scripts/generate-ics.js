@@ -239,9 +239,10 @@ const processors = {
 // **处理所有数据**
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
+  logInfo("📂 加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
   const eventsByDate = {}; // 用于按照日期合并事件数据
   // 打印加载的 jsonData
-  logInfo("📂 加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
+  //logInfo("📂 加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
   // **先处理 Reconstruction**
   Object.entries(jsonData).forEach(([source, data]) => {
     logInfo(`🔍 正在处理数据源: ${source}`);
