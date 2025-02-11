@@ -1,21 +1,9 @@
-// **处理数据**
-import path from "path";
-import { fileURLToPath } from "url";
-import chalk from "chalk";
-import fs from "fs/promises"; // 读取/写入文件
-//import { loadAllJsonData, logInfo, createEvent, } from './fetch-data.js';
-import { loadAllJsonData, logInfo, createEvent, } from './fetch-data.js';
-// 获取当前文件的目录路径
-//const DATA_PATH = path.join(__dirname, './data/Document');
-// 使用 path.resolve 确保每个文件的路径都是绝对路径
-/*const dataPaths = {
-  holidays: path.resolve(DATA_PATH, 'holidays.json'),
-  jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
-  astro: path.resolve(DATA_PATH, 'astro.json'),
-  calendar: path.resolve(DATA_PATH, 'calendar.json'),
-  shichen: path.resolve(DATA_PATH, 'shichen.json'),
-};
-*/
+import fs from 'fs/promises'; // 使用 fs/promises 来处理文件读取
+import path from 'path';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
+import { loadAllJsonData, logInfo, createEvent } from './fetch-data.js'; // 确保引入了必要的工具
+// 使用 import.meta.url 获取当前模块的路径并转换为 __dirname
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
 const DATA_PATH = path.join(__dirname, './data/Document');
@@ -26,24 +14,6 @@ export const dataPaths = {
   calendar: path.resolve(DATA_PATH, 'calendar.json'),
   shichen: path.resolve(DATA_PATH, 'shichen.json'),
 };
-// 在 ESM 环境中定义 __dirname
-//const icsFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'calendar.ics');
-/*
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const icsFilePath = path.join(__dirname, 'calendar.ics');
-(async () => {
-  try {
-    logInfo("📂 开始加载所有 JSON 数据");
-    const jsonData = await loadAllJsonData();
-    logInfo("✅ 成功加载所有 JSON 数据");
-    console.log(jsonData);
-  } catch (error) {
-    logError(`❌ 加载 JSON 数据失败: ${error.message}`);
-  }
-})();
-*/
  // **数据处理器**
 const processors = {
   /**
@@ -261,106 +231,31 @@ const processors = {
     console.log("calendar allEvents：", allEvents);
   }
 };
-
-const holidaysData = JSON.parse(fs.readFileSync(dataPaths.holidays, 'utf8'));
-const jieqiData = JSON.parse(fs.readFileSync(dataPaths.jieqi, 'utf8'));
-const astroData = JSON.parse(fs.readFileSync(dataPaths.astro, 'utf8'));
-const calendarData = JSON.parse(fs.readFileSync(dataPaths.calendar, 'utf8'));
-const shichenData = JSON.parse(fs.readFileSync(dataPaths.shichen, 'utf8'));
-// 初始化 allEvents 数组
-const allEvents = [];
-// 处理各类数据
-processors.holidays(holidaysData, allEvents);
-processors.jieqi(jieqiData, allEvents);
-processors.astro(astroData, allEvents);
-processors.shichen(shichenData, allEvents);
-processors.calendar(calendarData, allEvents);
-// 打印合并后的 allEvents
-console.log("合并后的 allEvents：", allEvents);
-/**
- * **处理所有数据**
- */
-// **定义 ICS 文件路径**
-//const icsFilePath = path.join(path.dirname(import.meta.url), 'calendar.ics');
-
-// **处理所有数据**
-// 直接使用 loadAllJsonData 来获取数据
-//const jsonData = await loadAllJsonData();
-//console.log(jsonData);
-/*
-const processAllData = (jsonData, allEvents) => {
-  logInfo("📌 正在处理所有数据...");
-  logInfo("📂 藕花加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
-  const eventsByDate = {}; // 用于按照日期合并事件数据
-  // 打印加载的 jsonData
-  //logInfo("📂 加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
-  // **先处理 Reconstruction**
-  Object.entries(jsonData).forEach(([source, data]) => {
-    logInfo(`🔍 正在处理数据源: ${source}`);
-    if (data.Reconstruction) {
-      logInfo(`🔸 数据源 "${source}" 包含 Reconstruction 数据...`);
-      Object.entries(data.Reconstruction).forEach(([date, entries]) => {
-        logInfo(`🎯 正在处理日期: ${date}, 条目数: ${entries.length}`);
-        entries.forEach(entry => {
-          logInfo(`🔹 处理条目: ${JSON.stringify(entry, null, 2)}`);
-          // 如果没有该日期的事件，初始化
-          if (!eventsByDate[date]) {
-            eventsByDate[date] = [];
-            logInfo(`✅ 初始化事件列表: ${date}`);
-          }
-          // 处理合并的 title 和 description
-          const existingEvent = eventsByDate[date].find(event => event.source === source);
-          const title = entry.name || "无标题";
-          const description = entry.description || "无描述";
-          const isAllDay = entry.isAllDay !== undefined ? entry.isAllDay : true;
-          const attachment = entry.attachment || "";
-          logInfo(`🔸 当前处理的事件数据: 标题 - ${title}, 描述 - ${description}`);
-          // 合并：优先级高的数据展示在前面，且合并标题和描述
-          let event;
-          if (!existingEvent) {
-            event = createEvent({
-              date,
-              title,
-              description,
-              isAllDay,
-              attachment
-            });
-            event.source = source;  // 记录数据源
-            eventsByDate[date].push(event);
-            logInfo(`✅ 新事件添加: ${date} - ${title}`);
-          } else {
-            // 更新事件，合并标题和备注
-            const combinedTitle = existingEvent.title + " | " + title;
-            const combinedDescription = existingEvent.description + " | " + description;
-            existingEvent.title = combinedTitle;
-            existingEvent.description = combinedDescription;
-            // 合并附件（如果存在）
-            if (entry.attachment) {
-              existingEvent.attachment = existingEvent.attachment ? existingEvent.attachment + " | " + entry.attachment : entry.attachment;
-            }
-            logInfo(`✅ 更新事件: ${date} - ${existingEvent.title}`);
-          }
-        });
-      });
-    } else {
-      logInfo(`❌ 数据源 "${source}" 不包含 Reconstruction 数据`);
-    }
-  });
-  // **按优先级排序所有事件**
-  logInfo("📊 正在按优先级排序事件...");
-  Object.entries(eventsByDate).forEach(([date, events]) => {
-    logInfo(`🎯 正在排序日期: ${date}, 事件数: ${events.length}`);
-    events.sort((a, b) => sourcePriority[b.source] - sourcePriority[a.source]);
-    logInfo(`📅 排序后的事件: ${date}`);
-    // 将排序后的事件添加到 allEvents
-    events.forEach(event => {
-      allEvents.push(event);
-      logInfo(`📅 添加到所有事件: ${event.title} - ${event.date}`);
-    });
-  });
-  logInfo(`✅ 处理完成，共生成 ${allEvents.length} 个事件`);
+// 异步加载所有 JSON 文件的数据
+const loadData = async () => {
+  try {
+    // 使用 fs.promises.readFile 来读取 JSON 文件
+    const holidaysData = JSON.parse(await fs.readFile(dataPaths.holidays, 'utf8'));
+    const jieqiData = JSON.parse(await fs.readFile(dataPaths.jieqi, 'utf8'));
+    const astroData = JSON.parse(await fs.readFile(dataPaths.astro, 'utf8'));
+    const calendarData = JSON.parse(await fs.readFile(dataPaths.calendar, 'utf8'));
+    const shichenData = JSON.parse(await fs.readFile(dataPaths.shichen, 'utf8'));
+    // 初始化 allEvents 数组
+    const allEvents = [];
+    // 处理各类数据
+    processors.holidays(holidaysData, allEvents);
+    processors.jieqi(jieqiData, allEvents);
+    processors.astro(astroData, allEvents);
+    processors.shichen(shichenData, allEvents);
+    processors.calendar(calendarData, allEvents);
+    // 打印合并后的 allEvents
+    console.log("合并后的 allEvents：", allEvents);
+    return allEvents;  // 返回合并后的 allEvents 数组
+  } catch (error) {
+    console.error('Error reading or processing data:', error);
+  }
 };
-*/
+
 // **生成 ICS 文件**
 const generateICS = async (events) => {
   logInfo(`📝 正在生成 ICS 文件...`);
@@ -383,28 +278,11 @@ END:VEVENT`;
   await fs.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
   logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
 };
-/*
-(async () => {
-  try {
-    logInfo("📥 正在加载所有 JSON 数据...");
-    // 加载所有 JSON 数据
-    const jsonData = await loadAllJsonData();
-    // 确认数据已加载
-    logInfo("加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
-    // 检查数据是否为空
-    if (!jsonData || Object.keys(jsonData).length === 0) {
-      logInfo("❌ 没有可用的 JSON 数据！");
-      return;
-    }
-    logInfo("✅ JSON 数据加载成功！");
-    // 打印 jsonData 到工作流或日志
-    //console.log("Loaded JSON Data: ", JSON.stringify(jsonData, null, 2)); 
-    // 直接打印到控制台，或者可以换成工作流日志
-    // 直接转交给 processAllData，不做任何处理
-    processAllData(jsonData);
-    logInfo("🎉 JSON 数据已传递给 processAllData");
-  } catch (err) {
-    logInfo(`❌ 程序运行失败: ${err.message}`);
+// 调用数据加载和 ICS 生成过程
+const main = async () => {
+  const allEvents = await loadData();  // 获取合并后的 allEvents
+  if (allEvents) {
+    await generateICS(allEvents);  // 生成 ICS 文件
   }
-})();
-*/
+};
+main();  // 执行
