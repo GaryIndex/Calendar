@@ -171,8 +171,10 @@ fetchData().catch(async (error) => {
   await logMessage(`🔥 任务失败: ${error.message}`);
   process.exit(1);
 });
-
-export { loadAllJsonData };
+const loadAllJsonData = async () => {
+  // 函数内容
+};
+export { loadAllJsonData }; // 确保导出这个函数
 // **创建标准化事件对象**
 export function createEvent({
   date,
