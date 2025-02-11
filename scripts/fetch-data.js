@@ -4,9 +4,6 @@ import axios from "axios";
 import moment from "moment-timezone";
 import deepmerge from "deepmerge";
 import chalk from 'chalk';
-
-import path from 'path';
-
 // 获取当前模块的目录路径
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
 // 数据存储路径
