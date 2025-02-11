@@ -143,32 +143,39 @@ fetchData().catch(async (error) => {
  * 📌 读取并合并多个 JSON 文件的数据
  */
 const loadAllJsonData = async () => {
+  console.log('🚀 开始加载 JSON 数据...');
+  // 确保数据目录存在
   await ensureDirectoryExists(DATA_PATH);
+  // 定义文件列表
   const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
   const allData = {};
-
+  // 遍历文件，逐个加载并解析
   for (const file of files) {
     const filePath = path.join(DATA_PATH, file);
+    // 打印当前处理的文件路径
+    console.log(`🔍 处理文件: ${filePath}`);
     try {
+      // 读取文件内容
       const rawData = await fs.readFile(filePath, 'utf8');
+      console.log(`✅ 成功读取文件内容: ${filePath}`);
+      // 打印读取到的原始数据（可选，通常用于调试）
+      console.log(`读取的原始数据 (${file}):`);
+      console.log(rawData);
+      // 解析 JSON 数据
       const parsedData = JSON.parse(rawData);
       allData[file] = parsedData;
+      // 输出成功加载的文件信息
       console.log(`✅ 成功加载文件: ${file}`);
-
-      // 输出加载的 JSON 数据到工作流
       console.log(`加载的 ${file} 数据:`);
       console.log(JSON.stringify(parsedData, null, 2));  // 格式化输出到控制台
     } catch (error) {
-      console.error(`❌ 读取文件失败: ${file}, 错误: ${error.message}`);
+      console.error(`❌ 读取或解析文件失败: ${filePath}, 错误: ${error.message}`);
       allData[file] = {};  // 如果读取失败，返回空对象
     }
   }
-
   // 完成后，输出所有数据的汇总信息
   console.log('📦 所有 JSON 文件加载完成，合并数据：');
   console.log(JSON.stringify(allData, null, 2));  // 输出合并后的所有数据
-
   return allData;
 };
-
 export { loadAllJsonData };
