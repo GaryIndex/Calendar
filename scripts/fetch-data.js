@@ -41,7 +41,6 @@ const loadExistingData = async () => {
   await ensureDirectoryExists(DATA_PATH);
   const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
   const data = {};
-
   for (const file of files) {
     const filePath = `${DATA_PATH}/${file}`;
     try {
@@ -51,7 +50,6 @@ const loadExistingData = async () => {
       data[file] = {};
     }
   }
-
   return data;
 };
 
@@ -62,14 +60,11 @@ const saveData = async (data) => {
   await ensureDirectoryExists(DATA_PATH);
   for (const [file, content] of Object.entries(data)) {
     const filePath = `${DATA_PATH}/${file}`;
-
     let existingContent = {};
     try {
       existingContent = JSON.parse(await fs.readFile(filePath, 'utf8'));
     } catch {}
-
     const mergedData = deepmerge(existingContent, content);
-
     try {
       await fs.writeFile(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
       await logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData).length} 条记录`);
@@ -105,27 +100,20 @@ const fetchDataFromApi = async (url, params = {}, retries = MAX_RETRIES) => {
  */
 const flattenCalendarData = (data) => {
   if (!data || typeof data !== 'object') return {};
-
   const { errno, errmsg, data: rawData } = data;
   if (!rawData) return {};
-
   const { lunar, almanac, ...flatData } = rawData;
-
   // 处理 `festivals` 和 `pengzubaiji`
   flatData.festivals = (rawData.festivals || []).join(',');
   flatData.pengzubaiji = (almanac?.pengzubaiji || []).join(',');
-
   // 处理 `liuyao`, `jiuxing`, `taisui`
   flatData.liuyao = almanac?.liuyao || '';
   flatData.jiuxing = almanac?.jiuxing || '';
   flatData.taisui = almanac?.taisui || '';
-  
   // 提取 `lunar` 和 `almanac` 内的键值
   Object.assign(flatData, lunar, almanac);
-
   // 提取 `jishenfangwei` 内的键值
   Object.assign(flatData, almanac?.jishenfangwei);
-
   // 过滤空值或无用字段
   delete flatData.jishenfangwei;
   return { errno, errmsg, ...flatData };
@@ -137,21 +125,17 @@ const flattenCalendarData = (data) => {
 const fetchData = async () => {
   await logMessage('🚀 开始数据抓取...');
   await ensureDirectoryExists(DATA_PATH);
-
   const existingData = await loadExistingData();
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
   const startDate = moment(START_DATE).tz('Asia/Shanghai');
-
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD');
-
+    // 跳过已经存在的日历数据
     if (existingData['calendar.json'][dateStr]) {
       await logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
       continue;
     }
-
     await logMessage(`📅 处理日期: ${dateStr}`);
-
     try {
       const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
         fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr }),
@@ -160,27 +144,25 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
-
       const processedCalendarData = flattenCalendarData(calendarData);
-
+      // 将节气数据覆盖到已有的 jieqi.json 数据中
+      existingData['jieqi.json'][dateStr] = { "Reconstruction": [jieqiData] };
+      // 构造更新后的数据
       const filteredData = {
         'calendar.json': { [dateStr]: { "Reconstruction": [processedCalendarData] } },
         'astro.json': { [dateStr]: { "Reconstruction": [astroData] } },
         'shichen.json': { [dateStr]: { "Reconstruction": [shichenData] } },
-        'jieqi.json': { [dateStr]: { "Reconstruction": [jieqiData] } },
-        'holidays.json': { [dateStr]: { "Reconstruction": [holidaysData] } }
+        'holidays.json': { [dateStr]: { "Reconstruction": [holidaysData] } },
+        'jieqi.json': existingData['jieqi.json']  // 保持节气数据覆盖
       };
-
       await saveData(filteredData);
       await logMessage(`✅ ${dateStr} 数据保存成功`);
     } catch (error) {
       await logMessage(`⚠️ ${dateStr} 处理失败: ${error.message}`);
     }
   }
-
   await logMessage('🎉 所有数据抓取完成！');
 };
-
 fetchData().catch(async (error) => {
   await logMessage(`🔥 任务失败: ${error.message}`);
   process.exit(1);
