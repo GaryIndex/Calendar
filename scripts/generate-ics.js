@@ -135,33 +135,40 @@ const processors = {
    */
   shichen: (data, allEvents) => {
     logInfo("🛠️ 处理时辰数据...");
-    if (!Array.isArray(data.Reconstruction)) {
+    if (!data.Reconstruction || typeof data.Reconstruction !== "object") {
         return logError("❌ shichen Reconstruction 数据不存在！");
     }
-    data.Reconstruction.forEach(entry => {
-        if (!entry || typeof entry !== "object" || !entry.data) {
-            return logError("❌ shichen 无效的时辰数据！", entry);
+    Object.entries(data.Reconstruction).forEach(([date, entries]) => {
+        if (!Array.isArray(entries)) {
+            return logError(`❌ shichen ${date} 的数据格式错误，应为数组！`);
         }
-        entry.data.forEach(event => {
-            if (!event.hour || !event.hours) {
-                logError(`❌ shichen 缺少 hour 或 hours: ${JSON.stringify(event)}`);
-                return;
+        entries.forEach(entry => {
+            if (!entry || typeof entry !== "object" || !entry.data) {
+                return logError(`❌ shichen ${date} 无效的时辰数据！`, entry);
             }
-            let [startTime, endTime] = event.hours.split("-");
-            if (startTime.length === 4) startTime = "0" + startTime; // 修正 `1:00` 为 `01:00`
-            if (endTime.length === 4) endTime = "0" + endTime;
-            const description = ["yi", "ji", "chong", "sha", "nayin", "jiuxing"]
-                .map(key => event[key] || "") // 只取值
-                .filter(Boolean)
-                .join(" "); // 用空格分隔
-            allEvents.push(createEvent({
-                date: event.date, // 确保使用正确的日期字段
-                title: event.hour,
-                startTime,
-                endTime,
-                isAllDay: false,
-                description
-            }));
+            entry.data.forEach(event => {
+                if (!event.hour || !event.hours) {
+                    logError(`❌ shichen 缺少 hour 或 hours: ${JSON.stringify(event)}`);
+                    return;
+                }
+                let [startTime, endTime] = event.hours.split("-");
+                if (startTime.length === 4) startTime = "0" + startTime; // 修正 `1:00` 为 `01:00`
+                if (endTime.length === 4) endTime = "0" + endTime;
+                const description = ["yi", "ji", "chong", "sha", "nayin", "jiuxing"]
+                    .map(key => event[key] || "") // 只取值
+                    .filter(Boolean)
+                    .join(" "); // 用空格分隔
+                // 检查 title 是否有效
+                const title = event.hour || ""; // 如果没有 hour，默认用“时辰事件”
+                allEvents.push(createEvent({
+                    date, // 直接使用 Reconstruction 的 key 作为日期
+                    title,
+                    startTime,
+                    endTime,
+                    isAllDay: false,
+                    description
+                }));
+            });
         });
     });
   },
