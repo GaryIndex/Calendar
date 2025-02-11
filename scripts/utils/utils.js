@@ -45,13 +45,11 @@ export const readJsonData = async (filePath) => {
   try {
     await fs.access(filePath); // 检查文件是否存在
     logInfo(`📂 读取文件: ${filePath}`);
-
     const rawData = await fs.readFile(filePath, "utf-8");
     if (!rawData.trim()) {
       logError(`⚠️ 文件 ${filePath} 为空！`);
       return {};
     }
-
     return JSON.parse(rawData);
   } catch (error) {
     logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
@@ -64,7 +62,6 @@ export const loadAllJsonData = async () => {
   const entries = await Promise.all(
     Object.entries(dataPaths).map(async ([key, filePath]) => [key, await readJsonData(filePath)])
   );
-
   return Object.fromEntries(entries);
 };
 
