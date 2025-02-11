@@ -233,29 +233,9 @@ const processors = {
 /**
  * **处理所有数据**
  */
-// 日志函数
-// 数据源优先级设置
+// **定义 ICS 文件路径**
+//const icsFilePath = path.join(path.dirname(import.meta.url), 'calendar.ics');
 
-// **确保日志目录存在**
-const logDir = path.join(process.cwd(), "data");
-const logFilePath = path.join(logDir, "error.log");
-// **日志记录**
-const ensureLogDir = async () => {
-  try {
-    await fs.mkdir(logDir, { recursive: true });
-  } catch (error) {
-    console.error(chalk.red(`❌ 创建日志目录失败: ${error.message}`));
-  }
-};
-const writeLog = async (type, message) => {
-  await ensureLogDir();
-  const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] [${type}] ${message}\n`;
-  await fs.appendFile(logFilePath, logMessage, "utf8");
-  console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
-};
-export const logInfo = (message) => writeLog("INFO", message);
-export const logError = (message) => writeLog("ERROR", message);
 // **处理所有数据**
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
@@ -337,10 +317,10 @@ END:VEVENT`;
   }).join("\n");
   // 打印生成的 ICS 内容（调试用）
   logInfo(`生成的 ICS 数据: \n${icsData}`);
-  const icsFilePath = path.join(__dirname, 'calendar.ics');
-  await fs.promises.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
+  await fs.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
   logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
 };
+
 // **主流程**
 const main = async () => {
   const allEvents = [];
