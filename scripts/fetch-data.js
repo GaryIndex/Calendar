@@ -1,16 +1,74 @@
-import fs from 'fs/promises';
-import axios from 'axios';
-import moment from 'moment-timezone';
-import deepmerge from 'deepmerge';
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs/promises";
+import axios from "axios";
+import moment from "moment-timezone";
+import deepmerge from "deepmerge";
 
+// **计算 __dirname**
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// **确保日志目录存在**
+const logDir = path.join(process.cwd(), "data");
+const logFilePath = path.join(logDir, "error.log");
+
+// **日志记录**
+const ensureLogDir = async () => {
+  try {
+    await fs.mkdir(logDir, { recursive: true });
+  } catch (error) {
+    console.error(`❌ 创建日志目录失败: ${error.message}`);
+  }
+};
+
+const writeLog = async (type, message) => {
+  await ensureLogDir();
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] [${type}] ${message}\n`;
+  await fs.appendFile(logFilePath, logMessage, "utf8");
+  console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
+};
+
+export const logInfo = (message) => writeLog("INFO", message);
+export const logError = (message) => writeLog("ERROR", message);
+
+// **JSON 文件路径**
 const DATA_PATH = './data/Document';
-const LOG_PATH = './data/errors.log';
-const START_DATE = '2025-02-10';
-const MAX_RETRIES = 3;
+const dataPaths = {
+  holidays: path.resolve(`${DATA_PATH}/holidays.json`),
+  jieqi: path.resolve(`${DATA_PATH}/jieqi.json`),
+  astro: path.resolve(`${DATA_PATH}/astro.json`),
+  calendar: path.resolve(`${DATA_PATH}/calendar.json`),
+  shichen: path.resolve(`${DATA_PATH}/shichen.json`),
+};
 
-/**
- * 📌 确保目录存在
- */
+// **读取 JSON 文件**
+const readJsonData = async (filePath) => {
+  try {
+    await fs.access(filePath); // 检查文件是否存在
+    logInfo(`📂 读取文件: ${filePath}`);
+    const rawData = await fs.readFile(filePath, "utf-8");
+    if (!rawData.trim()) {
+      logError(`⚠️ 文件 ${filePath} 为空！`);
+      return {};
+    }
+    return JSON.parse(rawData);
+  } catch (error) {
+    logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
+    return {};
+  }
+};
+
+// **批量加载所有 JSON**
+const loadAllJsonData = async () => {
+  const entries = await Promise.all(
+    Object.entries(dataPaths).map(async ([key, filePath]) => [key, await readJsonData(filePath)])
+  );
+  return Object.fromEntries(entries);
+};
+
+// **确保目录存在**
 const ensureDirectoryExists = async (path) => {
   try {
     await fs.mkdir(path, { recursive: true });
@@ -19,25 +77,8 @@ const ensureDirectoryExists = async (path) => {
   }
 };
 
-/**
- * 📌 记录日志
- */
-const logMessage = async (message) => {
-  const timestamp = moment().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss');
-  const logEntry = `[${timestamp}] ${message}\n`;
-  console.log(logEntry.trim());
-  try {
-    await ensureDirectoryExists(DATA_PATH);
-    await fs.appendFile(LOG_PATH, logEntry, 'utf8');
-  } catch (error) {
-    console.error(`[日志写入失败] ${error.message}`);
-  }
-};
-
-/**
- * 📌 发送 API 请求（带重试机制）
- */
-const fetchDataFromApi = async (url, params = {}, retries = MAX_RETRIES) => {
+// **发送 API 请求（带重试机制）**
+const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
     const response = await axios.get(url, { params });
     if (typeof response.data !== 'object') {
@@ -55,33 +96,24 @@ const fetchDataFromApi = async (url, params = {}, retries = MAX_RETRIES) => {
   }
 };
 
-/**
- * 📌 扁平化 `calendarData`
- */
+// **扁平化 calendar 数据**
 const flattenCalendarData = (data) => {
   if (!data || typeof data !== 'object') return {};
   const { errno, errmsg, data: rawData } = data;
   if (!rawData) return {};
   const { lunar, almanac, ...flatData } = rawData;
-  // 处理 `festivals` 和 `pengzubaiji`
   flatData.festivals = (rawData.festivals || []).join(',');
   flatData.pengzubaiji = (almanac?.pengzubaiji || []).join(',');
-  // 处理 `liuyao`, `jiuxing`, `taisui`
   flatData.liuyao = almanac?.liuyao || '';
   flatData.jiuxing = almanac?.jiuxing || '';
   flatData.taisui = almanac?.taisui || '';
-  // 提取 `lunar` 和 `almanac` 内的键值
   Object.assign(flatData, lunar, almanac);
-  // 提取 `jishenfangwei` 内的键值
   Object.assign(flatData, almanac?.jishenfangwei);
-  // 过滤空值或无用字段
   delete flatData.jishenfangwei;
   return { errno, errmsg, ...flatData };
 };
 
-/**
- * 📌 处理新数据并保存（保留原始 JSON 结构）
- */
+// **处理并保存数据**
 const saveData = async (data) => {
   await ensureDirectoryExists(DATA_PATH);
   for (const [file, content] of Object.entries(data)) {
@@ -100,14 +132,12 @@ const saveData = async (data) => {
   }
 };
 
-/**
- * 📌 抓取数据
- */
+// **抓取数据**
 const fetchData = async () => {
   await logMessage('🚀 开始数据抓取...');
   await ensureDirectoryExists(DATA_PATH);
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
-  const startDate = moment(START_DATE).tz('Asia/Shanghai');
+  const startDate = moment('2025-02-10').tz('Asia/Shanghai');
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD');
     await logMessage(`📅 处理日期: ${dateStr}`);
@@ -139,43 +169,5 @@ fetchData().catch(async (error) => {
   await logMessage(`🔥 任务失败: ${error.message}`);
   process.exit(1);
 });
-/**
- * 📌 读取并合并多个 JSON 文件的数据
- */
-const loadAllJsonData = async () => {
-  console.log('🚀 开始加载 JSON 数据...');
-  // 确保数据目录存在
-  await ensureDirectoryExists(DATA_PATH);
-  // 定义文件列表
-  const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
-  const allData = {};
-  // 遍历文件，逐个加载并解析
-  for (const file of files) {
-    const filePath = path.join(DATA_PATH, file);
-    // 打印当前处理的文件路径
-    console.log(`🔍 loadAllJsonData 处理文件: ${filePath}`);
-    try {
-      // 读取文件内容
-      const rawData = await fs.readFile(filePath, 'utf8');
-      console.log(`✅ loadAllJsonData 成功读取文件内容: ${filePath}`);
-      // 打印读取到的原始数据（可选，通常用于调试）
-      console.log(`loadAllJsonData 读取的原始数据 (${file}):`);
-      console.log(rawData);
-      // 解析 JSON 数据
-      const parsedData = JSON.parse(rawData);
-      allData[file] = parsedData;
-      // 输出成功加载的文件信息
-      console.log(`✅ loadAllJsonData 成功加载文件: ${file}`);
-      console.log(`loadAllJsonData 加载的 ${file} 数据:`);
-      console.log(JSON.stringify(parsedData, null, 2));  // 格式化输出到控制台
-    } catch (error) {
-      console.error(`❌ loadAllJsonData 读取或解析文件失败: ${filePath}, 错误: ${error.message}`);
-      allData[file] = {};  // 如果读取失败，返回空对象
-    }
-  }
-  // 完成后，输出所有数据的汇总信息
-  console.log('📦 loadAllJsonData 所有 JSON 文件加载完成，合并数据：');
-  console.log(JSON.stringify(allData, null, 2));  // 输出合并后的所有数据
-  return allData;
-};
+
 export { loadAllJsonData };
