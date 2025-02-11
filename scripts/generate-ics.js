@@ -25,15 +25,18 @@ const processors = {
    */
   holidays: (data, allEvents) => {
   logInfo("🛠️ 处理节假日数据...");
+
   // 检查 Reconstruction 是否存在
   if (!data || typeof data !== "object") {
     return logError("❌ holidays 数据格式错误！");
   }
+
   // 获取 Reconstruction 数组
   const reconstructionData = Object.values(data)[0]?.Reconstruction; // 取第一层对象的 Reconstruction
   if (!Array.isArray(reconstructionData)) {
     return logError(`❌ holidays Reconstruction 数据不存在！数据结构: ${JSON.stringify(data, null, 2)}`);
   }
+
   // 遍历 Reconstruction
   reconstructionData.forEach(entry => {
     if (!entry || typeof entry !== "object") return;
@@ -44,17 +47,23 @@ const processors = {
         logError(`❌ 缺少必要字段: ${JSON.stringify(holiday)}`);
         return;
       }
+      // 转换日期格式为 YYYYMMDD
+      const formattedDate = date.replace(/-/g, '');  // 格式化为 YYYYMMDD
+      // 生成描述，去除名称和假期信息
       const descParts = Object.entries(holiday)
         .filter(([k]) => !['name', 'isOffDay'].includes(k))
         .map(([_, v]) => `${v}`)
         .join(" | ");
+      // 根据是否为假期设置标题
+      const title = `${isOffDay ? "[休]" : "[班]"} ${name}`;
+      // 生成并推送 ICS 事件
       allEvents.push(createEvent({
-        date,
-        title: `${isOffDay ? "[休]" : "[班]"} ${name}`,
+        date: formattedDate,
+        title,
         isAllDay: true,
         description: descParts
       }));
-      logInfo(`✅ 添加节假日事件: ${date} - ${name}`);
+      logInfo(`✅ 添加节假日事件: ${formattedDate} - ${name}`);
     });
   });
 },
@@ -78,10 +87,14 @@ const processors = {
         return;
       }
       const [date, startTime] = event.time.split(" ");
+      const formattedDate = date.replace(/-/g, ''); // 转换为 YYYYMMDD 格式
+      // 确保 startTime 为 HHMM 格式
+      let formattedStartTime = startTime ? startTime.replace(":", "") : "";
+      // 创建 ICS 事件
       allEvents.push(createEvent({
-        date,
+        date: formattedDate,
         title: event.name,
-        startTime: startTime || "",  // 确保 `startTime` 存在
+        startTime: formattedStartTime,  // 格式化后的 startTime
         isAllDay: false,
         description: `节气: ${event.name}`
       }));
@@ -94,40 +107,35 @@ const processors = {
    */
   astro: (data, allEvents) => {
   logInfo("🛠️ 处理天文数据...");
-  if (!Array.isArray(data.Reconstruction)) return logError("❌ astro Reconstruction 数据不存在！");
-  
-  data.Reconstruction.forEach(entry => {
-    if (!entry || typeof entry !== "object" || !entry.data?.range) return;
-    const { name, range, ...details } = entry.data;
-
-    // 解析 `range`，获取 `startMonth.startDay - endMonth.endDay`
-    const [start, end] = range.split("-").map(date => date.replace(".", "-"));
-    
-    // 获取当前数据的年份
-    const year = entry.date ? entry.date.split("-")[0] : new Date().getFullYear(); // 动态获取年份
-
-    // 解析完整日期（如 `1-20` → `2025-01-20`）
-    const startDate = new Date(`${year}-${start}`);
-    const endDate = new Date(`${year}-${end}`);
-
-    // 过滤掉 `range`，其余字段全部加入 description
-    const description = Object.entries(details)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join(" | ");
-
-    // 遍历日期范围，确保每天都生成数据
-    let currentDate = new Date(startDate);
-    while (currentDate <= endDate) {
-      const eventDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD 格式
-      allEvents.push(createEvent({
-        date: eventDate,
-        title: name || "天文事件",
-        isAllDay: true,
-        description
-      }));
-      logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
-      currentDate.setDate(currentDate.getDate() + 1); // 日期 +1
+  Object.values(data).forEach(({ Reconstruction }) => {
+    if (!Array.isArray(Reconstruction)) {
+      return logError("❌ astro Reconstruction 数据不存在或格式错误！");
     }
+    Reconstruction.forEach(({ data }) => {
+      if (!data?.range) return;
+      const { name, range, ...details } = data;
+      // 解析 range，例如 "1.20-2.18"
+      const [start, end] = range.split("-").map(d => d.replace(".", "-"));
+      // 获取当前年份
+      const year = new Date().getFullYear();
+      const startDate = new Date(`${year}-${start}`);
+      const endDate = new Date(`${year}-${end}`);
+      // 组装 description（去除 range 以外的其他字段）
+      const description = Object.values(details).join(" | ");
+      // 遍历日期范围，确保每天都生成数据
+      let currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        const eventDate = currentDate.toISOString().split("T")[0].replace(/-/g, ''); // 转换为 YYYYMMDD 格式
+        allEvents.push(createEvent({
+          date: eventDate,
+          title: name || "天文事件",
+          isAllDay: true,
+          description
+        }));
+        logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
+        currentDate.setDate(currentDate.getDate() + 1); // 日期 +1
+      }
+    });
   });
 },
   /**
@@ -152,16 +160,19 @@ const processors = {
                     return;
                 }
                 let [startTime, endTime] = event.hours.split("-");
-                if (startTime.length === 4) startTime = "0" + startTime; // 修正 `1:00` 为 `01:00`
-                if (endTime.length === 4) endTime = "0" + endTime;
+                // 修正为符合 ICS 的时间格式 HHMM
+                if (startTime.length === 4) startTime = startTime; // 格式化小时
+                if (endTime.length === 4) endTime = endTime; // 格式化小时
                 const description = ["yi", "ji", "chong", "sha", "nayin", "jiuxing"]
                     .map(key => event[key] || "") // 只取值
                     .filter(Boolean)
                     .join(" "); // 用空格分隔
                 // 检查 title 是否有效
                 const title = event.hour || ""; // 如果没有 hour，默认用“时辰事件”
+                // 转换日期格式为 YYYYMMDD
+                const eventDate = date.replace(/-/g, ''); // 将日期格式化为 YYYYMMDD
                 allEvents.push(createEvent({
-                    date, // 直接使用 Reconstruction 的 key 作为日期
+                    date: eventDate, // 直接使用 Reconstruction 的 key 作为日期，已格式化为 YYYYMMDD
                     title,
                     startTime,
                     endTime,
@@ -203,8 +214,11 @@ const processors = {
             if (leapYear || leapMonth) {
                 description = `${leapYear} ${leapMonth} | ${description}`.trim(); // ✅ 现在 description 是 let，可以修改
             }
+            // 转换日期格式为 YYYYMMDD
+            const eventDate = date.replace(/-/g, ''); // 将日期格式化为 YYYYMMDD
+            // 生成 ICS 事件
             allEvents.push(createEvent({
-                date,
+                date: eventDate, // 使用格式化后的日期 YYYYMMDD
                 title,
                 description,
                 isAllDay: true
