@@ -182,9 +182,9 @@ const loadAllJsonData = async () => {
     try {
       const content = await fs.readFile(filePath, 'utf8');
       data[key] = JSON.parse(content);
-      console.log(`${key} 数据加载成功`);
+      console.log(`${key} loadAllJsonData 数据加载成功`);
     } catch (error) {
-      console.error(`加载 ${key} 时出错: ${error.message}`);
+      console.error(`加载loadAllJsonData ${key} 时出错: ${error.message}`);
     }
   }
   return data;
