@@ -237,6 +237,9 @@ const processors = {
 //const icsFilePath = path.join(path.dirname(import.meta.url), 'calendar.ics');
 
 // **处理所有数据**
+// 直接使用 loadAllJsonData 来获取数据
+const jsonData = await loadAllJsonData();
+console.log(jsonData);
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
   logInfo("📂 加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
