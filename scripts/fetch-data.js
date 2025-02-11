@@ -42,7 +42,7 @@ export const logError = (message) => writeLog("ERROR", message);
 
 // **JSON 文件路径**
 const DATA_PATH = './data/Document';
-const dataPaths = {
+export const dataPaths = {
   holidays: path.resolve(`${DATA_PATH}/holidays.json`),
   jieqi: path.resolve(`${DATA_PATH}/jieqi.json`),
   astro: path.resolve(`${DATA_PATH}/astro.json`),
