@@ -249,7 +249,7 @@ const processors = {
 //console.log(jsonData);
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
-  logInfo("📂 加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
+  logInfo("📂 藕花加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
   const eventsByDate = {}; // 用于按照日期合并事件数据
   // 打印加载的 jsonData
   //logInfo("📂 加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
