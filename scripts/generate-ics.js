@@ -1,7 +1,4 @@
 // **处理数据**
-//import { dataPaths } from './utils/utils.js';  // 确保路径正确
-//import { readJsonData, dataPaths } from './utils/utils.js';
-//import { loadAllJsonData, logInfo, logError } from './utils/utils.js'; // 确保路径正确
 import { readJsonData, dataPaths, loadAllJsonData, logInfo, logError, createEvent } from './utils/utils.js';
 (async () => {
   try {
@@ -91,73 +88,66 @@ const processors = {
   astro: (data, allEvents) => {
   logInfo("🛠️ 处理天文数据...");
   if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
-
   data.Reconstruction.forEach(entry => {
     if (!entry || typeof entry !== "object" || !entry.data?.range) return;
-
     const { name, range, ...details } = entry.data;
-
     // 解析 range，转换为完整日期（如 1.20 → 2025-01-20）
     const [start, end] = range.split("-").map(date => `2025-${date.replace(".", "-")}`);
     let currentDate = new Date(start);
     const endDate = new Date(end);
-
     // 过滤掉 `range`，其余字段全部加入 description
     const description = Object.entries(details)
       .map(([_, value]) => `${value}`)
       .join(" | ");
-
     // 遍历日期范围
     while (currentDate <= endDate) {
       const eventDate = currentDate.toISOString().split("T")[0]; // 生成 YYYY-MM-DD 格式
-
       allEvents.push(createEvent({
         date: eventDate,
         title: name || "天文事件",
         isAllDay: true,
         description
       }));
-
       logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
       currentDate.setDate(currentDate.getDate() + 1); // 日期加 1
     }
   });
 },
-
   /**
    * **处理时辰数据**
    */
   shichen: (data, allEvents) => {
     logInfo("🛠️ 处理时辰数据...");
-    if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
+    if (!Array.isArray(data.Reconstruction)) {
+        return logError("❌ Reconstruction 数据不存在！");
+    }
     data.Reconstruction.forEach(entry => {
-      if (!entry || typeof entry !== "object") return;
-      Object.entries(entry).forEach(([date, entries]) => {
-        entries.forEach(event => {
-          if (!event.hour || !event.hours) {
-            logError(`❌ 缺少 hour 或 hours: ${JSON.stringify(event)}`);
-            return;
-          }
-          let [startTime, endTime] = event.hours.split("-");
-          if (startTime.length === 4) startTime = "0" + startTime; // 修正 `1:00` 为 `01:00`
-          if (endTime.length === 4) endTime = "0" + endTime;
-          const description = ["yi", "ji", "chong", "sha", "nayin", "jiuxing"]
-            .map(key => event[key] || "") // 只取值
-            .filter(Boolean)
-            .join(" "); // 用空格分隔
-          allEvents.push(createEvent({
-            date,
-            title: event.hour,
-            startTime,
-            endTime,
-            isAllDay: false,
-            description
-          }));
+        if (!entry || typeof entry !== "object" || !entry.data) {
+            return logError("❌ 无效的时辰数据！", entry);
+        }
+        entry.data.forEach(event => {
+            if (!event.hour || !event.hours) {
+                logError(`❌ 缺少 hour 或 hours: ${JSON.stringify(event)}`);
+                return;
+            }
+            let [startTime, endTime] = event.hours.split("-");
+            if (startTime.length === 4) startTime = "0" + startTime; // 修正 `1:00` 为 `01:00`
+            if (endTime.length === 4) endTime = "0" + endTime;
+            const description = ["yi", "ji", "chong", "sha", "nayin", "jiuxing"]
+                .map(key => event[key] || "") // 只取值
+                .filter(Boolean)
+                .join(" "); // 用空格分隔
+            allEvents.push(createEvent({
+                date: event.date, // 确保使用正确的日期字段
+                title: event.hour,
+                startTime,
+                endTime,
+                isAllDay: false,
+                description
+            }));
         });
-      });
     });
   },
-
   /**
    * **处理万年历数据**
    */
@@ -253,12 +243,10 @@ DTSTART:${event.date.replace(/-/g, '')}T${event.startTime ? event.startTime.repl
 DTEND:${event.date.replace(/-/g, '')}T${event.endTime ? event.endTime.replace(/:/g, '') + '00' : '235959'}
 DESCRIPTION:${typeof event.description === 'string' ? event.description : JSON.stringify(event.description)}
 END:VEVENT`).join("\n");
-
   //await fs.promises.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
   const icsFilePath = path.join(__dirname, 'calendar.ics');
   logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
 };
-
 // **执行流程**
 (async () => {
   const allEvents = [];
