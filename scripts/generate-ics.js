@@ -159,16 +159,17 @@ const processors = {
                     logError(`❌ shichen 缺少 hour 或 hours: ${JSON.stringify(event)}`);
                     return;
                 }
-                let [startTime, endTime] = event.hours.split("-");
                 // 修正为符合 ICS 的时间格式 HHMM
-                if (startTime.length === 4) startTime = startTime; // 格式化小时
-                if (endTime.length === 4) endTime = endTime; // 格式化小时
+                let [startTime, endTime] = event.hours.split("-");
+                // 确保时间是4位，使用 padStart 补充前导零（如果小时少于两位）
+                startTime = startTime.padStart(4, "0");
+                endTime = endTime.padStart(4, "0");
                 const description = ["yi", "ji", "chong", "sha", "nayin", "jiuxing"]
                     .map(key => event[key] || "") // 只取值
                     .filter(Boolean)
                     .join(" "); // 用空格分隔
                 // 检查 title 是否有效
-                const title = event.hour || ""; // 如果没有 hour，默认用“时辰事件”
+                const title = event.hour || "时辰事件"; // 如果没有 hour，默认用“时辰事件”
                 // 转换日期格式为 YYYYMMDD
                 const eventDate = date.replace(/-/g, ''); // 将日期格式化为 YYYYMMDD
                 allEvents.push(createEvent({
