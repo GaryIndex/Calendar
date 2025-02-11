@@ -338,17 +338,17 @@ END:VEVENT`;
 // **主流程**
 const main = async () => {
   const allEvents = [];
-  logInfo("📥 正在加载所有 JSON 数据...");
+  logInfo("📥 main 正在加载所有 JSON 数据...");
   const jsonData = await loadAllJsonData();
   logInfo("加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
   if (!jsonData || Object.keys(jsonData).length === 0) {
-    logInfo("❌ 没有可用的 JSON 数据！");
+    logInfo("❌ main 没有可用的 JSON 数据！");
     return;
   }
-  logInfo("✅ JSON 数据加载成功！");
-  logInfo("📌 开始处理所有数据...");
+  logInfo("✅ main JSON 数据加载成功！");
+  logInfo("📌 main 开始处理所有数据...");
   processAllData(jsonData, allEvents);
-  logInfo("🎉 所有数据处理完成！");
+  logInfo("🎉 main 所有数据处理完成！");
   await generateICS(allEvents);
 };
 // 执行流程
@@ -356,6 +356,6 @@ const main = async () => {
   try {
     await main();  // 执行主流程
   } catch (err) {
-    logInfo(`❌ 程序运行失败: ${err.message}`);
+    logInfo(`❌ main 程序运行失败: ${err.message}`);
   }
 })();
