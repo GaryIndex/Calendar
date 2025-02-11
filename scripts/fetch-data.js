@@ -4,7 +4,10 @@ import fs from "fs/promises";
 import axios from "axios";
 import moment from "moment-timezone";
 import deepmerge from "deepmerge";
-
+//import { readJsonData, dataPaths, loadAllJsonData, logInfo, logError, createEvent } from './utils/utils.js';
+// 在 ESM 环境中定义 __dirname
+import { loadAllJsonData, logInfo, createEvent } from './utils/utils.js';
+// 在 ESM 环境中定义 __dirname
 // **计算 __dirname**
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,7 +34,7 @@ const writeLog = async (type, message) => {
 };
 
 export const logInfo = (message) => writeLog("INFO", message);
-export const logError = (message) => writeLog("ERROR", message);
+//export const logError = (message) => writeLog("ERROR", message);
 
 // **JSON 文件路径**
 const DATA_PATH = './data/Document';
@@ -42,7 +45,7 @@ const dataPaths = {
   calendar: path.resolve(`${DATA_PATH}/calendar.json`),
   shichen: path.resolve(`${DATA_PATH}/shichen.json`),
 };
-
+/*
 // **读取 JSON 文件**
 const readJsonData = async (filePath) => {
   try {
@@ -59,7 +62,6 @@ const readJsonData = async (filePath) => {
     return {};
   }
 };
-
 // **批量加载所有 JSON**
 const loadAllJsonData = async () => {
   const entries = await Promise.all(
@@ -67,7 +69,7 @@ const loadAllJsonData = async () => {
   );
   return Object.fromEntries(entries);
 };
-
+*/
 // **确保目录存在**
 const ensureDirectoryExists = async (path) => {
   try {
