@@ -33,49 +33,6 @@ const logMessage = async (message) => {
     console.error(`[日志写入失败] ${error.message}`);
   }
 };
-/**
- * 📌 读取并合并多个 JSON 文件的数据
- */
-const loadAllJsonData = async () => {
-  await ensureDirectoryExists(DATA_PATH);
-  const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
-  const allData = {};
-  for (const file of files) {
-    const filePath = path.join(DATA_PATH, file);
-    try {
-      const rawData = await fs.readFile(filePath, 'utf8');
-      const parsedData = JSON.parse(rawData);
-      allData[file] = parsedData;
-      console.log(`✅ 成功加载文件: ${file}`);
-    } catch (error) {
-      console.error(`❌ 读取文件失败: ${file}, 错误: ${error.message}`);
-      allData[file] = {}; // 如果读取失败，返回空对象
-    }
-  }
-  return allData;
-};
-export { loadAllJsonData };
-
-/**
- * 📌 处理新数据并保存（保留原始 JSON 结构）
- */
-const saveData = async (data) => {
-  await ensureDirectoryExists(DATA_PATH);
-  for (const [file, content] of Object.entries(data)) {
-    const filePath = `${DATA_PATH}/${file}`;
-    let existingContent = {};
-    try {
-      existingContent = JSON.parse(await fs.readFile(filePath, 'utf8'));
-    } catch {}
-    const mergedData = deepmerge(existingContent, content);
-    try {
-      await fs.writeFile(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
-      await logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData).length} 条记录`);
-    } catch (error) {
-      await logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
-    }
-  }
-};
 
 /**
  * 📌 发送 API 请求（带重试机制）
@@ -94,7 +51,7 @@ const fetchDataFromApi = async (url, params = {}, retries = MAX_RETRIES) => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       return fetchDataFromApi(url, params, retries - 1);
     }
-    return {};
+    return {};  // 失败时返回空对象，避免影响后续流程
   }
 };
 
@@ -123,20 +80,36 @@ const flattenCalendarData = (data) => {
 };
 
 /**
+ * 📌 处理新数据并保存（保留原始 JSON 结构）
+ */
+const saveData = async (data) => {
+  await ensureDirectoryExists(DATA_PATH);
+  for (const [file, content] of Object.entries(data)) {
+    const filePath = `${DATA_PATH}/${file}`;
+    let existingContent = {};
+    try {
+      existingContent = JSON.parse(await fs.readFile(filePath, 'utf8'));
+    } catch {}
+    const mergedData = deepmerge(existingContent, content);
+    try {
+      await fs.writeFile(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
+      await logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData).length} 条记录`);
+    } catch (error) {
+      await logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
+    }
+  }
+};
+
+/**
  * 📌 抓取数据
  */
 const fetchData = async () => {
   await logMessage('🚀 开始数据抓取...');
   await ensureDirectoryExists(DATA_PATH);
-  const existingData = await loadExistingData();
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
   const startDate = moment(START_DATE).tz('Asia/Shanghai');
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD');
-    if (existingData['calendar.json'][dateStr]) {
-      await logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
-      continue;
-    }
     await logMessage(`📅 处理日期: ${dateStr}`);
     try {
       const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
@@ -166,3 +139,25 @@ fetchData().catch(async (error) => {
   await logMessage(`🔥 任务失败: ${error.message}`);
   process.exit(1);
 });
+/**
+ * 📌 读取并合并多个 JSON 文件的数据
+ */
+const loadAllJsonData = async () => {
+  await ensureDirectoryExists(DATA_PATH);
+  const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
+  const allData = {};
+  for (const file of files) {
+    const filePath = path.join(DATA_PATH, file);
+    try {
+      const rawData = await fs.readFile(filePath, 'utf8');
+      const parsedData = JSON.parse(rawData);
+      allData[file] = parsedData;
+      console.log(`✅ 成功加载文件: ${file}`);
+    } catch (error) {
+      console.error(`❌ 读取文件失败: ${file}, 错误: ${error.message}`);
+      allData[file] = {}; // 如果读取失败，返回空对象
+    }
+  }
+  return allData;
+};
+export { loadAllJsonData };
