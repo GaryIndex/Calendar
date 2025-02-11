@@ -229,10 +229,6 @@ const processors = {
  * **处理所有数据**
  */
 // 日志函数
-import { readJsonData, dataPaths, loadAllJsonData, logInfo, logError, createEvent } from './utils/utils.js';
-import path from 'path';
-import fs from 'fs';
-
 // 数据源优先级设置
 const sourcePriority = {
   "calendar.json": 1,  // 低优先级
