@@ -5,10 +5,15 @@ import moment from "moment-timezone";
 import deepmerge from "deepmerge";
 import chalk from 'chalk';
 
+import path from 'path';
+
+// 获取当前模块的目录路径
+const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
 // 数据存储路径
 const DATA_PATH = path.resolve(__dirname, './data/Document');  // 使用绝对路径
-const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
-// fetch-data.js
+const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');  // 增量文件路径
+console.log(DATA_PATH);  // 输出存储路径，调试用
+console.log(INCREMENT_FILE);  // 输出增量文件路径，调试用
 export const logInfo = (message) => {
   console.log(message);  // 或者任何你想要的日志输出方式
 };
