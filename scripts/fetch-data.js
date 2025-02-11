@@ -52,9 +52,7 @@ const readIncrementData = async () => {
 };
 
 // 直接使用 new URL 和 path.dirname 获取当前目录路径
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
-// 确保日志目录路径
 const logDir = path.join(process.cwd(), "data");
 const logFilePath = path.join(logDir, "error.log");
 
