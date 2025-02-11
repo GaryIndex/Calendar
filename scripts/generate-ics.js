@@ -161,7 +161,7 @@ const processors = {
         obj.Reconstruction.forEach(event => {
             if (!event || typeof event !== "object") return;
             // 过滤掉不需要的字段
-            const description = Object.entries(event)
+            let description = Object.entries(event) // ✅ 改为 let，允许修改
                 .filter(([key]) => !["errno", "errmsg", "weekInYear", "day", "dayInYear", "julianDay", "minute", "second", "year", "month", "maxDayInMonth", "enMonth", "enWeek"].includes(key))
                 .map(([key, value]) => {
                     if (key === "pengzubaiji" && Array.isArray(value)) {
@@ -177,7 +177,7 @@ const processors = {
             let leapYear = event.leapYear === true ? "闰年" : "";
             let leapMonth = event.leapMonth ? `闰${event.leapMonth}月` : "";
             if (leapYear || leapMonth) {
-                description = `${leapYear} ${leapMonth} | ${description}`.trim();
+                description = `${leapYear} ${leapMonth} | ${description}`.trim(); // ✅ 现在 description 是 let，可以修改
             }
             allEvents.push(createEvent({
                 date,
