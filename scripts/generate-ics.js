@@ -28,124 +28,130 @@ const icsFilePath = path.join(__dirname, 'calendar.ics');
   }
 })();
 */
-
  // **数据处理器**
 const processors = {
   /**
    * **处理节假日数据**
    */
   holidays: (data, allEvents) => {
-  logInfo("🛠️ 处理节假日数据...");
-  // 检查 Reconstruction 是否存在
-  if (!data || typeof data !== "object") {
-    return logInfo("❌ holidays 数据格式错误！");
-  }
-  // 获取 Reconstruction 数组
-  const reconstructionData = Object.values(data)[0]?.Reconstruction; // 取第一层对象的 Reconstruction
-  if (!Array.isArray(reconstructionData)) {
-    return logInfo(`❌ holidays Reconstruction 数据不存在！数据结构: ${JSON.stringify(data, null, 2)}`);
-  }
-  // 遍历 Reconstruction
-  reconstructionData.forEach(entry => {
-    if (!entry || typeof entry !== "object") return;
-    Object.entries(entry).forEach(([date, holiday]) => {
-      if (!holiday || typeof holiday !== "object") return;
-      const { name, isOffDay } = holiday;
-      if (!date || !name || isOffDay === undefined) {
-        logInfo(`❌ 缺少必要字段: ${JSON.stringify(holiday)}`);
-        return;
-      }
-      // 转换日期格式为 YYYYMMDD
-      const formattedDate = date.replace(/-/g, '');  // 格式化为 YYYYMMDD
-      // 生成描述，去除名称和假期信息
-      const descParts = Object.entries(holiday)
-        .filter(([k]) => !['name', 'isOffDay'].includes(k))
-        .map(([_, v]) => `${v}`)
-        .join(" | ");
-      // 根据是否为假期设置标题
-      const title = `${isOffDay ? "[休]" : "[班]"} ${name}`;
-      // 生成并推送 ICS 事件
-      allEvents.push(createEvent({
-        date: formattedDate,
-        title,
-        isAllDay: true,
-        description: descParts
-      }));
-      logInfo(`✅ 添加节假日事件: ${formattedDate} - ${name}`);
+    logInfo("🛠️ 处理节假日数据...");
+    // 检查 Reconstruction 是否存在
+    if (!data || typeof data !== "object") {
+      return logInfo("❌ holidays 数据格式错误！");
+    }
+    // 获取 Reconstruction 数组
+    const reconstructionData = Object.values(data)[0]?.Reconstruction; // 取第一层对象的 Reconstruction
+    if (!Array.isArray(reconstructionData)) {
+      return logInfo(`❌ holidays Reconstruction 数据不存在！数据结构: ${JSON.stringify(data, null, 2)}`);
+    }
+    // 遍历 Reconstruction
+    reconstructionData.forEach(entry => {
+      if (!entry || typeof entry !== "object") return;
+      Object.entries(entry).forEach(([date, holiday]) => {
+        if (!holiday || typeof holiday !== "object") return;
+        const { name, isOffDay } = holiday;
+        if (!date || !name || isOffDay === undefined) {
+          logInfo(`❌ 缺少必要字段: ${JSON.stringify(holiday)}`);
+          return;
+        }
+        // 转换日期格式为 YYYYMMDD
+        const formattedDate = date.replace(/-/g, '');  // 格式化为 YYYYMMDD
+        // 生成描述，去除名称和假期信息
+        const descParts = Object.entries(holiday)
+          .filter(([k]) => !['name', 'isOffDay'].includes(k))
+          .map(([_, v]) => `${v}`)
+          .join(" | ");
+        // 根据是否为假期设置标题
+        const title = `${isOffDay ? "[休]" : "[班]"} ${name}`;
+        // 生成并推送 ICS 事件
+        allEvents.push(createEvent({
+          date: formattedDate,
+          title,
+          isAllDay: true,
+          description: descParts
+        }));
+        logInfo(`✅ 添加节假日事件: ${formattedDate} - ${name}`);
+      });
     });
-  });
-},
+    // 打印 allEvents
+    console.log("Jiejiari allEvents：", allEvents);
+  },
   /**
    * **处理节气数据**
    */
   jieqi: (data, allEvents) => {
-  logInfo("🛠️ 处理节气数据...");
-  // 确保 Reconstruction 存在并且是数组
-  if (!Array.isArray(data.Reconstruction) || data.Reconstruction.length === 0) {
-    return logInfo("❌ jieqi Reconstruction 数据不存在！");
-  }
-  // 遍历 Reconstruction 数组（过滤掉 errno 和 errmsg）
-  data.Reconstruction.forEach(entry => {
-    if (!entry || typeof entry !== "object" || !Array.isArray(entry.data)) {
-      return logInfo(`❌ jieqi Reconstruction 数据格式错误: ${JSON.stringify(entry)}`);
+    logInfo("🛠️ 处理节气数据...");
+    // 确保 Reconstruction 存在并且是数组
+    if (!Array.isArray(data.Reconstruction) || data.Reconstruction.length === 0) {
+      return logInfo("❌ jieqi Reconstruction 数据不存在！");
     }
-    entry.data.forEach(event => {
-      if (!event.name || !event.time) {
-        logInfo(`❌ jieqi 缺少 name 或 time: ${JSON.stringify(event)}`);
-        return;
+    // 遍历 Reconstruction 数组（过滤掉 errno 和 errmsg）
+    data.Reconstruction.forEach(entry => {
+      if (!entry || typeof entry !== "object" || !Array.isArray(entry.data)) {
+        return logInfo(`❌ jieqi Reconstruction 数据格式错误: ${JSON.stringify(entry)}`);
       }
-      const [date, startTime] = event.time.split(" ");
-      const formattedDate = date.replace(/-/g, ''); // 转换为 YYYYMMDD 格式
-      // 确保 startTime 为 HHMM 格式
-      let formattedStartTime = startTime ? startTime.replace(":", "") : "";
-      // 创建 ICS 事件
-      allEvents.push(createEvent({
-        date: formattedDate,
-        title: event.name,
-        startTime: formattedStartTime,  // 格式化后的 startTime
-        isAllDay: false,
-        description: `节气: ${event.name}`
-      }));
-      logInfo(`✅ 添加节气事件: ${event.time} - ${event.name}`);
+      entry.data.forEach(event => {
+        if (!event.name || !event.time) {
+          logInfo(`❌ jieqi 缺少 name 或 time: ${JSON.stringify(event)}`);
+          return;
+        }
+        const [date, startTime] = event.time.split(" ");
+        const formattedDate = date.replace(/-/g, ''); // 转换为 YYYYMMDD 格式
+        // 确保 startTime 为 HHMM 格式
+        let formattedStartTime = startTime ? startTime.replace(":", "") : "";
+        // 创建 ICS 事件
+        allEvents.push(createEvent({
+          date: formattedDate,
+          title: event.name,
+          startTime: formattedStartTime,  // 格式化后的 startTime
+          isAllDay: false,
+          description: `节气: ${event.name}`
+        }));
+        logInfo(`✅ 添加节气事件: ${event.time} - ${event.name}`);
+      });
     });
-  });
-},
+    // 打印 allEvents
+    console.log("Jieqi allEvents：", allEvents);
+  },
   /**
    * **处理天文数据**
    */
   astro: (data, allEvents) => {
-  logInfo("🛠️ 处理天文数据...");
-  Object.values(data).forEach(({ Reconstruction }) => {
-    if (!Array.isArray(Reconstruction)) {
-      return logInfo("❌ astro Reconstruction 数据不存在或格式错误！");
-    }
-    Reconstruction.forEach(({ data }) => {
-      if (!data?.range) return;
-      const { name, range, ...details } = data;
-      // 解析 range，例如 "1.20-2.18"
-      const [start, end] = range.split("-").map(d => d.replace(".", "-"));
-      // 获取当前年份
-      const year = new Date().getFullYear();
-      const startDate = new Date(`${year}-${start}`);
-      const endDate = new Date(`${year}-${end}`);
-      // 组装 description（去除 range 以外的其他字段）
-      const description = Object.values(details).join(" | ");
-      // 遍历日期范围，确保每天都生成数据
-      let currentDate = new Date(startDate);
-      while (currentDate <= endDate) {
-        const eventDate = currentDate.toISOString().split("T")[0].replace(/-/g, ''); // 转换为 YYYYMMDD 格式
-        allEvents.push(createEvent({
-          date: eventDate,
-          title: name || "天文事件",
-          isAllDay: true,
-          description
-        }));
-        logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
-        currentDate.setDate(currentDate.getDate() + 1); // 日期 +1
+    logInfo("🛠️ 处理天文数据...");
+    Object.values(data).forEach(({ Reconstruction }) => {
+      if (!Array.isArray(Reconstruction)) {
+        return logInfo("❌ astro Reconstruction 数据不存在或格式错误！");
       }
+      Reconstruction.forEach(({ data }) => {
+        if (!data?.range) return;
+        const { name, range, ...details } = data;
+        // 解析 range，例如 "1.20-2.18"
+        const [start, end] = range.split("-").map(d => d.replace(".", "-"));
+        // 获取当前年份
+        const year = new Date().getFullYear();
+        const startDate = new Date(`${year}-${start}`);
+        const endDate = new Date(`${year}-${end}`);
+        // 组装 description（去除 range 以外的其他字段）
+        const description = Object.values(details).join(" | ");
+        // 遍历日期范围，确保每天都生成数据
+        let currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+          const eventDate = currentDate.toISOString().split("T")[0].replace(/-/g, ''); // 转换为 YYYYMMDD 格式
+          allEvents.push(createEvent({
+            date: eventDate,
+            title: name || "天文事件",
+            isAllDay: true,
+            description
+          }));
+          logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
+          currentDate.setDate(currentDate.getDate() + 1); // 日期 +1
+        }
+      });
     });
-  });
-},
+    // 打印 allEvents
+    console.log("Astro allEvents：", allEvents);
+  },
+
   /**
    * **处理时辰数据**
    */
@@ -157,7 +163,6 @@ const processors = {
         if (!value.Reconstruction || !Array.isArray(value.Reconstruction)) {
             return logInfo(`❌ ${date} 的 Reconstruction 数据格式错误，应该是数组！`);
         }
-        
         value.Reconstruction.forEach(entry => {
             if (!entry || typeof entry !== "object" || !entry.data) {
                 return logInfo(`❌ ${date} 无效的时辰数据！`, entry);
@@ -191,7 +196,9 @@ const processors = {
             });
         });
     });
-},
+    // 打印 allEvents
+    console.log("Shichen allEvents：", allEvents);
+  },
   /**
    * **处理万年历数据**
    */
@@ -234,8 +241,12 @@ const processors = {
             }));
         });
     });
+    // 打印 allEvents
+    console.log("calendar allEvents：", allEvents);
   }
 };
+
+
 /**
  * **处理所有数据**
  */
@@ -246,6 +257,7 @@ const processors = {
 // 直接使用 loadAllJsonData 来获取数据
 //const jsonData = await loadAllJsonData();
 //console.log(jsonData);
+/*
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
   logInfo("📂 藕花加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
@@ -318,6 +330,7 @@ const processAllData = (jsonData, allEvents) => {
   });
   logInfo(`✅ 处理完成，共生成 ${allEvents.length} 个事件`);
 };
+*/
 // **生成 ICS 文件**
 const generateICS = async (events) => {
   logInfo(`📝 正在生成 ICS 文件...`);
@@ -340,7 +353,7 @@ END:VEVENT`;
   await fs.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
   logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
 };
-
+/*
 (async () => {
   try {
     logInfo("📥 正在加载所有 JSON 数据...");
@@ -355,7 +368,7 @@ END:VEVENT`;
     }
     logInfo("✅ JSON 数据加载成功！");
     // 打印 jsonData 到工作流或日志
-    console.log("Loaded JSON Data: ", JSON.stringify(jsonData, null, 2)); 
+    //console.log("Loaded JSON Data: ", JSON.stringify(jsonData, null, 2)); 
     // 直接打印到控制台，或者可以换成工作流日志
     // 直接转交给 processAllData，不做任何处理
     processAllData(jsonData);
@@ -364,3 +377,4 @@ END:VEVENT`;
     logInfo(`❌ 程序运行失败: ${err.message}`);
   }
 })();
+*/
