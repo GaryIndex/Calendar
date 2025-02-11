@@ -4,7 +4,17 @@ import { fileURLToPath } from "url";
 import chalk from "chalk";
 import fs from "fs/promises"; // 读取/写入文件
 //import { loadAllJsonData, logInfo, createEvent, } from './fetch-data.js';
-import { loadAllJsonData, logInfo, createEvent, dataPaths } from './fetch-data.js';
+import { loadAllJsonData, logInfo, createEvent, } from './fetch-data.js';
+// 获取当前文件的目录路径
+const DATA_PATH = path.join(__dirname, './data/Document');
+// 使用 path.resolve 确保每个文件的路径都是绝对路径
+const dataPaths = {
+  holidays: path.resolve(DATA_PATH, 'holidays.json'),
+  jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
+  astro: path.resolve(DATA_PATH, 'astro.json'),
+  calendar: path.resolve(DATA_PATH, 'calendar.json'),
+  shichen: path.resolve(DATA_PATH, 'shichen.json'),
+};
 // 在 ESM 环境中定义 __dirname
 //const icsFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'calendar.ics');
 /*
@@ -240,6 +250,13 @@ const processors = {
     console.log("calendar allEvents：", allEvents);
   }
 };
+
+const holidaysData = JSON.parse(fs.readFileSync(dataPaths.holidays, 'utf8'));
+const jieqiData = JSON.parse(fs.readFileSync(dataPaths.jieqi, 'utf8'));
+const astroData = JSON.parse(fs.readFileSync(dataPaths.astro, 'utf8'));
+const calendarData = JSON.parse(fs.readFileSync(dataPaths.calendar, 'utf8'));
+const shichenData = JSON.parse(fs.readFileSync(dataPaths.shichen, 'utf8'));
+// 初始化 allEvents 数组
 const allEvents = [];
 // 处理各类数据
 processors.holidays(holidaysData, allEvents);
@@ -248,8 +265,7 @@ processors.astro(astroData, allEvents);
 processors.shichen(shichenData, allEvents);
 processors.calendar(calendarData, allEvents);
 // 打印合并后的 allEvents
-console.log("合并后的allEvents：", allEvents);
-
+console.log("合并后的 allEvents：", allEvents);
 /**
  * **处理所有数据**
  */
