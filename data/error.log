@@ -2317,3 +2317,18 @@
 
 [2025-02-11T13:19:08.596Z] [INFO] 📌 开始处理所有数据...
 [2025-02-11T13:19:08.598Z] [INFO] ✅ ICS 文件生成成功: /home/runner/work/Calendar/Calendar/scripts/calendar.ics
+[2025-02-11T13:27:00.190Z] [INFO] 📥 正在加载所有 JSON 数据...
+[2025-02-11T13:27:00.191Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/holidays.json
+[2025-02-11T13:27:00.191Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/jieqi.json
+[2025-02-11T13:27:00.191Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/astro.json
+[2025-02-11T13:27:00.191Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/calendar.json
+[2025-02-11T13:27:00.191Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/shichen.json
+[2025-02-11T13:27:00.196Z] [INFO] ✅ JSON 数据加载成功！
+[2025-02-11T13:27:00.196Z] [INFO] 📌 开始处理所有数据...
+[2025-02-11T13:27:00.196Z] [INFO] 📌 正在处理所有数据...
+[2025-02-11T13:27:00.196Z] [INFO] ✅ 处理完成，共生成 0 个事件
+[2025-02-11T13:27:00.196Z] [INFO] 🎉 所有数据处理完成！
+[2025-02-11T13:27:00.196Z] [INFO] 📝 正在生成 ICS 文件...
+[2025-02-11T13:27:00.196Z] [INFO] 生成的 ICS 数据: 
+
+[2025-02-11T13:27:00.197Z] [INFO] ✅ ICS 文件生成成功: /home/runner/work/Calendar/Calendar/scripts/calendar.ics
