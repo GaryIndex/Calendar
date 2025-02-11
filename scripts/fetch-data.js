@@ -33,6 +33,9 @@ const writeLog = async (type, message) => {
   console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
 };
 
+export const logMessage = async (message) => {
+  await writeLog(message);
+};
 export const logInfo = (message) => writeLog("INFO", message);
 export const logError = (message) => writeLog("ERROR", message);
 
