@@ -34,7 +34,7 @@ const writeLog = async (type, message) => {
 };
 
 export const logInfo = (message) => writeLog("INFO", message);
-//export const logError = (message) => writeLog("ERROR", message);
+export const logError = (message) => writeLog("ERROR", message);
 
 // **JSON 文件路径**
 const DATA_PATH = './data/Document';
