@@ -387,3 +387,102 @@
 [2025-02-11T16:48:43.102Z] [✅ holidays.json 保存成功: 3 条记录] undefined
 [2025-02-11T16:48:43.102Z] [✅ 2025-02-12 数据保存成功] undefined
 [2025-02-11T16:48:43.102Z] [🎉 所有数据抓取完成！] undefined
+[2025-02-11T16:54:03.846Z] [🚀 开始数据抓取...] undefined
+[2025-02-11T16:54:03.852Z] [📅 处理日期: 2025-02-10] undefined
+[2025-02-11T16:54:04.813Z] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-11T16:54:04.876Z] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-11T16:54:05.179Z] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-11T16:54:05.180Z] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-11T16:54:05.591Z] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-11T16:54:05.594Z] [✅ calendar.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:05.596Z] [✅ astro.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:05.601Z] [✅ shichen.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:05.606Z] [✅ jieqi.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:05.612Z] [✅ holidays.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:05.612Z] [✅ 2025-02-10 数据保存成功] undefined
+[2025-02-11T16:54:05.613Z] [📅 处理日期: 2025-02-11] undefined
+[2025-02-11T16:54:05.765Z] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-11T16:54:05.846Z] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-11T16:54:05.848Z] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-11T16:54:05.851Z] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-11T16:54:06.490Z] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-11T16:54:06.492Z] [✅ calendar.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:06.495Z] [✅ astro.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:06.497Z] [✅ shichen.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:06.500Z] [✅ jieqi.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:06.503Z] [✅ holidays.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:06.504Z] [✅ 2025-02-11 数据保存成功] undefined
+[2025-02-11T16:54:06.504Z] [📅 处理日期: 2025-02-12] undefined
+[2025-02-11T16:54:06.640Z] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-11T16:54:06.735Z] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-11T16:54:06.738Z] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-11T16:54:06.740Z] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-11T16:54:07.384Z] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-11T16:54:07.385Z] [✅ calendar.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:07.387Z] [✅ astro.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:07.389Z] [✅ shichen.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:07.393Z] [✅ jieqi.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:07.396Z] [✅ holidays.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:07.396Z] [✅ 2025-02-12 数据保存成功] undefined
+[2025-02-11T16:54:07.397Z] [🎉 所有数据抓取完成！] undefined
+[2025-02-11T16:54:07.487Z] [🚀 开始数据抓取...] undefined
+[2025-02-11T16:54:07.487Z] [INFO] 📥 正在加载所有 JSON 数据...
+[2025-02-11T16:54:07.494Z] [📅 处理日期: 2025-02-10] undefined
+[2025-02-11T16:54:07.538Z] [INFO] 加载的 JSON 数据:
+[2025-02-11T16:54:07.538Z] [INFO] 📌 开始处理所有数据...
+[2025-02-11T16:54:07.538Z] [INFO] ✅ JSON 数据加载成功！
+[2025-02-11T16:54:07.538Z] [INFO] 📌 正在处理所有数据...
+[2025-02-11T16:54:07.538Z] [INFO] 🔍 正在处理数据源: holidays
+[2025-02-11T16:54:07.539Z] [INFO] 📂 加载的 JSON 数据:
+[2025-02-11T16:54:07.539Z] [INFO] ❌ 数据源 "holidays" 不包含 Reconstruction 数据
+[2025-02-11T16:54:07.539Z] [INFO] 🔍 正在处理数据源: jieqi
+[2025-02-11T16:54:07.539Z] [INFO] ❌ 数据源 "jieqi" 不包含 Reconstruction 数据
+[2025-02-11T16:54:07.539Z] [INFO] 🔍 正在处理数据源: astro
+[2025-02-11T16:54:07.539Z] [INFO] 🔍 正在处理数据源: calendar
+[2025-02-11T16:54:07.539Z] [INFO] ❌ 数据源 "calendar" 不包含 Reconstruction 数据
+[2025-02-11T16:54:07.539Z] [INFO] ❌ 数据源 "astro" 不包含 Reconstruction 数据
+[2025-02-11T16:54:07.539Z] [INFO] 🔍 正在处理数据源: shichen
+[2025-02-11T16:54:07.539Z] [INFO] ❌ 数据源 "shichen" 不包含 Reconstruction 数据
+[2025-02-11T16:54:07.539Z] [INFO] 📊 正在按优先级排序事件...
+[2025-02-11T16:54:07.539Z] [INFO] 🎉 所有数据处理完成！
+[2025-02-11T16:54:07.539Z] [INFO] ✅ 处理完成，共生成 0 个事件
+[2025-02-11T16:54:07.539Z] [INFO] 📝 正在生成 ICS 文件...
+[2025-02-11T16:54:07.539Z] [INFO] 生成的 ICS 数据: 
+
+[2025-02-11T16:54:07.542Z] [INFO] ✅ ICS 文件生成成功: /home/runner/work/Calendar/Calendar/scripts/calendar.ics
+[2025-02-11T16:54:08.411Z] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-11T16:54:08.470Z] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-11T16:54:08.476Z] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-11T16:54:08.816Z] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-11T16:54:09.491Z] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-11T16:54:09.495Z] [✅ calendar.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.497Z] [✅ astro.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.502Z] [✅ shichen.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.507Z] [✅ jieqi.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.514Z] [✅ holidays.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.514Z] [✅ 2025-02-10 数据保存成功] undefined
+[2025-02-11T16:54:09.515Z] [📅 处理日期: 2025-02-11] undefined
+[2025-02-11T16:54:09.651Z] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-11T16:54:09.752Z] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-11T16:54:09.752Z] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-11T16:54:09.753Z] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-11T16:54:09.757Z] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-11T16:54:09.759Z] [✅ calendar.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.761Z] [✅ astro.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.764Z] [✅ shichen.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.766Z] [✅ jieqi.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.770Z] [✅ holidays.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:09.771Z] [✅ 2025-02-11 数据保存成功] undefined
+[2025-02-11T16:54:09.771Z] [📅 处理日期: 2025-02-12] undefined
+[2025-02-11T16:54:09.905Z] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-11T16:54:09.998Z] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-11T16:54:10.000Z] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-11T16:54:10.002Z] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-11T16:54:10.642Z] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-11T16:54:10.644Z] [✅ calendar.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:10.645Z] [✅ astro.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:10.649Z] [✅ shichen.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:10.652Z] [✅ jieqi.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:10.655Z] [✅ holidays.json 保存成功: 3 条记录] undefined
+[2025-02-11T16:54:10.655Z] [✅ 2025-02-12 数据保存成功] undefined
+[2025-02-11T16:54:10.656Z] [🎉 所有数据抓取完成！] undefined
