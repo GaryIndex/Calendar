@@ -3,6 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import { loadAllJsonData, logInfo, createEvent } from './fetch-data.js'; // 确保引入了必要的工具
+// 确保 icsFilePath 已经定义，指定输出文件路径
+const icsFilePath = './calendar.ics';
 // 使用 import.meta.url 获取当前模块的路径并转换为 __dirname
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
