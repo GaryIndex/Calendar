@@ -25,18 +25,15 @@ const processors = {
    */
   holidays: (data, allEvents) => {
   logInfo("🛠️ 处理节假日数据...");
-
   // 检查 Reconstruction 是否存在
   if (!data || typeof data !== "object") {
     return logError("❌ holidays 数据格式错误！");
   }
-
   // 获取 Reconstruction 数组
   const reconstructionData = Object.values(data)[0]?.Reconstruction; // 取第一层对象的 Reconstruction
   if (!Array.isArray(reconstructionData)) {
     return logError(`❌ holidays Reconstruction 数据不存在！数据结构: ${JSON.stringify(data, null, 2)}`);
   }
-
   // 遍历 Reconstruction
   reconstructionData.forEach(entry => {
     if (!entry || typeof entry !== "object") return;
