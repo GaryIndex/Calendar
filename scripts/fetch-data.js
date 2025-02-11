@@ -171,3 +171,37 @@ fetchData().catch(async (error) => {
 });
 
 export { loadAllJsonData };
+// **创建标准化事件对象**
+export function createEvent({
+  date,
+  title,
+  location = "",
+  isAllDay = false,
+  startTime = "",
+  endTime = "",
+  travelTime = "",
+  repeat = "",
+  alarm = "",
+  attachment = "",
+  url = "",
+  badge = "",
+  description = "",
+  priority = 0,
+}) {
+  return {
+    date,
+    title,
+    location,
+    isAllDay,
+    startTime,
+    endTime,
+    travelTime,
+    repeat,
+    alarm,
+    attachment,
+    url,
+    badge,
+    description,
+    priority,
+  };
+}
