@@ -240,16 +240,21 @@ const processors = {
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
   const eventsByDate = {}; // 用于按照日期合并事件数据
+  // 打印加载的 jsonData
+  logInfo("📂 加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
   // **先处理 Reconstruction**
   Object.entries(jsonData).forEach(([source, data]) => {
+    logInfo(`🔍 正在处理数据源: ${source}`);
     if (data.Reconstruction) {
-      logInfo(`📅 正在处理数据源: ${source}`);
+      logInfo(`🔸 数据源 "${source}" 包含 Reconstruction 数据...`);
       Object.entries(data.Reconstruction).forEach(([date, entries]) => {
-        logInfo(`🎯 正在处理日期: ${date}`);
+        logInfo(`🎯 正在处理日期: ${date}, 条目数: ${entries.length}`);
         entries.forEach(entry => {
+          logInfo(`🔹 处理条目: ${JSON.stringify(entry, null, 2)}`);
           // 如果没有该日期的事件，初始化
           if (!eventsByDate[date]) {
             eventsByDate[date] = [];
+            logInfo(`✅ 初始化事件列表: ${date}`);
           }
           // 处理合并的 title 和 description
           const existingEvent = eventsByDate[date].find(event => event.source === source);
@@ -257,6 +262,7 @@ const processAllData = (jsonData, allEvents) => {
           const description = entry.description || "无描述";
           const isAllDay = entry.isAllDay !== undefined ? entry.isAllDay : true;
           const attachment = entry.attachment || "";
+          logInfo(`🔸 当前处理的事件数据: 标题 - ${title}, 描述 - ${description}`);
           // 合并：优先级高的数据展示在前面，且合并标题和描述
           let event;
           if (!existingEvent) {
@@ -284,12 +290,16 @@ const processAllData = (jsonData, allEvents) => {
           }
         });
       });
+    } else {
+      logInfo(`❌ 数据源 "${source}" 不包含 Reconstruction 数据`);
     }
   });
   // **按优先级排序所有事件**
+  logInfo("📊 正在按优先级排序事件...");
   Object.entries(eventsByDate).forEach(([date, events]) => {
-    // 按照源的优先级对事件进行排序
+    logInfo(`🎯 正在排序日期: ${date}, 事件数: ${events.length}`);
     events.sort((a, b) => sourcePriority[b.source] - sourcePriority[a.source]);
+    logInfo(`📅 排序后的事件: ${date}`);
     // 将排序后的事件添加到 allEvents
     events.forEach(event => {
       allEvents.push(event);
@@ -326,6 +336,7 @@ const main = async () => {
   const allEvents = [];
   logInfo("📥 正在加载所有 JSON 数据...");
   const jsonData = await loadAllJsonData();
+  logInfo("加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
   if (!jsonData || Object.keys(jsonData).length === 0) {
     logError("❌ 没有可用的 JSON 数据！");
     return;
