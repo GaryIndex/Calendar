@@ -1,0 +1,52 @@
+[2025-02-11T23:52:35.419Z] [INFO] 🚀 开始数据抓取...
+[2025-02-11T23:52:35.423Z] [INFO] 📅 处理日期: 2025-02-11
+[2025-02-11T23:52:36.375Z] [INFO] ✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025
+[2025-02-11T23:52:36.542Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/astro
+[2025-02-11T23:52:36.545Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time
+[2025-02-11T23:52:36.717Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/jieqi
+[2025-02-11T23:52:36.728Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/shichen
+[2025-02-11T23:52:36.730Z] [INFO] ✅ jieqi.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:36.730Z] [INFO] ✅ holidays.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:36.731Z] [INFO] ✅ calendar.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:36.732Z] [INFO] ✅ astro.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:36.733Z] [INFO] ✅ shichen.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:36.733Z] [ERROR] ⚠️ 2025-02-11 处理失败: ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/Increment/Increment.json'
+[2025-02-11T23:52:36.734Z] [INFO] 📅 处理日期: 2025-02-12
+[2025-02-11T23:52:36.857Z] [INFO] ✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025
+[2025-02-11T23:52:36.962Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/astro
+[2025-02-11T23:52:36.962Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/jieqi
+[2025-02-11T23:52:36.963Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/shichen
+[2025-02-11T23:52:36.963Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time
+[2025-02-11T23:52:36.965Z] [INFO] ✅ jieqi.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:36.966Z] [INFO] ✅ holidays.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:36.966Z] [INFO] ✅ calendar.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:36.967Z] [INFO] ✅ astro.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:36.968Z] [INFO] ✅ shichen.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:36.968Z] [ERROR] ⚠️ 2025-02-12 处理失败: ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/Increment/Increment.json'
+[2025-02-11T23:52:36.969Z] [INFO] 🎉 所有数据抓取完成！
+[2025-02-11T23:52:37.057Z] [INFO] 🚀 开始数据抓取...
+[2025-02-11T23:52:37.062Z] [INFO] 📅 处理日期: 2025-02-11
+[2025-02-11T23:52:37.779Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time
+[2025-02-11T23:52:37.947Z] [INFO] ✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025
+[2025-02-11T23:52:38.366Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/astro
+[2025-02-11T23:52:38.367Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/shichen
+[2025-02-11T23:52:38.383Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/jieqi
+[2025-02-11T23:52:38.384Z] [INFO] ✅ jieqi.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:38.385Z] [INFO] ✅ holidays.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:38.386Z] [INFO] ✅ calendar.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:38.387Z] [INFO] ✅ astro.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:38.388Z] [INFO] ✅ shichen.json (2025-02-11) 数据保存成功
+[2025-02-11T23:52:38.388Z] [ERROR] ⚠️ 2025-02-11 处理失败: ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/Increment/Increment.json'
+[2025-02-11T23:52:38.389Z] [INFO] 📅 处理日期: 2025-02-12
+[2025-02-11T23:52:38.515Z] [INFO] ✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025
+[2025-02-11T23:52:38.615Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/astro
+[2025-02-11T23:52:38.616Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/shichen
+[2025-02-11T23:52:38.616Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time/jieqi
+[2025-02-11T23:52:38.620Z] [INFO] ✅ API 请求成功: https://api.timelessq.com/time
+[2025-02-11T23:52:38.621Z] [INFO] ✅ jieqi.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:38.621Z] [INFO] ✅ holidays.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:38.622Z] [INFO] ✅ calendar.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:38.623Z] [INFO] ✅ astro.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:38.624Z] [INFO] ✅ shichen.json (2025-02-12) 数据保存成功
+[2025-02-11T23:52:38.624Z] [ERROR] ⚠️ 2025-02-12 处理失败: ENOENT: no such file or directory, open '/home/runner/work/Calendar/Calendar/scripts/data/Document/Increment/Increment.json'
+[2025-02-11T23:52:38.625Z] [INFO] 🎉 所有数据抓取完成！
