@@ -1,5 +1,12 @@
 // **处理数据**
+import path from "path";
+import { fileURLToPath } from "url";
+import chalk from "chalk";
+import fs from "fs/promises"; // 读取/写入文件
 import { readJsonData, dataPaths, loadAllJsonData, logInfo, logError, createEvent } from './utils/utils.js';
+// 在 ESM 环境中定义 __dirname
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const icsFilePath = path.join(__dirname, 'calendar.ics');
 (async () => {
   try {
     logInfo("📂 开始加载所有 JSON 数据");
