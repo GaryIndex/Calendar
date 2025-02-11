@@ -127,34 +127,37 @@ const fetchData = async () => {
   await ensureDirectoryExists(DATA_PATH);
   const existingData = await loadExistingData();
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
-  // 只查询当前日期的节气数据
-  await logMessage(`📅 处理日期: ${today}`);
-  try {
-    const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
-      fetchDataFromApi('https://api.timelessq.com/time', { datetime: today }),
-      fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: today }),
-      fetchDataFromApi('https://api.timelessq.com/time/shichen', { date: today }),
-      fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: today.split('-')[0] }),
-      fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + today.split('-')[0])
-    ]);
-    const processedCalendarData = flattenCalendarData(calendarData);
-    // 清空现有的节气数据并覆盖为新的数据
-    existingData['jieqi.json'] = existingData['jieqi.json'] || {}; // 确保 jieqi.json 存在
-    existingData['jieqi.json'][today] = { "Reconstruction": [jieqiData] };
-    // 构造更新后的数据
-    const filteredData = {
-      'calendar.json': { [today]: { "Reconstruction": [processedCalendarData] } },
-      'astro.json': { [today]: { "Reconstruction": [astroData] } },
-      'shichen.json': { [today]: { "Reconstruction": [shichenData] } },
-      'holidays.json': { [today]: { "Reconstruction": [holidaysData] } },
-      'jieqi.json': existingData['jieqi.json']  // 保证节气数据只包含当前日期
-    };
-    await saveData(filteredData);
-    await logMessage(`✅ ${today} 数据保存成功`);
-  } catch (error) {
-    await logMessage(`⚠️ ${today} 处理失败: ${error.message}`);
+  const startDate = moment(START_DATE).tz('Asia/Shanghai');
+  for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
+    const dateStr = currentDate.format('YYYY-MM-DD');
+    if (existingData['calendar.json'][dateStr]) {
+      await logMessage(`⏩ 跳过 ${dateStr}，数据已存在`);
+      continue;
+    }
+    await logMessage(`📅 处理日期: ${dateStr}`);
+    try {
+      const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
+        fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr }),
+        fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr }),
+        fetchDataFromApi('https://api.timelessq.com/time/shichen', { date: dateStr }),
+        fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
+        fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
+      ]);
+      const processedCalendarData = flattenCalendarData(calendarData);
+      const filteredData = {
+        'calendar.json': { [dateStr]: { "Reconstruction": [processedCalendarData] } },
+        'astro.json': { [dateStr]: { "Reconstruction": [astroData] } },
+        'shichen.json': { [dateStr]: { "Reconstruction": [shichenData] } },
+        'jieqi.json': { [dateStr]: { "Reconstruction": [jieqiData] } },
+        'holidays.json': { [dateStr]: { "Reconstruction": [holidaysData] } }
+      };
+      await saveData(filteredData);
+      await logMessage(`✅ ${dateStr} 数据保存成功`);
+    } catch (error) {
+      await logMessage(`⚠️ ${dateStr} 处理失败: ${error.message}`);
+    }
   }
-  await logMessage('🎉 数据抓取完成！');
+  await logMessage('🎉 所有数据抓取完成！');
 };
 fetchData().catch(async (error) => {
   await logMessage(`🔥 任务失败: ${error.message}`);
