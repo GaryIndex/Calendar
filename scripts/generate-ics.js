@@ -3,13 +3,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import fs from "fs/promises"; // 读取/写入文件
-import { loadAllJsonData, logInfo, createEvent, dataPaths } from './fetch-data.js';
-console.log("dataPaths加载文件路径: ", dataPaths);
-loadAllJsonData().then((data) => {
-  logInfo("loadAllJsonData 执行成功，数据:", JSON.stringify(data, null, 2));
-}).catch((err) => {
-  logInfo("loadAllJsonData 执行失败:", err);
-});
+import { loadAllJsonData, logInfo, createEvent, } from './fetch-data.js';
+//import { loadAllJsonData, logInfo, createEvent, dataPaths } from './fetch-data.js';
 // 在 ESM 环境中定义 __dirname
 const icsFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'calendar.ics');
 /*
