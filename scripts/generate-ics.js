@@ -4,8 +4,7 @@ import { fileURLToPath } from "url";
 import chalk from "chalk";
 import fs from "fs/promises"; // 读取/写入文件
 import { loadAllJsonData, logInfo, createEvent, dataPaths } from './fetch-data.js';
-console.log("dataPaths数据路径: ", JSON.stringify(dataPaths, null, 2));
-// 使用这些函数，确保它们工作正常
+console.log("dataPaths加载文件路径: ", dataPaths);
 loadAllJsonData().then((data) => {
   logInfo("loadAllJsonData 执行成功，数据:", JSON.stringify(data, null, 2));
 }).catch((err) => {
