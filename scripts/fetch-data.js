@@ -6,8 +6,8 @@ import deepmerge from "deepmerge";
 import chalk from 'chalk';
 
 // 数据存储路径
-const DATA_PATH = './data';
-const INCREMENT_FILE = path.join(DATA_PATH, 'Increment.json');
+const DATA_PATH = './data/Document';
+const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
 // fetch-data.js
 export const logInfo = (message) => {
   console.log(message);  // 或者任何你想要的日志输出方式
