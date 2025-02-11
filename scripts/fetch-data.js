@@ -146,6 +146,7 @@ const loadAllJsonData = async () => {
   await ensureDirectoryExists(DATA_PATH);
   const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
   const allData = {};
+
   for (const file of files) {
     const filePath = path.join(DATA_PATH, file);
     try {
@@ -153,11 +154,21 @@ const loadAllJsonData = async () => {
       const parsedData = JSON.parse(rawData);
       allData[file] = parsedData;
       console.log(`✅ 成功加载文件: ${file}`);
+
+      // 输出加载的 JSON 数据到工作流
+      console.log(`加载的 ${file} 数据:`);
+      console.log(JSON.stringify(parsedData, null, 2));  // 格式化输出到控制台
     } catch (error) {
       console.error(`❌ 读取文件失败: ${file}, 错误: ${error.message}`);
-      allData[file] = {}; // 如果读取失败，返回空对象
+      allData[file] = {};  // 如果读取失败，返回空对象
     }
   }
+
+  // 完成后，输出所有数据的汇总信息
+  console.log('📦 所有 JSON 文件加载完成，合并数据：');
+  console.log(JSON.stringify(allData, null, 2));  // 输出合并后的所有数据
+
   return allData;
 };
+
 export { loadAllJsonData };
