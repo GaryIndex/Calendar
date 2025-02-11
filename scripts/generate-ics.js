@@ -248,11 +248,17 @@ END:VEVENT`).join("\n");
 // **执行流程**
 (async () => {
   const allEvents = [];
-  //const [holidays, jieqi, astro, shichen, calendar] = await Promise.all(Object.values(dataPaths).map(readJsonData));
+  // 读取所有 JSON 文件
   const jsonDataArray = await Promise.all(Object.values(dataPaths).map(async file => await readJsonData(file)));
   const jsonDatajust = Object.fromEntries(Object.keys(dataPaths).map((key, i) => [key, jsonDataArray[i]]));
-  //Object.values(processors).forEach(fn => fn({ Reconstruction: holidays }, allEvents));
-  const jsonDataand = await loadAllJsonData();
-  processAllData(jsonData, allEvents);
+  // 确保 JSON 数据正确加载
+  if (!jsonDatajust || Object.keys(jsonDatajust).length === 0) {
+    logError("❌ 读取 JSON 数据失败！");
+    return;
+  }
+  // 调试：打印 JSON 数据结构
+  console.log("✅ jsonDatajust:", JSON.stringify(jsonDatajust, null, 2));
+  // 传入正确的 JSON 数据
+  processAllData(jsonDatajust, allEvents);
   await generateICS(allEvents);
 })();
