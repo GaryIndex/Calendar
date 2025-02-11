@@ -177,18 +177,18 @@ fetchData().catch(async (error) => {
 });
 
 const loadAllJsonData = async () => {
-  const data = {};
+  const loadAllJsonDatadata = {};
   for (const [key, filePath] of Object.entries(dataPaths)) {
     try {
       const content = await fs.readFile(filePath, 'utf8');
-      data[key] = JSON.parse(content);
+      loadAllJsonDatadata[key] = JSON.parse(content);
       console.log(`${key} loadAllJsonData 数据加载成功`);
       //console.log(`${key} loadAllJsonData加载的数据:`, JSON.stringify(data[key], null, 2)); // 打印加载的数据
     } catch (error) {
       console.error(`加载loadAllJsonData ${key} 时出错: ${error.message}`);
     }
   }
-  return data;
+  return loadAllJsonDatadata;
 };
 export { loadAllJsonData };
 // **创建标准化事件对象**
