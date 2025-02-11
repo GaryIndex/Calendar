@@ -346,16 +346,21 @@ END:VEVENT`;
 const main = async () => {
   const allEvents = [];
   logInfo("📥 main 正在加载所有 JSON 数据...");
+  // 加载所有 JSON 数据
   const jsonData = await loadAllJsonData();
-  logInfo("加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
+  // 确认数据已加载
+  logInfo("mian加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
+  // 检查数据是否为空
   if (!jsonData || Object.keys(jsonData).length === 0) {
     logInfo("❌ main 没有可用的 JSON 数据！");
     return;
   }
   logInfo("✅ main JSON 数据加载成功！");
+  // 处理数据
   logInfo("📌 main 开始处理所有数据...");
   processAllData(jsonData, allEvents);
   logInfo("🎉 main 所有数据处理完成！");
+  // 生成 ICS 文件
   await generateICS(allEvents);
 };
 // 执行流程
