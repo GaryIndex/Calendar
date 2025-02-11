@@ -153,7 +153,7 @@ const fetchData = async () => {
   await logMessage('🚀 开始数据抓取...');
   await ensureDirectoryExists(DATA_PATH);
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
-  const startDate = moment('2025-02-10').tz('Asia/Shanghai');
+  const startDate = moment('2025-02-11').tz('Asia/Shanghai');
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD');
     await logMessage(`📅 处理日期: ${dateStr}`);
