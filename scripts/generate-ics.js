@@ -245,7 +245,15 @@ const processors = {
     console.log("calendar allEvents：", allEvents);
   }
 };
-
+const allEvents = [];
+// 处理各类数据
+processors.holidays(holidaysData, allEvents);
+processors.jieqi(jieqiData, allEvents);
+processors.astro(astroData, allEvents);
+processors.shichen(shichenData, allEvents);
+processors.calendar(calendarData, allEvents);
+// 打印合并后的 allEvents
+console.log("合并后的allEvents：", allEvents);
 
 /**
  * **处理所有数据**
