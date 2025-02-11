@@ -59,25 +59,25 @@ const processors = {
    */
   jieqi: (data, allEvents) => {
   logInfo("🛠️ 处理节气数据...");
-  // 确保我们正确获取到 Reconstruction 数据并且它是数组
-  if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
-  // 遍历 Reconstruction 数组
+  // 确保 Reconstruction 存在并且是数组
+  if (!Array.isArray(data.Reconstruction) || data.Reconstruction.length === 0) {
+    return logError("❌ Reconstruction 数据不存在！");
+  }
+  // 遍历 Reconstruction 数组（过滤掉 errno 和 errmsg）
   data.Reconstruction.forEach(entry => {
-    if (!entry || typeof entry !== "object") return;
-    // 遍历 entry 中的 data 数组，忽略 errno 和 errmsg
-    const events = entry.data || [];
-    events.forEach(event => {
-      // 确保 name 和 time 字段存在
+    if (!entry || typeof entry !== "object" || !Array.isArray(entry.data)) {
+      return logError(`❌ Reconstruction 数据格式错误: ${JSON.stringify(entry)}`);
+    }
+    entry.data.forEach(event => {
       if (!event.name || !event.time) {
         logError(`❌ 缺少 name 或 time: ${JSON.stringify(event)}`);
         return;
       }
-      // 提取时间部分，并创建事件
-      const startTime = event.time.split(" ")[1] || "";  // 提取时间部分
+      const [date, startTime] = event.time.split(" ");
       allEvents.push(createEvent({
-        date: event.time.split(" ")[0],  // 使用日期部分作为事件的日期
+        date,
         title: event.name,
-        startTime,
+        startTime: startTime || "",  // 确保 `startTime` 存在
         isAllDay: false,
         description: `节气: ${event.name}`
       }));
