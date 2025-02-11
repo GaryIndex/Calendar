@@ -354,6 +354,9 @@ END:VEVENT`;
       return;
     }
     logInfo("✅ JSON 数据加载成功！");
+    // 打印 jsonData 到工作流或日志
+    console.log("Loaded JSON Data: ", JSON.stringify(jsonData, null, 2)); 
+    // 直接打印到控制台，或者可以换成工作流日志
     // 直接转交给 processAllData，不做任何处理
     processAllData(jsonData);
     logInfo("🎉 JSON 数据已传递给 processAllData");
