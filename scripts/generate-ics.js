@@ -153,44 +153,42 @@ const processors = {
    */
   calendar: (data, allEvents) => {
     logInfo("🛠️ 处理万年历数据...");
-    if (!Array.isArray(data.Reconstruction)) return logError("❌ Reconstruction 数据不存在！");
-
-    data.Reconstruction.forEach(entry => {
-      if (!entry || typeof entry !== "object") return;
-      Object.entries(entry).forEach(([date, entries]) => {
-        entries.forEach(event => {
-          const description = Object.entries(event)
-            .filter(([key]) => !["errno", "errmsg", "weekInYear", "day", "dayInYear", "julianDay", "minute", "second", "year", "month", "maxDayInMonth", "enMonth", "enWeek"].includes(key))
-            .map(([key, value]) => {
-              if (key === "pengzubaiji" && Array.isArray(value)) {
-                return value.join(", ");
-              }
-              return (Array.isArray(value) ? value.join(" | ") : value);
-            })
-            .join(" | ");
-
-          let title = event.cnWeek || "万年历信息";
-          if (event.festivals) title += ` ${event.festivals}`;
-
-          // 处理 leapYear 和 leapMonth
-          let leapYear = event.leapYear === true ? "闰年" : "";
-          let leapMonth = event.leapMonth ? `闰${event.leapMonth}月` : "";
-          
-          if (leapYear || leapMonth) {
-            description = `${leapYear} ${leapMonth} | ${description}`.trim();
-          }
-
-          allEvents.push(createEvent({
-            date,
-            title,
-            description,
-            isAllDay: true
-          }));
+    // 遍历日期键
+    Object.entries(data).forEach(([date, obj]) => {
+        if (!obj.Reconstruction || !Array.isArray(obj.Reconstruction)) {
+            return logError(`❌ ${date} 的 Reconstruction 数据不存在！`);
+        }
+        obj.Reconstruction.forEach(event => {
+            if (!event || typeof event !== "object") return;
+            // 过滤掉不需要的字段
+            const description = Object.entries(event)
+                .filter(([key]) => !["errno", "errmsg", "weekInYear", "day", "dayInYear", "julianDay", "minute", "second", "year", "month", "maxDayInMonth", "enMonth", "enWeek"].includes(key))
+                .map(([key, value]) => {
+                    if (key === "pengzubaiji" && Array.isArray(value)) {
+                        return value.join(", ");
+                    }
+                    return (Array.isArray(value) ? value.join(" | ") : value);
+                })
+                .join(" | ");
+            // 生成事件标题
+            let title = event.cnWeek || "万年历信息";
+            if (event.festivals) title += ` ${event.festivals}`;
+            // 处理闰年和闰月
+            let leapYear = event.leapYear === true ? "闰年" : "";
+            let leapMonth = event.leapMonth ? `闰${event.leapMonth}月` : "";
+            if (leapYear || leapMonth) {
+                description = `${leapYear} ${leapMonth} | ${description}`.trim();
+            }
+            allEvents.push(createEvent({
+                date,
+                title,
+                description,
+                isAllDay: true
+            }));
         });
-      });
     });
-    }
-    };
+  }
+};
 /**
  * **处理所有数据**
  */
