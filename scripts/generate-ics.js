@@ -143,20 +143,20 @@ const processors = {
    */
   shichen: (data, allEvents) => {
     logInfo("🛠️ 处理时辰数据...");
-    if (!data.Reconstruction || typeof data.Reconstruction !== "object") {
-        return logError("❌ shichen Reconstruction 数据不存在！");
-    }
-    Object.entries(data.Reconstruction).forEach(([date, entries]) => {
-        if (!Array.isArray(entries)) {
-            return logError(`❌ shichen ${date} 的数据格式错误，应为数组！`);
+    // 遍历所有日期
+    Object.entries(data).forEach(([date, value]) => {
+        // 每个日期下有 Reconstruction 数组
+        if (!value.Reconstruction || !Array.isArray(value.Reconstruction)) {
+            return logError(`❌ ${date} 的 Reconstruction 数据格式错误，应该是数组！`);
         }
-        entries.forEach(entry => {
+        
+        value.Reconstruction.forEach(entry => {
             if (!entry || typeof entry !== "object" || !entry.data) {
-                return logError(`❌ shichen ${date} 无效的时辰数据！`, entry);
+                return logError(`❌ ${date} 无效的时辰数据！`, entry);
             }
             entry.data.forEach(event => {
                 if (!event.hour || !event.hours) {
-                    logError(`❌ shichen 缺少 hour 或 hours: ${JSON.stringify(event)}`);
+                    logError(`❌ ${date} 缺少 hour 或 hours: ${JSON.stringify(event)}`);
                     return;
                 }
                 // 修正为符合 ICS 的时间格式 HHMM
@@ -183,7 +183,7 @@ const processors = {
             });
         });
     });
-  },
+},
   /**
    * **处理万年历数据**
    */
