@@ -269,6 +269,7 @@ const processAllData = (jsonData, allEvents) => {
             });
             event.source = source;  // 记录数据源
             eventsByDate[date].push(event);
+            logInfo(`✅ 新事件添加: ${date} - ${title}`);
           } else {
             // 更新事件，合并标题和备注
             const combinedTitle = existingEvent.title + " | " + title;
@@ -279,13 +280,12 @@ const processAllData = (jsonData, allEvents) => {
             if (entry.attachment) {
               existingEvent.attachment = existingEvent.attachment ? existingEvent.attachment + " | " + entry.attachment : entry.attachment;
             }
+            logInfo(`✅ 更新事件: ${date} - ${existingEvent.title}`);
           }
-          logInfo(`✅ 添加或更新事件: ${date} - ${title}`);
         });
       });
     }
   });
-
   // **按优先级排序所有事件**
   Object.entries(eventsByDate).forEach(([date, events]) => {
     // 按照源的优先级对事件进行排序
@@ -293,11 +293,11 @@ const processAllData = (jsonData, allEvents) => {
     // 将排序后的事件添加到 allEvents
     events.forEach(event => {
       allEvents.push(event);
+      logInfo(`📅 添加到所有事件: ${event.title} - ${event.date}`);
     });
   });
   logInfo(`✅ 处理完成，共生成 ${allEvents.length} 个事件`);
 };
-
 // **生成 ICS 文件**
 const generateICS = async (events) => {
   logInfo(`📝 正在生成 ICS 文件...`);
@@ -336,7 +336,6 @@ const main = async () => {
   logInfo("🎉 所有数据处理完成！");
   await generateICS(allEvents);
 };
-
 // 执行流程
 (async () => {
   try {
