@@ -6,7 +6,7 @@ import deepmerge from "deepmerge";
 import chalk from 'chalk';
 
 // 数据存储路径
-const DATA_PATH = './data/Document';
+const DATA_PATH = path.resolve(__dirname, './data/Document');  // 使用绝对路径
 const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
 // fetch-data.js
 export const logInfo = (message) => {
