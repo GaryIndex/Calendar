@@ -145,7 +145,8 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
       const processedCalendarData = flattenCalendarData(calendarData);
-      // 将节气数据覆盖到已有的 jieqi.json 数据中
+      // 清空现有的节气数据并覆盖为新的数据
+      existingData['jieqi.json'] = existingData['jieqi.json'] || {}; // 确保 jieqi.json 存在
       existingData['jieqi.json'][dateStr] = { "Reconstruction": [jieqiData] };
       // 构造更新后的数据
       const filteredData = {
@@ -153,7 +154,7 @@ const fetchData = async () => {
         'astro.json': { [dateStr]: { "Reconstruction": [astroData] } },
         'shichen.json': { [dateStr]: { "Reconstruction": [shichenData] } },
         'holidays.json': { [dateStr]: { "Reconstruction": [holidaysData] } },
-        'jieqi.json': existingData['jieqi.json']  // 保持节气数据覆盖
+        'jieqi.json': existingData['jieqi.json']  // 保证节气数据只包含当前日期
       };
       await saveData(filteredData);
       await logMessage(`✅ ${dateStr} 数据保存成功`);
