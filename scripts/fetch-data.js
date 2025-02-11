@@ -175,10 +175,21 @@ fetchData().catch(async (error) => {
   await logMessage(`🔥 任务失败: ${error.message}`);
   process.exit(1);
 });
+
 const loadAllJsonData = async () => {
-  // 函数内容
+  const data = {};
+  for (const [key, filePath] of Object.entries(dataPaths)) {
+    try {
+      const content = await fs.readFile(filePath, 'utf8');
+      data[key] = JSON.parse(content);
+      console.log(`${key} 数据加载成功`);
+    } catch (error) {
+      console.error(`加载 ${key} 时出错: ${error.message}`);
+    }
+  }
+  return data;
 };
-export { loadAllJsonData }; // 确保导出这个函数
+export { loadAllJsonData };
 // **创建标准化事件对象**
 export function createEvent({
   date,
