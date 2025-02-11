@@ -69,3 +69,31 @@
 [2025-02-11T13:58:42.623Z] [INFO] 生成的 ICS 数据: 
 
 [2025-02-11T13:58:42.626Z] [INFO] ✅ ICS 文件生成成功: /home/runner/work/Calendar/Calendar/scripts/calendar.ics
+[2025-02-11T14:13:53.250Z] [INFO] 📥 正在加载所有 JSON 数据...
+[2025-02-11T14:13:53.251Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/holidays.json
+[2025-02-11T14:13:53.251Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/jieqi.json
+[2025-02-11T14:13:53.251Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/astro.json
+[2025-02-11T14:13:53.252Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/calendar.json
+[2025-02-11T14:13:53.252Z] [INFO] 📂 读取文件: /home/runner/work/Calendar/Calendar/data/Document/shichen.json
+[2025-02-11T14:13:53.256Z] [INFO] 加载的 JSON 数据:
+[2025-02-11T14:13:53.257Z] [INFO] 📌 开始处理所有数据...
+[2025-02-11T14:13:53.257Z] [INFO] ✅ JSON 数据加载成功！
+[2025-02-11T14:13:53.257Z] [INFO] 📌 正在处理所有数据...
+[2025-02-11T14:13:53.257Z] [INFO] 🔍 正在处理数据源: holidays
+[2025-02-11T14:13:53.257Z] [INFO] ❌ 数据源 "holidays" 不包含 Reconstruction 数据
+[2025-02-11T14:13:53.257Z] [INFO] 📂 加载的 JSON 数据:
+[2025-02-11T14:13:53.257Z] [INFO] 🔍 正在处理数据源: jieqi
+[2025-02-11T14:13:53.257Z] [INFO] ❌ 数据源 "jieqi" 不包含 Reconstruction 数据
+[2025-02-11T14:13:53.257Z] [INFO] 🔍 正在处理数据源: astro
+[2025-02-11T14:13:53.257Z] [INFO] ❌ 数据源 "astro" 不包含 Reconstruction 数据
+[2025-02-11T14:13:53.257Z] [INFO] 🔍 正在处理数据源: calendar
+[2025-02-11T14:13:53.257Z] [INFO] ❌ 数据源 "calendar" 不包含 Reconstruction 数据
+[2025-02-11T14:13:53.257Z] [INFO] 🔍 正在处理数据源: shichen
+[2025-02-11T14:13:53.257Z] [INFO] ❌ 数据源 "shichen" 不包含 Reconstruction 数据
+[2025-02-11T14:13:53.257Z] [INFO] 📊 正在按优先级排序事件...
+[2025-02-11T14:13:53.257Z] [INFO] ✅ 处理完成，共生成 0 个事件
+[2025-02-11T14:13:53.257Z] [INFO] 🎉 所有数据处理完成！
+[2025-02-11T14:13:53.257Z] [INFO] 📝 正在生成 ICS 文件...
+[2025-02-11T14:13:53.257Z] [INFO] 生成的 ICS 数据: 
+
+[2025-02-11T14:13:53.260Z] [INFO] ✅ ICS 文件生成成功: /home/runner/work/Calendar/Calendar/scripts/calendar.ics
