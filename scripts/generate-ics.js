@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import fs from "fs/promises"; // 读取/写入文件
-import { readJsonData, dataPaths, loadAllJsonData, logInfo, logError, createEvent } from './utils/utils.js';
+import { readJsonData, dataPaths, loadAllJsonData, logInfo, createEvent } from './utils/utils.js';
 // 在 ESM 环境中定义 __dirname
 const icsFilePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'calendar.ics');
 /*
@@ -32,12 +32,12 @@ const processors = {
   logInfo("🛠️ 处理节假日数据...");
   // 检查 Reconstruction 是否存在
   if (!data || typeof data !== "object") {
-    return logError("❌ holidays 数据格式错误！");
+    return logInfo("❌ holidays 数据格式错误！");
   }
   // 获取 Reconstruction 数组
   const reconstructionData = Object.values(data)[0]?.Reconstruction; // 取第一层对象的 Reconstruction
   if (!Array.isArray(reconstructionData)) {
-    return logError(`❌ holidays Reconstruction 数据不存在！数据结构: ${JSON.stringify(data, null, 2)}`);
+    return logInfo(`❌ holidays Reconstruction 数据不存在！数据结构: ${JSON.stringify(data, null, 2)}`);
   }
   // 遍历 Reconstruction
   reconstructionData.forEach(entry => {
@@ -46,7 +46,7 @@ const processors = {
       if (!holiday || typeof holiday !== "object") return;
       const { name, isOffDay } = holiday;
       if (!date || !name || isOffDay === undefined) {
-        logError(`❌ 缺少必要字段: ${JSON.stringify(holiday)}`);
+        logInfo(`❌ 缺少必要字段: ${JSON.stringify(holiday)}`);
         return;
       }
       // 转换日期格式为 YYYYMMDD
@@ -76,16 +76,16 @@ const processors = {
   logInfo("🛠️ 处理节气数据...");
   // 确保 Reconstruction 存在并且是数组
   if (!Array.isArray(data.Reconstruction) || data.Reconstruction.length === 0) {
-    return logError("❌ jieqi Reconstruction 数据不存在！");
+    return logInfo("❌ jieqi Reconstruction 数据不存在！");
   }
   // 遍历 Reconstruction 数组（过滤掉 errno 和 errmsg）
   data.Reconstruction.forEach(entry => {
     if (!entry || typeof entry !== "object" || !Array.isArray(entry.data)) {
-      return logError(`❌ jieqi Reconstruction 数据格式错误: ${JSON.stringify(entry)}`);
+      return logInfo(`❌ jieqi Reconstruction 数据格式错误: ${JSON.stringify(entry)}`);
     }
     entry.data.forEach(event => {
       if (!event.name || !event.time) {
-        logError(`❌ jieqi 缺少 name 或 time: ${JSON.stringify(event)}`);
+        logInfo(`❌ jieqi 缺少 name 或 time: ${JSON.stringify(event)}`);
         return;
       }
       const [date, startTime] = event.time.split(" ");
@@ -111,7 +111,7 @@ const processors = {
   logInfo("🛠️ 处理天文数据...");
   Object.values(data).forEach(({ Reconstruction }) => {
     if (!Array.isArray(Reconstruction)) {
-      return logError("❌ astro Reconstruction 数据不存在或格式错误！");
+      return logInfo("❌ astro Reconstruction 数据不存在或格式错误！");
     }
     Reconstruction.forEach(({ data }) => {
       if (!data?.range) return;
@@ -149,16 +149,16 @@ const processors = {
     Object.entries(data).forEach(([date, value]) => {
         // 每个日期下有 Reconstruction 数组
         if (!value.Reconstruction || !Array.isArray(value.Reconstruction)) {
-            return logError(`❌ ${date} 的 Reconstruction 数据格式错误，应该是数组！`);
+            return logInfo(`❌ ${date} 的 Reconstruction 数据格式错误，应该是数组！`);
         }
         
         value.Reconstruction.forEach(entry => {
             if (!entry || typeof entry !== "object" || !entry.data) {
-                return logError(`❌ ${date} 无效的时辰数据！`, entry);
+                return logInfo(`❌ ${date} 无效的时辰数据！`, entry);
             }
             entry.data.forEach(event => {
                 if (!event.hour || !event.hours) {
-                    logError(`❌ ${date} 缺少 hour 或 hours: ${JSON.stringify(event)}`);
+                    logInfo(`❌ ${date} 缺少 hour 或 hours: ${JSON.stringify(event)}`);
                     return;
                 }
                 // 修正为符合 ICS 的时间格式 HHMM
@@ -194,7 +194,7 @@ const processors = {
     // 遍历日期键
     Object.entries(data).forEach(([date, obj]) => {
         if (!obj.Reconstruction || !Array.isArray(obj.Reconstruction)) {
-            return logError(`❌ calendar ${date} 的 Reconstruction 数据不存在！`);
+            return logInfo(`❌ calendar ${date} 的 Reconstruction 数据不存在！`);
         }
         obj.Reconstruction.forEach(event => {
             if (!event || typeof event !== "object") return;
@@ -339,7 +339,7 @@ const main = async () => {
   const jsonData = await loadAllJsonData();
   logInfo("加载的 JSON 数据:", JSON.stringify(jsonData, null, 2));
   if (!jsonData || Object.keys(jsonData).length === 0) {
-    logError("❌ 没有可用的 JSON 数据！");
+    logInfo("❌ 没有可用的 JSON 数据！");
     return;
   }
   logInfo("✅ JSON 数据加载成功！");
@@ -353,6 +353,6 @@ const main = async () => {
   try {
     await main();  // 执行主流程
   } catch (err) {
-    logError(`❌ 程序运行失败: ${err.message}`);
+    logInfo(`❌ 程序运行失败: ${err.message}`);
   }
 })();
