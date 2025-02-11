@@ -6,9 +6,20 @@ import fs from "fs/promises"; // 读取/写入文件
 //import { loadAllJsonData, logInfo, createEvent, } from './fetch-data.js';
 import { loadAllJsonData, logInfo, createEvent, } from './fetch-data.js';
 // 获取当前文件的目录路径
-const DATA_PATH = path.join(__dirname, './data/Document');
+//const DATA_PATH = path.join(__dirname, './data/Document');
 // 使用 path.resolve 确保每个文件的路径都是绝对路径
-const dataPaths = {
+/*const dataPaths = {
+  holidays: path.resolve(DATA_PATH, 'holidays.json'),
+  jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
+  astro: path.resolve(DATA_PATH, 'astro.json'),
+  calendar: path.resolve(DATA_PATH, 'calendar.json'),
+  shichen: path.resolve(DATA_PATH, 'shichen.json'),
+};
+*/
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.dirname(__filename);
+const DATA_PATH = path.join(__dirname, './data/Document');
+export const dataPaths = {
   holidays: path.resolve(DATA_PATH, 'holidays.json'),
   jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
   astro: path.resolve(DATA_PATH, 'astro.json'),
