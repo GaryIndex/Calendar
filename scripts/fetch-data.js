@@ -33,28 +33,31 @@ const logMessage = async (message) => {
     console.error(`[日志写入失败] ${error.message}`);
   }
 };
-
 /**
- * 📌 读取 JSON 数据
+ * 📌 读取并合并多个 JSON 文件的数据
  */
-const loadExistingData = async () => {
+const loadAllJsonData = async () => {
   await ensureDirectoryExists(DATA_PATH);
   const files = ['calendar.json', 'astro.json', 'shichen.json', 'jieqi.json', 'holidays.json'];
-  const data = {};
+  const allData = {};
   for (const file of files) {
-    const filePath = `${DATA_PATH}/${file}`;
+    const filePath = path.join(DATA_PATH, file);
     try {
       const rawData = await fs.readFile(filePath, 'utf8');
-      data[file] = JSON.parse(rawData);
-    } catch {
-      data[file] = {};
+      const parsedData = JSON.parse(rawData);
+      allData[file] = parsedData;
+      console.log(`✅ 成功加载文件: ${file}`);
+    } catch (error) {
+      console.error(`❌ 读取文件失败: ${file}, 错误: ${error.message}`);
+      allData[file] = {}; // 如果读取失败，返回空对象
     }
   }
-  return data;
+  return allData;
 };
+export { loadAllJsonData };
 
 /**
- * 📌 保存数据（保留原始 JSON 结构）
+ * 📌 处理新数据并保存（保留原始 JSON 结构）
  */
 const saveData = async (data) => {
   await ensureDirectoryExists(DATA_PATH);
