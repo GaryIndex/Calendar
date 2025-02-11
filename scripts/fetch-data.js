@@ -1,34 +1,24 @@
 import path from "path";
-//import { fileURLToPath } from "url";
 import fs from "fs/promises";
 import axios from "axios";
 import moment from "moment-timezone";
 import deepmerge from "deepmerge";
 import chalk from 'chalk';
-//import { readJsonData, dataPaths, loadAllJsonData, logInfo, createEvent } from './utils/utils.js';
-// 在 ESM 环境中定义 __dirname
-//import { loadAllJsonData, logInfo, createEvent } from './utils/utils.js';
-// 在 ESM 环境中定义 __dirname
-// **计算 __dirname**
-//const __filename = fileURLToPath(import.meta.url);
-//const __dirname = path.dirname(__filename);
-//import path from 'path';
 
-// 直接使用 new URL 和 path.dirname 获取当前目录路径
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-// **确保日志目录存在**
-const logDir = path.join(process.cwd(), "data");
-const logFilePath = path.join(logDir, "error.log");
+// 数据存储路径
+const DATA_PATH = './data';
+const INCREMENT_FILE = path.join(DATA_PATH, 'Increment.json');
 
-// **日志记录**
-const ensureLogDir = async () => {
+// 确保目录存在
+const ensureDirectoryExists = async (dir) => {
   try {
-    await fs.mkdir(logDir, { recursive: true });
+    await fs.mkdir(dir, { recursive: true });
   } catch (error) {
-    console.error(`❌ 创建日志目录失败: ${error.message}`);
+    console.error(`[目录创建失败] ${error.message}`);
   }
 };
 
+// 记录日志
 const writeLog = async (type, message) => {
   await ensureLogDir();
   const timestamp = new Date().toISOString();
@@ -37,63 +27,33 @@ const writeLog = async (type, message) => {
   console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
 };
 
-export const logMessage = async (message) => {
-  await writeLog(message);
-};
-export const logInfo = (message) => writeLog("INFO", message);
-export const logError = (message) => writeLog("ERROR", message);
-
-// **JSON 文件路径**
-//import path from 'path';
-// 获取当前文件的目录路径
-//const __dirname = path.dirname(new URL(import.meta.url).pathname);
-//import path from 'path';
-
-// 使用 __dirname 获取当前文件的目录路径
-const DATA_PATH = path.join(__dirname, './data/Document');
-// 使用 path.resolve 确保每个文件的路径都是绝对路径
-export const dataPaths = {
-  holidays: path.resolve(DATA_PATH, 'holidays.json'),
-  jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
-  astro: path.resolve(DATA_PATH, 'astro.json'),
-  calendar: path.resolve(DATA_PATH, 'calendar.json'),
-  shichen: path.resolve(DATA_PATH, 'shichen.json'),
-};
-/*
-// **读取 JSON 文件**
-const readJsonData = async (filePath) => {
+// 确保日志目录存在
+const ensureLogDir = async () => {
   try {
-    await fs.access(filePath); // 检查文件是否存在
-    logInfo(`📂 读取文件: ${filePath}`);
-    const rawData = await fs.readFile(filePath, "utf-8");
-    if (!rawData.trim()) {
-      logError(`⚠️ 文件 ${filePath} 为空！`);
-      return {};
-    }
-    return JSON.parse(rawData);
+    await fs.mkdir(logDir, { recursive: true });
   } catch (error) {
-    logError(`❌ 读取 JSON 失败: ${filePath} - ${error.message}`);
-    return {};
-  }
-};
-// **批量加载所有 JSON**
-const loadAllJsonData = async () => {
-  const entries = await Promise.all(
-    Object.entries(dataPaths).map(async ([key, filePath]) => [key, await readJsonData(filePath)])
-  );
-  return Object.fromEntries(entries);
-};
-*/
-// **确保目录存在**
-const ensureDirectoryExists = async (path) => {
-  try {
-    await fs.mkdir(path, { recursive: true });
-  } catch (error) {
-    console.error(`[目录创建失败] ${error.message}`);
+    console.error(`❌ 创建日志目录失败: ${error.message}`);
   }
 };
 
-// **发送 API 请求（带重试机制）**
+// 读取增量同步文件
+const readIncrementData = async () => {
+  try {
+    const data = await fs.readFile(INCREMENT_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch {
+    return {}; // 文件不存在则返回空对象
+  }
+};
+
+// 直接使用 new URL 和 path.dirname 获取当前目录路径
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+// 确保日志目录路径
+const logDir = path.join(process.cwd(), "data");
+const logFilePath = path.join(logDir, "error.log");
+
+// API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
     const response = await axios.get(url, { params });
@@ -108,11 +68,44 @@ const fetchDataFromApi = async (url, params = {}, retries = 3) => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       return fetchDataFromApi(url, params, retries - 1);
     }
-    return {};  // 失败时返回空对象，避免影响后续流程
+    return {};  // 失败时返回空对象
   }
 };
 
-// **扁平化 calendar 数据**
+// 保存增量同步数据
+const saveIncrementData = async (date) => {
+  const incrementData = await readIncrementData();
+  incrementData[date] = true;
+  await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
+};
+
+// 读取 JSON 文件
+const readJsonFile = async (filePath) => {
+  try {
+    const data = await fs.readFile(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch {
+    return {}; // 文件不存在则返回空对象
+  }
+};
+
+// 数据按年份存储
+const saveYearlyData = async (fileName, date, newData) => {
+  const year = date.split('-')[0];
+  const filePath = path.join(DATA_PATH, `${fileName}`);
+  let existingData = await readJsonFile(filePath);
+  // 仅保留最新查询的同一年数据
+  Object.keys(existingData).forEach((key) => {
+    if (key.startsWith(year)) {
+      delete existingData[key];
+    }
+  });
+  existingData[date] = { Reconstruction: [newData] };
+  await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
+  await logMessage(`✅ ${fileName} (${date}) 数据保存成功`);
+};
+
+// 扁平化 calendar 数据
 const flattenCalendarData = (data) => {
   if (!data || typeof data !== 'object') return {};
   const { errno, errmsg, data: rawData } = data;
@@ -129,33 +122,19 @@ const flattenCalendarData = (data) => {
   return { errno, errmsg, ...flatData };
 };
 
-// **处理并保存数据**
-const saveData = async (data) => {
-  await ensureDirectoryExists(DATA_PATH);
-  for (const [file, content] of Object.entries(data)) {
-    const filePath = `${DATA_PATH}/${file}`;
-    let existingContent = {};
-    try {
-      existingContent = JSON.parse(await fs.readFile(filePath, 'utf8'));
-    } catch {}
-    const mergedData = deepmerge(existingContent, content);
-    try {
-      await fs.writeFile(filePath, JSON.stringify(mergedData, null, 2), 'utf8');
-      await logMessage(`✅ ${file} 保存成功: ${Object.keys(mergedData).length} 条记录`);
-    } catch (error) {
-      await logMessage(`❌ 保存 ${file} 失败: ${error.message}`);
-    }
-  }
-};
-
-// **抓取数据**
+// 数据抓取
 const fetchData = async () => {
   await logMessage('🚀 开始数据抓取...');
   await ensureDirectoryExists(DATA_PATH);
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
   const startDate = moment('2025-02-11').tz('Asia/Shanghai');
+  const incrementData = await readIncrementData();
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD');
+    if (incrementData[dateStr]) {
+      await logMessage(`⏩ 跳过已查询的日期: ${dateStr}`);
+      continue;
+    }
     await logMessage(`📅 处理日期: ${dateStr}`);
     try {
       const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
@@ -166,14 +145,15 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
       const processedCalendarData = flattenCalendarData(calendarData);
-      const filteredData = {
-        'calendar.json': { [dateStr]: { "Reconstruction": [processedCalendarData] } },
-        'astro.json': { [dateStr]: { "Reconstruction": [astroData] } },
-        'shichen.json': { [dateStr]: { "Reconstruction": [shichenData] } },
-        'jieqi.json': { [dateStr]: { "Reconstruction": [jieqiData] } },
-        'holidays.json': { [dateStr]: { "Reconstruction": [holidaysData] } }
-      };
-      await saveData(filteredData);
+      // 按年份存储 jieqi.json、holidays.json
+      await saveYearlyData('jieqi.json', dateStr, jieqiData);
+      await saveYearlyData('holidays.json', dateStr, holidaysData);
+      // 其他数据存储
+      await saveYearlyData('calendar.json', dateStr, processedCalendarData);
+      await saveYearlyData('astro.json', dateStr, astroData);
+      await saveYearlyData('shichen.json', dateStr, shichenData);
+      // 记录已查询的日期
+      await saveIncrementData(dateStr);
       await logMessage(`✅ ${dateStr} 数据保存成功`);
     } catch (error) {
       await logMessage(`⚠️ ${dateStr} 处理失败: ${error.message}`);
@@ -181,11 +161,14 @@ const fetchData = async () => {
   }
   await logMessage('🎉 所有数据抓取完成！');
 };
+
+// 执行数据抓取
 fetchData().catch(async (error) => {
   await logMessage(`🔥 任务失败: ${error.message}`);
   process.exit(1);
 });
 
+// 加载所有 JSON 数据
 const loadAllJsonData = async () => {
   const loadAllJsonDatadata = {};
   for (const [key, filePath] of Object.entries(dataPaths)) {
@@ -193,13 +176,13 @@ const loadAllJsonData = async () => {
       const content = await fs.readFile(filePath, 'utf8');
       loadAllJsonDatadata[key] = JSON.parse(content);
       console.log(`${key} loadAllJsonData 数据加载成功`);
-      //console.log(`${key} loadAllJsonData加载的数据:`, JSON.stringify(data[key], null, 2)); // 打印加载的数据
     } catch (error) {
       console.error(`加载loadAllJsonData ${key} 时出错: ${error.message}`);
     }
   }
   return loadAllJsonDatadata;
 };
+
 export { loadAllJsonData };
 // **创建标准化事件对象**
 export function createEvent({
