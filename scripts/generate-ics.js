@@ -229,6 +229,18 @@ const processors = {
  * **处理所有数据**
  */
 // 日志函数
+import { readJsonData, dataPaths, loadAllJsonData, logInfo, logError, createEvent } from './utils/utils.js';
+import path from 'path';
+import fs from 'fs';
+
+// 数据源优先级设置
+const sourcePriority = {
+  "calendar.json": 1,  // 低优先级
+  "astro.json": 2,     // 中等优先级
+  "shichen.json": 3    // 高优先级
+};
+
+// 日志函数
 const logInfo1 = (message) => {
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] [INFO 1] ${message}`);
@@ -240,6 +252,7 @@ const logError1 = (message) => {
 // 处理所有数据
 const processAllData = (jsonData, allEvents) => {
   logInfo("📌 正在处理所有数据...");
+  const eventsByDate = {}; // 用于按照日期合并事件数据
   // **先处理 Reconstruction**
   Object.entries(jsonData).forEach(([source, data]) => {
     if (data.Reconstruction) {
@@ -247,27 +260,50 @@ const processAllData = (jsonData, allEvents) => {
       Object.entries(data.Reconstruction).forEach(([date, entries]) => {
         logInfo(`🎯 正在处理日期: ${date}`);
         entries.forEach(entry => {
-          const event = createEvent({
-            date,
-            title: entry.name || "无标题",
-            description: Object.entries(entry)
-              .map(([_, v]) => `${v}`)
-              .join(" | "),
-            isAllDay: true
-          });
-          allEvents.push(event);
-          logInfo(`✅ 添加事件: ${event.date} - ${event.title}`);
+          // 如果没有该日期的事件，初始化
+          if (!eventsByDate[date]) {
+            eventsByDate[date] = [];
+          }
+          // 处理合并的 title 和 description
+          const existingEvent = eventsByDate[date].find(event => event.source === source);
+          const title = entry.name || "无标题";
+          const description = entry.description || "无描述";
+          const isAllDay = entry.isAllDay !== undefined ? entry.isAllDay : true;
+          // 合并：优先级高的数据展示在前面，且合并标题和描述
+          let event;
+          if (!existingEvent) {
+            event = createEvent({
+              date,
+              title,
+              description,
+              isAllDay
+            });
+            event.source = source;  // 记录数据源
+            eventsByDate[date].push(event);
+          } else {
+            // 更新事件，合并标题和备注
+            const combinedTitle = existingEvent.title + " | " + title;
+            const combinedDescription = existingEvent.description + " | " + description;
+            existingEvent.title = combinedTitle;
+            existingEvent.description = combinedDescription;
+          }
+
+          logInfo(`✅ 添加或更新事件: ${date} - ${title}`);
         });
       });
     }
   });
-  // **再执行 processors**
-  Object.entries(jsonData).forEach(([source, data]) => {
-    if (processors[source]) {
-      logInfo(`🔧 开始处理数据源: ${source}`);
-      processors[source](data, allEvents);
-    }
+
+  // **按优先级排序所有事件**
+  Object.entries(eventsByDate).forEach(([date, events]) => {
+    // 按照源的优先级对事件进行排序
+    events.sort((a, b) => sourcePriority[b.source] - sourcePriority[a.source]);
+    // 将排序后的事件添加到 allEvents
+    events.forEach(event => {
+      allEvents.push(event);
+    });
   });
+
   logInfo(`✅ 处理完成，共生成 ${allEvents.length} 个事件`);
 };
 
@@ -293,6 +329,7 @@ END:VEVENT`;
   await fs.promises.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
   logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
 };
+
 // 加载所有 JSON 数据
 const loadAllJsonData = async () => {
   logInfo("📂 正在加载 JSON 文件...");
@@ -320,6 +357,7 @@ const main = async () => {
   logInfo("🎉 所有数据处理完成！");
   await generateICS(allEvents);
 };
+
 // 执行流程
 (async () => {
   try {
