@@ -27,8 +27,8 @@ const ensureDirectoryExists = async (dir) => {
 const writeLog = async (type, message) => {
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] [${type}] ${message}\n`;
-  // 确保目录存在
-  await ensureDirectoryExists(dir);
+  // 确保日志文件所在目录存在
+  await ensureDirectoryExists(path.dirname(logFilePath)); // 确保父目录存在
   // 写入日志文件
   await fs.appendFile(logFilePath, logMessage, 'utf8');
   // 控制台输出
