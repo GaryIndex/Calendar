@@ -15,11 +15,6 @@ export const logInfo = (message) => {
   console.log(message);  // 或者任何你想要的日志输出方式
 };
 // 确保目录存在
-// logUtils.js
-import fs from 'fs/promises';
-import path from 'path';
-import chalk from 'chalk';
-
 const dir = path.join(process.cwd(), "data");
 const logFilePath = path.join(dir, "scripts/error.log");
 const ensureDirectoryExists = async (dir) => {
