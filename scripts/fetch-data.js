@@ -15,6 +15,8 @@ export const logInfo = (message) => {
   console.log(message);  // 或者任何你想要的日志输出方式
 };
 // 确保目录存在
+const dir = path.join(process.cwd(), "data");
+const logFilePath = path.join(dir, "error.log");
 const ensureDirectoryExists = async (dir) => {
   try {
     await fs.mkdir(dir, { recursive: true });
@@ -22,7 +24,7 @@ const ensureDirectoryExists = async (dir) => {
     console.error(`[目录创建失败] ${error.message}`);
   }
 };
-
+/*
 // 确保日志目录存在
 const ensureLogDir = async () => {
   try {
@@ -31,10 +33,10 @@ const ensureLogDir = async () => {
     console.error(`❌ 创建日志目录失败: ${error.message}`);
   }
 };
-
+*/
 // 记录日志
 const writeLog = async (type, message) => {
-  await ensureLogDir();
+  await ensureDirectoryExists();
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] [${type}] ${message}\n`;
   await fs.appendFile(logFilePath, logMessage, "utf8");
@@ -50,12 +52,6 @@ const readIncrementData = async () => {
     return {}; // 文件不存在则返回空对象
   }
 };
-
-// 直接使用 new URL 和 path.dirname 获取当前目录路径
-
-const logDir = path.join(process.cwd(), "data");
-const logFilePath = path.join(logDir, "error.log");
-
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
