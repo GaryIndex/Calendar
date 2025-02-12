@@ -105,41 +105,49 @@ const processors = {
    * **处理天文数据**
    */
   astro: (data, allEvents) => {
-    logInfo("🛠️ 处理天文数据...");
-    Object.values(data).forEach(({ Reconstruction }) => {
-      if (!Array.isArray(Reconstruction)) {
-        return logInfo("❌ astro Reconstruction 数据不存在或格式错误！");
+  logInfo("🛠️ 处理天文数据...");
+  Object.values(data).forEach(({ Reconstruction }) => {
+    if (!Array.isArray(Reconstruction)) {
+      return logInfo("❌ astro Reconstruction 数据不存在或格式错误！");
+    }
+    Reconstruction.forEach(({ data }) => {
+      if (!data?.range) return;
+      const { name, range, ...details } = data;
+      // 解析 range，例如 "1.20-2.18"
+      const [start, end] = range.split("-").map(d => d.replace(".", "-"));
+      // 获取当前年份
+      const year = new Date().getFullYear();
+      const startDate = new Date(`${year}-${start}`);
+      const endDate = new Date(`${year}-${end}`);
+      // 处理 description（去除 range 以外的其他字段）
+      let description = Object.keys(details)
+        .map(key => {
+          let value = details[key];
+          // 如果 value 长度超过 5 个字符，做换行处理
+          if (value.length > 5) {
+            return value + "\n";  // 在值后添加换行符
+          }
+          return value;
+        })
+        .join(" ");  // 使用 " | " 分隔各个值
+      // 遍历日期范围，确保每天都生成数据
+      let currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        const eventDate = currentDate.toISOString().split("T")[0].replace(/-/g, ''); // 转换为 YYYYMMDD 格式
+        allEvents.push(createEvent({
+          date: eventDate,
+          title: name || "天文事件",
+          isAllDay: true,
+          description
+        }));
+        logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
+        currentDate.setDate(currentDate.getDate() + 1); // 日期 +1
       }
-      Reconstruction.forEach(({ data }) => {
-        if (!data?.range) return;
-        const { name, range, ...details } = data;
-        // 解析 range，例如 "1.20-2.18"
-        const [start, end] = range.split("-").map(d => d.replace(".", "-"));
-        // 获取当前年份
-        const year = new Date().getFullYear();
-        const startDate = new Date(`${year}-${start}`);
-        const endDate = new Date(`${year}-${end}`);
-        // 组装 description（去除 range 以外的其他字段）
-        const description = Object.values(details).join(" | ");
-        // 遍历日期范围，确保每天都生成数据
-        let currentDate = new Date(startDate);
-        while (currentDate <= endDate) {
-          const eventDate = currentDate.toISOString().split("T")[0].replace(/-/g, ''); // 转换为 YYYYMMDD 格式
-          allEvents.push(createEvent({
-            date: eventDate,
-            title: name || "天文事件",
-            isAllDay: true,
-            description
-          }));
-          logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
-          currentDate.setDate(currentDate.getDate() + 1); // 日期 +1
-        }
-      });
     });
-    // 打印 allEvents
-    //console.log("Astro allEvents：", allEvents);
-  },
-
+  });
+  // 打印 allEvents
+  //console.log("Astro allEvents：", allEvents);
+},
   /**
    * **处理时辰数据**
    */
