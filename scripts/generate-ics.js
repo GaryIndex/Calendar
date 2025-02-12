@@ -217,14 +217,14 @@ const processors = {
                     if (key === "pengzubaiji" && Array.isArray(value)) {
                         return value.join(", ");
                     }
-                    return (Array.isArray(value) ? value.join(" | ") : value);
+                    return (Array.isArray(value) ? value.join(" ") : value);
                 })
                 .join(" | ");
             // 生成事件标题
             let title = event.cnWeek || "万年历信息";
             if (event.festivals) title += ` ${event.festivals}`;
             // 处理闰年和闰月
-            let leapYear = event.leapYear === true ? "闰年" : "";
+            let leapYear = event.leapYear === true ? "闰年" : "平年";
             let leapMonth = event.leapMonth ? `闰${event.leapMonth}月` : "";
             if (leapYear || leapMonth) {
                 description = `${leapYear} ${leapMonth} | ${description}`.trim(); // ✅ 现在 description 是 let，可以修改
