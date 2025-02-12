@@ -15,8 +15,13 @@ export const logInfo = (message) => {
   console.log(message);  // 或者任何你想要的日志输出方式
 };
 // 确保目录存在
-//const dir = path.join(process.cwd(), "data");
-//const logFilePath = path.join(dir, "scripts/error.log");
+// logUtils.js
+import fs from 'fs/promises';
+import path from 'path';
+import chalk from 'chalk';
+
+const dir = path.join(process.cwd(), "data");
+const logFilePath = path.join(dir, "scripts/error.log");
 const ensureDirectoryExists = async (dir) => {
   try {
     await fs.mkdir(dir, { recursive: true });
@@ -24,27 +29,22 @@ const ensureDirectoryExists = async (dir) => {
     console.error(`[目录创建失败] ${error.message}`);
   }
 };
-const dir = path.join(process.cwd(), "data");
-const logFilePath = path.join(dir, "scripts/error.log");
-/*
-// 确保日志目录存在
-const ensureLogDir = async () => {
-  try {
-    await fs.mkdir(logDir, { recursive: true });
-  } catch (error) {
-    console.error(`❌ 创建日志目录失败: ${error.message}`);
-  }
-};
-*/
-// 记录日志
 const writeLog = async (type, message) => {
-  await ensureDirectoryExists();
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] [${type}] ${message}\n`;
-  await fs.appendFile(logFilePath, logMessage, "utf8");
+  // 确保目录存在
+  await ensureDirectoryExists(dir);
+  // 写入日志文件
+  await fs.appendFile(logFilePath, logMessage, 'utf8');
+  // 控制台输出
   console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
 };
-
+/*
+// 调用
+await writeLog("INFO", "这是一个信息日志");
+await writeLog("ERROR", "这是一个错误日志");
+*/
+export { writeLog };
 // 读取增量同步文件
 const readIncrementData = async () => {
   try {
