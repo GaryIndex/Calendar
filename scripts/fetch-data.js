@@ -50,7 +50,6 @@ const ensureDirectoryExists = async (dir) => {
     console.error(`[目录创建失败] ${error.message}`);
   }
 };
-*/
 
 const writeLog = async (type, message) => {
   const timestamp = new Date().toISOString();
@@ -62,6 +61,7 @@ const writeLog = async (type, message) => {
   // 控制台输出
   console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
 };
+*/
 /*
 // 调用
 await writeLog("INFO", "这是一个信息日志");
