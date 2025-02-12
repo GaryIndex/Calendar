@@ -69,19 +69,22 @@ const processors = {
    * **处理节气数据**
    */
   jieqi: (data, allEvents) => {
-    logInfo("🛠️ 处理节气数据...");
+  logInfo("🛠️ 处理节气数据...");
+  // 遍历所有日期键
+  Object.keys(data).forEach(dateKey => {
+    const reconstructionData = data[dateKey]?.Reconstruction;
     // 确保 Reconstruction 存在并且是数组
-    if (!Array.isArray(data.Reconstruction) || data.Reconstruction.length === 0) {
-      return logInfo("❌ jieqi Reconstruction 数据不存在！");
+    if (!Array.isArray(reconstructionData) || reconstructionData.length === 0) {
+      return logInfo(`❌ jieqi ${dateKey} Reconstruction 数据不存在！`);
     }
     // 遍历 Reconstruction 数组（过滤掉 errno 和 errmsg）
-    data.Reconstruction.forEach(entry => {
+    reconstructionData.forEach(entry => {
       if (!entry || typeof entry !== "object" || !Array.isArray(entry.data)) {
-        return logInfo(`❌ jieqi Reconstruction 数据格式错误: ${JSON.stringify(entry)}`);
+        return logInfo(`❌ jieqi ${dateKey} Reconstruction 数据格式错误: ${JSON.stringify(entry)}`);
       }
       entry.data.forEach(event => {
         if (!event.name || !event.time) {
-          logInfo(`❌ jieqi 缺少 name 或 time: ${JSON.stringify(event)}`);
+          logInfo(`❌ jieqi ${dateKey} 缺少 name 或 time: ${JSON.stringify(event)}`);
           return;
         }
         const [date, startTime] = event.time.split(" ");
@@ -100,9 +103,10 @@ const processors = {
         logInfo(`✅ 添加节气事件: ${event.time} - ${event.name}`);
       });
     });
-    // 打印 allEvents
-    //console.log("Jieqi allEvents：", allEvents);
-  },
+  });
+  // 打印 allEvents
+  //console.log("Jieqi allEvents：", allEvents);
+},
   /**
    * **处理天文数据**
    */
