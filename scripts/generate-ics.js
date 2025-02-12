@@ -96,7 +96,7 @@ const processors = {
           date: formattedDate,
           title: event.name,
           startTime: formattedStartTime,  // 格式化后的 startTime
-          isAllDay: false,
+          isAllDay: true,
           description: event.name,
           priority: 2
         }));
@@ -192,7 +192,7 @@ const processors = {
                     title,
                     startTime,
                     endTime,
-                    isAllDay: false,
+                    isAllDay: true,
                     description,
                     priority: 4
                 }));
