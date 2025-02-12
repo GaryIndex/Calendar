@@ -62,7 +62,7 @@ const processors = {
       });
     });
     // 打印 allEvents
-    console.log("Jiejiari allEvents：", allEvents);
+    //console.log("Jiejiari allEvents：", allEvents);
   },
   /**
    * **处理节气数据**
@@ -99,7 +99,7 @@ const processors = {
       });
     });
     // 打印 allEvents
-    console.log("Jieqi allEvents：", allEvents);
+    //console.log("Jieqi allEvents：", allEvents);
   },
   /**
    * **处理天文数据**
@@ -137,7 +137,7 @@ const processors = {
       });
     });
     // 打印 allEvents
-    console.log("Astro allEvents：", allEvents);
+    //console.log("Astro allEvents：", allEvents);
   },
 
   /**
@@ -185,7 +185,7 @@ const processors = {
         });
     });
     // 打印 allEvents
-    console.log("Shichen allEvents：", allEvents);
+    //console.log("Shichen allEvents：", allEvents);
   },
   /**
    * **处理万年历数据**
@@ -230,7 +230,7 @@ const processors = {
         });
     });
     // 打印 allEvents
-    console.log("calendar allEvents：", allEvents);
+    //console.log("calendar allEvents：", allEvents);
   }
 };
 // 异步加载所有 JSON 文件的数据
