@@ -16,7 +16,7 @@ export const logInfo = (message) => {
 };
 // 确保目录存在
 const dir = path.join(process.cwd(), "data");
-const logFilePath = path.join(dir, "error.log");
+const logFilePath = path.join(dir, "scripts/error.log");
 const ensureDirectoryExists = async (dir) => {
   try {
     await fs.mkdir(dir, { recursive: true });
