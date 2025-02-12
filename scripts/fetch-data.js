@@ -29,8 +29,37 @@ const ensureFile = async (filePath, defaultContent = '') => {
 // 执行创建过程
 await ensureFile(INCREMENT_FILE, JSON.stringify([]));
 await ensureFile(LOG_FILE, '');
+/*
+import fs from 'fs/promises';
+import path from 'path';
 
+// 日志文件路径
+const LOG_DIR = path.resolve(process.cwd(), 'logs');
+const LOG_FILE_PATH = path.join(LOG_DIR, 'error.log');
 
+// 确保日志目录存在
+const ensureDirectoryExists = async (dir) => {
+  try {
+    await fs.mkdir(dir, { recursive: true });
+  } catch (error) {
+    console.error(`[日志目录创建失败] ${error.message}`);
+  }
+};
+*/
+// 写入日志
+export const writeLog = async (level, message) => {
+  try {
+    await ensureDirectoryExists(LOG_DIR); // 确保 logs 目录存在
+
+    const timestamp = new Date().toISOString(); // 获取当前时间
+    const logMessage = `[${timestamp}] [${level}] ${message}\n`;
+
+    await fs.appendFile(LOG_FILE_PATH, logMessage); // 追加写入日志
+    console.log(logMessage.trim()); // 控制台输出
+  } catch (error) {
+    console.error(`[日志写入失败] ${error.message}`);
+  }
+};
 /*
 
 const DATA_PATH = path.resolve(__dirname, './data/Document');  // 使用绝对路径
@@ -67,7 +96,7 @@ const writeLog = async (type, message) => {
 await writeLog("INFO", "这是一个信息日志");
 await writeLog("ERROR", "这是一个错误日志");
 */
-export { writeLog };
+//export { writeLog };
 // 读取增量同步文件
 const readIncrementData = async () => {
   try {
