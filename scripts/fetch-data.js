@@ -7,6 +7,54 @@ import chalk from 'chalk';
 // 获取当前模块的目录路径
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
 // 数据存储路径
+
+import fs from 'fs/promises'; // 使用 fs 的 Promise 版本
+import path from 'path';
+
+const DATA_PATH = path.resolve(__dirname, './data/Document');  // 绝对路径
+const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');  // 增量文件路径
+const LOG_FILE = path.join(process.cwd(), 'data/scripts/error.log'); // 日志文件路径
+console.log(DATA_PATH);  // 调试输出存储路径
+console.log(INCREMENT_FILE);  // 调试输出增量文件路径
+export const logInfo = (message) => {
+  console.log(message);  // 这里可以扩展为更复杂的日志管理
+};
+
+// 确保目录和文件存在
+const ensureFilesExist = async () => {
+  try {
+    // 确保 `Increment/` 和 `scripts/` 目录存在
+    await fs.mkdir(path.dirname(INCREMENT_FILE), { recursive: true });
+    await fs.mkdir(path.dirname(LOG_FILE), { recursive: true });
+
+    // 确保 `Increment.json` 存在
+    try {
+      await fs.access(INCREMENT_FILE);  // 如果文件存在，则不会抛出错误
+      console.log('Increment.json 文件已存在。');
+    } catch {
+      // 文件不存在，创建并初始化为空数组
+      await fs.writeFile(INCREMENT_FILE, JSON.stringify([]), 'utf-8');
+      console.log('Increment.json 文件已创建。');
+    }
+    // 确保日志文件存在
+    try {
+      await fs.access(LOG_FILE);
+    } catch {
+      await fs.writeFile(LOG_FILE, '', 'utf-8'); // 创建空日志文件
+      console.log('error.log 文件已创建。');
+    }
+  } catch (error) {
+    console.error(`[初始化失败] ${error.message}`);
+  }
+};
+
+// 执行创建过程
+ensureFilesExist();
+
+
+
+/*
+
 const DATA_PATH = path.resolve(__dirname, './data/Document');  // 使用绝对路径
 const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');  // 增量文件路径
 console.log(DATA_PATH);  // 输出存储路径，调试用
@@ -24,6 +72,8 @@ const ensureDirectoryExists = async (dir) => {
     console.error(`[目录创建失败] ${error.message}`);
   }
 };
+*/
+
 const writeLog = async (type, message) => {
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] [${type}] ${message}\n`;
