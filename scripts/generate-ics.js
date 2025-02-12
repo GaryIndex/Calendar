@@ -125,7 +125,7 @@ const processors = {
           let value = details[key];
           // 如果 value 长度超过 5 个字符，做换行处理
           if (value.length > 5) {
-            return value + "\n";  // 在值后添加换行符
+            return value + "\r\n";  // 在值后添加换行符
           }
           return value;
         })
