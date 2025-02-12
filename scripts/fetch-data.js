@@ -10,10 +10,6 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM �
 export const logInfo = (message) => {
   console.log(message);  // 这里可以扩展为更复杂的日志管理
 };
-
-import fs from 'fs/promises';
-import path from 'path';
-
 const DATA_PATH = path.resolve(__dirname, './data/Document');
 const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
 const LOG_FILE = path.join(process.cwd(), 'data/scripts/error.log');
