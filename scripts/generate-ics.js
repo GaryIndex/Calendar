@@ -56,7 +56,7 @@ const processors = {
           date: formattedDate,
           title,
           isAllDay: true,
-          description: descParts
+          description: descParts,
           priority: 1
         }));
         logInfo(`✅ 添加节假日事件: ${formattedDate} - ${name}`);
@@ -94,7 +94,7 @@ const processors = {
           title: event.name,
           startTime: formattedStartTime,  // 格式化后的 startTime
           isAllDay: false,
-          description: `节气: ${event.name}`
+          description: event.name,
           priority: 2
         }));
         logInfo(`✅ 添加节气事件: ${event.time} - ${event.name}`);
@@ -137,9 +137,9 @@ const processors = {
         const eventDate = currentDate.toISOString().split("T")[0].replace(/-/g, ''); // 转换为 YYYYMMDD 格式
         allEvents.push(createEvent({
           date: eventDate,
-          title: name || "天文事件",
+          title: name || " ",
           isAllDay: true,
-          description
+          description,
           priority: 3
         }));
         logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
@@ -180,7 +180,7 @@ const processors = {
                     .filter(Boolean)
                     .join(" "); // 用空格分隔
                 // 检查 title 是否有效
-                const title = event.hour || "时辰事件"; // 如果没有 hour，默认用“时辰事件”
+                const title = event.hour || " "; // 如果没有 hour，默认用“时辰事件”
                 // 转换日期格式为 YYYYMMDD
                 const eventDate = date.replace(/-/g, ''); // 将日期格式化为 YYYYMMDD
                 allEvents.push(createEvent({
@@ -189,7 +189,7 @@ const processors = {
                     startTime,
                     endTime,
                     isAllDay: false,
-                    description
+                    description,
                     priority: 4
                 }));
             });
@@ -221,7 +221,7 @@ const processors = {
                 })
                 .join(" | ");
             // 生成事件标题
-            let title = event.cnWeek || "万年历信息";
+            let title = event.cnWeek || " ";
             if (event.festivals) title += ` ${event.festivals}`;
             // 处理闰年和闰月
             let leapYear = event.leapYear === true ? "闰年" : "平年";
@@ -236,7 +236,7 @@ const processors = {
                 date: eventDate, // 使用格式化后的日期 YYYYMMDD
                 title,
                 description,
-                isAllDay: true
+                isAllDay: true,
                 priority: 5
             }));
         });
