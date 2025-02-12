@@ -15,7 +15,7 @@ const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
 const LOG_FILE = path.join(process.cwd(), 'data/scripts/error.log');
 console.log(DATA_PATH);
 console.log(INCREMENT_FILE);
-export const logInfo = console.log;
+//export const logInfo = console.log;
 // 确保目录和文件存在
 const ensureFile = async (filePath, defaultContent = '') => {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
