@@ -223,7 +223,7 @@ export function createEvent({
   date,
   title,
   location = "",
-  isAllDay = false,
+  isAllDay = true,
   startTime = "",
   endTime = "",
   travelTime = "",
