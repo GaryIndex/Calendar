@@ -57,6 +57,7 @@ const processors = {
           title,
           isAllDay: true,
           description: descParts
+          priority: 5
         }));
         logInfo(`✅ 添加节假日事件: ${formattedDate} - ${name}`);
       });
@@ -94,6 +95,7 @@ const processors = {
           startTime: formattedStartTime,  // 格式化后的 startTime
           isAllDay: false,
           description: `节气: ${event.name}`
+          priority: 2
         }));
         logInfo(`✅ 添加节气事件: ${event.time} - ${event.name}`);
       });
@@ -138,6 +140,7 @@ const processors = {
           title: name || "天文事件",
           isAllDay: true,
           description
+          priority: 3
         }));
         logInfo(`✅ 添加天文事件: ${eventDate} - ${name}`);
         currentDate.setDate(currentDate.getDate() + 1); // 日期 +1
@@ -187,6 +190,7 @@ const processors = {
                     endTime,
                     isAllDay: false,
                     description
+                     priority:4
                 }));
             });
         });
@@ -233,6 +237,7 @@ const processors = {
                 title,
                 description,
                 isAllDay: true
+                 priority:5
             }));
         });
     });
