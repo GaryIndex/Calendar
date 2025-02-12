@@ -57,7 +57,7 @@ const processors = {
           title,
           isAllDay: true,
           description: descParts
-          priority: 5,
+          priority: 1,
         }));
         logInfo(`✅ 添加节假日事件: ${formattedDate} - ${name}`);
       });
@@ -190,7 +190,7 @@ const processors = {
                     endTime,
                     isAllDay: false,
                     description
-                     priority:4,
+                    priority: 4,
                 }));
             });
         });
@@ -237,7 +237,7 @@ const processors = {
                 title,
                 description,
                 isAllDay: true
-                 priority:1,
+                priority: 5,
             }));
         });
     });
