@@ -15,8 +15,8 @@ export const logInfo = (message) => {
   console.log(message);  // 或者任何你想要的日志输出方式
 };
 // 确保目录存在
-const dir = path.join(process.cwd(), "data");
-const logFilePath = path.join(dir, "scripts/error.log");
+//const dir = path.join(process.cwd(), "data");
+//const logFilePath = path.join(dir, "scripts/error.log");
 const ensureDirectoryExists = async (dir) => {
   try {
     await fs.mkdir(dir, { recursive: true });
@@ -24,6 +24,8 @@ const ensureDirectoryExists = async (dir) => {
     console.error(`[目录创建失败] ${error.message}`);
   }
 };
+const dir = path.join(process.cwd(), "data");
+const logFilePath = path.join(dir, "scripts/error.log");
 /*
 // 确保日志目录存在
 const ensureLogDir = async () => {
