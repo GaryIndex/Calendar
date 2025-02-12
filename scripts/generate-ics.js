@@ -123,8 +123,7 @@ const processors = {
       let description = Object.keys(details)
         .map(key => {
           let value = details[key];
-          // 如果 value 长度超过 5 个字符，做换行处理
-          if (value.length > 5) {
+          if (value.length > 10) {
             return value + "\r\n";  // 在值后添加换行符
           }
           return value;
