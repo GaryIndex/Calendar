@@ -16,11 +16,17 @@ const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log'); // 使用仓库根�
 //const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
 //const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log');
 const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
-
-
 // 增量数据文件路径
 const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
 const LOG_FILE = path.resolve(DATA_PATH, 'Document/file/error.log');  // 使用绝对路径来指向文件
+const fs = require('fs');
+fs.access(INCREMENT_FILE, fs.constants.W_OK, (err) => {
+  if (err) {
+    console.error(`没有写入权限: ${err.message}`);
+  } else {
+    console.log('文件可以写入');
+  }
+});
 // 输出路径以调试
 console.log(DATA_PATH);
 console.log(INCREMENT_FILE);
