@@ -6,8 +6,8 @@ import deepmerge from "deepmerge";
 import chalk from 'chalk';
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
 // 数据存储路径，使用仓库根目录作为基础路径
-const ROOT_DIR = path.resolve(__dirname, '../../'); // 设定仓库根目录
-const DATA_PATH = path.resolve(ROOT_DIR, './Document'); // 以仓库根目录为基础的路径
+const ROOT_DIR = path.resolve(__dirname, '../../');  // 设定仓库根目录
+const DATA_PATH = path.resolve(ROOT_DIR, 'Document'); // 以仓库根目录为基础的路径
 const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json'); // 存储 Increment.json 文件的路径
 const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log'); // 使用仓库根目录路径定义 log 文件路径
 // 输出路径以调试
