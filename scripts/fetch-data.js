@@ -184,14 +184,22 @@ const saveYearlyData = async (fileName, date, newData) => {
 // 读取增量数据
 const readIncrementData = async () => {
   try {
+    // 检查增量数据文件是否存在
+    const fileExists = await fs.access(INCREMENT_FILE).then(() => true).catch(() => false);
+    if (!fileExists) {
+      console.log('增量数据文件不存在，初始化为空对象');
+      return {};  // 如果文件不存在，返回空对象
+    }
     const data = await fs.readFile(INCREMENT_FILE, 'utf8');
     if (data) {
       return JSON.parse(data);  // 如果文件中有数据，返回解析后的对象
     }
-    return {};  // 如果文件为空，返回空对象
+    // 如果文件为空，返回空对象
+    console.log('增量数据文件为空，返回空对象');
+    return {};  
   } catch (error) {
     console.error('读取增量数据失败:', error);
-    return {};  // 如果文件不存在或者读取错误，则返回空对象
+    return {};  // 如果文件读取失败，返回空对象
   }
 };
 
@@ -199,8 +207,9 @@ const readIncrementData = async () => {
 const saveIncrementData = async (date) => {
   try {
     const incrementData = await readIncrementData();
-    incrementData[date] = true; // 将当前日期标记为已查询
     console.log('增量数据保存前:', incrementData);  // 日志输出查看数据
+    // 将当前日期标记为已查询
+    incrementData[date] = true;
     // 确保正确写入文件
     await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
     console.log('增量数据保存后:', incrementData);  // 确认保存后的数据
@@ -208,6 +217,11 @@ const saveIncrementData = async (date) => {
     console.error('保存增量数据失败:', error);
   }
 };
+// 测试代码：假设保存某个日期
+const testDate = '2025-02-14';
+saveIncrementData(testDate).then(() => {
+  console.log('增量数据操作完成');
+});
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
