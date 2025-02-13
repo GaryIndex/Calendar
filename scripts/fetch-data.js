@@ -184,6 +184,9 @@ const saveYearlyData = async (fileName, date, newData) => {
   }
 };
 
+//const fs = require('fs').promises;
+// 增量数据文件路径
+//const INCREMENT_FILE = '/home/runner/work/Calendar/Calendar/Document/Document/Increment.json';
 // 读取增量数据
 const readIncrementData = async () => {
   try {
@@ -196,7 +199,6 @@ const readIncrementData = async () => {
     const data = await fs.readFile(INCREMENT_FILE, 'utf8');
     if (data) {
       console.log(`增量数据文件路径: ${INCREMENT_FILE}，内容: ${data}`);
-      // 确保返回的是对象
       return JSON.parse(data);  // 如果文件中有数据，返回解析后的对象
     }
     // 如果文件为空，返回空对象
@@ -217,7 +219,9 @@ const saveIncrementData = async (date) => {
     incrementData[date] = true;
     // 确保正确写入文件
     await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
-    console.log(`增量数据保存后, 路径: ${INCREMENT_FILE}, 内容: ${JSON.stringify(incrementData, null, 2)}`);
+    // 读取文件内容确认保存是否成功
+    const newData = await fs.readFile(INCREMENT_FILE, 'utf8');
+    console.log(`增量数据保存后, 路径: ${INCREMENT_FILE}, 内容: ${newData}`);
   } catch (error) {
     console.error(`保存增量数据失败，路径: ${INCREMENT_FILE}`, error);
   }
@@ -227,6 +231,9 @@ let testDate = '2025-02-14';
 saveIncrementData(testDate).then(() => {
   console.log('增量数据操作完成');
 });
+
+
+
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
