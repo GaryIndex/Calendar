@@ -18,6 +18,11 @@ export const dataPaths = {
   calendar: path.resolve(DATA_PATH, 'calendar.json'),
   shichen: path.resolve(DATA_PATH, 'shichen.json'),
 };
+// 打印所有目录
+logInfo("打印所有目录:");
+Object.entries(dataPaths).forEach(([key, value]) => {
+  logInfo(`${key}: ${value}`);
+});
  // **数据处理器**
 const processors = {
   /**
