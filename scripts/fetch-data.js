@@ -29,7 +29,9 @@ const ensureFile = async (filePath, defaultContent = '') => {
 // 执行创建过程
 await ensureFile(INCREMENT_FILE, JSON.stringify([])); // 创建 Increment.json 文件
 await ensureFile(LOG_FILE, ''); // 创建 log 文件（如果没有的话）
-
+export const logInfo = (message) => {
+  console.log(message);  // 这里可以扩展为更复杂的日志管理
+};
 /*
 // 获取当前模块的目录路径
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
