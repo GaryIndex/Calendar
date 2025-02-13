@@ -221,24 +221,25 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
-      // 处理和扁平化数据
+      // 打印所有原始数据以确认数据是否已正确获取
+      await writeLog('INFO', 'calendar.json', `原始calendar数据: ${JSON.stringify(calendarData, null, 2)}`);
+      await writeLog('INFO', 'astro.json', `原始astro数据: ${JSON.stringify(astroData, null, 2)}`);
+      await writeLog('INFO', 'shichen.json', `原始shichen数据: ${JSON.stringify(shichenData, null, 2)}`);
+      await writeLog('INFO', 'jieqi.json', `原始jieqi数据: ${JSON.stringify(jieqiData, null, 2)}`);
+      await writeLog('INFO', 'holidays.json', `原始holidays数据: ${JSON.stringify(holidaysData, null, 2)}`);
+      // 扁平化数据
       const processedCalendarData = flattenCalendarData(calendarData, dateStr);
-      const processedAstroData = flattenAstroData(astroData, dateStr); // 假设你有类似的处理函数
-      const processedShichenData = flattenShichenData(shichenData, dateStr); // 假设你有类似的处理函数
-      const processedJieqiData = flattenJieqiData(jieqiData, dateStr); // 假设你有类似的处理函数
-      const processedHolidaysData = flattenHolidaysData(holidaysData, dateStr); // 假设你有类似的处理函数
-      // 打印原始数据和扁平化后的数据到日志
-      await writeLog('INFO', 'calendar.json', `等待扁平化的日历数据: ${JSON.stringify(calendarData, null, 2)}`);
+      const processedAstroData = flattenAstroData(astroData, dateStr);
+      const processedShichenData = flattenShichenData(shichenData, dateStr);
+      const processedJieqiData = flattenJieqiData(jieqiData, dateStr);
+      const processedHolidaysData = flattenHolidaysData(holidaysData, dateStr);
+      // 打印扁平化后的数据
       await writeLog('INFO', 'calendar.json', `扁平化后的日历数据: ${JSON.stringify(processedCalendarData, null, 2)}`);
-      await writeLog('INFO', 'astro.json', `等待扁平化的星座数据: ${JSON.stringify(astroData, null, 2)}`);
       await writeLog('INFO', 'astro.json', `扁平化后的星座数据: ${JSON.stringify(processedAstroData, null, 2)}`);
-      await writeLog('INFO', 'shichen.json', `等待扁平化的时辰数据: ${JSON.stringify(shichenData, null, 2)}`);
       await writeLog('INFO', 'shichen.json', `扁平化后的时辰数据: ${JSON.stringify(processedShichenData, null, 2)}`);
-      await writeLog('INFO', 'jieqi.json', `等待扁平化的节气数据: ${JSON.stringify(jieqiData, null, 2)}`);
       await writeLog('INFO', 'jieqi.json', `扁平化后的节气数据: ${JSON.stringify(processedJieqiData, null, 2)}`);
-      await writeLog('INFO', 'holidays.json', `等待扁平化的节假日数据: ${JSON.stringify(holidaysData, null, 2)}`);
       await writeLog('INFO', 'holidays.json', `扁平化后的节假日数据: ${JSON.stringify(processedHolidaysData, null, 2)}`);
-      // 存储按年份分类的数据
+      // 保存数据
       await saveYearlyData('jieqi.json', dateStr, processedJieqiData);
       await saveYearlyData('holidays.json', dateStr, processedHolidaysData);
       await saveYearlyData('calendar.json', dateStr, processedCalendarData);
