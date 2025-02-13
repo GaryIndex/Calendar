@@ -210,10 +210,6 @@ const readIncrementData = async () => {
 };
 
 // 保存增量数据
-import fs from 'fs/promises';
-import path from 'path';
-
-// 保存增量数据
 const saveIncrementData = async (date) => {
   try {
     // 打印传递过来的日期数据
