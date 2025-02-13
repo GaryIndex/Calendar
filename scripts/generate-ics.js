@@ -7,6 +7,8 @@ import { logInfo, createEvent } from './fetch-data.js'; // 确保引入了必要
 const icsFilePath = './calendar.ics';
 // 使用 import.meta.url 获取当前模块的路径并转换为 __dirname
 // 获取项目根目录
+const __filename = new URL(import.meta.url).pathname;  // 获取当前文件路径
+const __dirname = path.dirname(__filename);  // 获取当前文件所在目录
 const ROOT_DIR = path.resolve(__dirname, '../../');  // 向上两级目录
 // 数据路径基于项目根目录
 const DATA_PATH = path.join(ROOT_DIR, 'Document');  // 假设 Document 文件夹在根目录下
