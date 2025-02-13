@@ -108,7 +108,7 @@ const saveYearlyData = async (fileName, date, newData) => {
   const year = date.split('-')[0];  // 获取年份
   const filePath = path.join(DATA_PATH, fileName);  // 生成完整文件路径
   // 打印出当前处理的文件路径
-  console.log(`待处理的数据: ${newData}`);
+  console.log('待处理的数据:', JSON.stringify(newData, null, 2));
   console.log(`正在处理文件: ${filePath}`);
   // 仅对指定文件（如 jieqi.json、holidays.json）执行按年份存储逻辑
   if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
