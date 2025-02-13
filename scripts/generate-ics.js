@@ -7,10 +7,11 @@ import { logInfo, createEvent } from './fetch-data.js'; // 确保引入了必要
 const icsFilePath = './calendar.ics';
 // 使用 import.meta.url 获取当前模块的路径并转换为 __dirname
 // 获取项目根目录
-const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
-const ROOT_DIR = path.resolve(__dirname, '../../');  // 向上两级目录
+//const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
+//const ROOT_DIR = path.resolve(__dirname, '../../');  // 向上两级目录
 // 数据路径基于项目根目录
-const DATA_PATH = path.join(ROOT_DIR, 'Document');  // 假设 Document 文件夹在根目录下
+//const DATA_PATH = path.join(ROOT_DIR, 'Document');  // 假设 Document 文件夹在根目录下
+const DATA_PATH = './Document';  // 指向仓库根目录下的 'data' 文件夹
 export const dataPaths = {
   holidays: path.resolve(DATA_PATH, 'holidays.json'),
   jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
