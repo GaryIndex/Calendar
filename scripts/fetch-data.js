@@ -12,7 +12,7 @@ export const logInfo = (message) => {
 };
 const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
 const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
-const LOG_FILE = path.resolve(DATA_PATH, 'Document/file/error.log');  // 使用绝对路径来指向文件
+const LOG_FILE = path.resolve(DATA_PATH, 'Daily/error.log');  // 使用绝对路径来指向文件
 // 输出路径以调试
 console.log(DATA_PATH);
 console.log(INCREMENT_FILE);
@@ -55,7 +55,7 @@ export const writeLog = async (level, message) => {
     const timestamp = new Date().toISOString(); // 获取当前时间
     const logMessage = `[${timestamp}] [${level}] ${message}\n`;
 
-    await fs.appendFile(LOG_FILE_PATH, logMessage); // 追加写入日志
+    await fs.appendFile(LOG_FILE, logMessage); // 追加写入日志
     console.log(logMessage.trim()); // 控制台输出
   } catch (error) {
     console.error(`[日志写入失败] ${error.message}`);
