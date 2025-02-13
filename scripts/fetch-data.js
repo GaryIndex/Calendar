@@ -4,22 +4,9 @@ import axios from "axios";
 import moment from "moment-timezone";
 import deepmerge from "deepmerge";
 import chalk from 'chalk';
-/*
-const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
-// 数据存储路径，使用仓库根目录作为基础路径
-const ROOT_DIR = path.resolve(__dirname, '../../');  // 设定仓库根目录
-const DATA_PATH = path.resolve(ROOT_DIR, 'Document'); // 以仓库根目录为基础的路径
-const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json'); // 存储 Increment.json 文件的路径
-const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log'); // 使用仓库根目录路径定义 log 文件路径
-*/
-//const DATA_PATH = path.resolve(process.cwd(), 'Document');
-//const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
-//const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log');
 const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
-// 增量数据文件路径
 const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
 const LOG_FILE = path.resolve(DATA_PATH, 'Document/file/error.log');  // 使用绝对路径来指向文件
-
 // 输出路径以调试
 console.log(DATA_PATH);
 console.log(INCREMENT_FILE);
@@ -41,42 +28,16 @@ await ensureFile(INCREMENT_FILE, JSON.stringify([])); // 创建 Increment.json �
 await ensureFile(LOG_FILE, ''); // 创建 log 文件（如果没有的话）
 export const logInfo = (message) => {
   console.log(message);  // 这里可以扩展为更复杂的日志管理
-};
+}
 
-
-/*
-// 获取当前模块的目录路径
-const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
-// 数据存储路径
-export const logInfo = (message) => {
-  console.log(message);  // 这里可以扩展为更复杂的日志管理
-};
-const DATA_PATH = path.resolve(__dirname, './data/Document');
-const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
-const LOG_FILE = path.join(process.cwd(), 'data/scripts/error.log');
-console.log(DATA_PATH);
-console.log(INCREMENT_FILE);
-//export const logInfo = console.log;
-// 确保目录和文件存在
-const ensureFile = async (filePath, defaultContent = '') => {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
+const ensureDirectoryExists = async (dir) => {
   try {
-    await fs.access(filePath);
-  } catch {
-    await fs.writeFile(filePath, defaultContent, 'utf-8');
-    console.log(`${path.basename(filePath)} 文件已创建。`);
+    await fs.mkdir(dir, { recursive: true });
+  } catch (error) {
+    console.error(`[日志目录创建失败] ${error.message}`);
   }
-};
-// 执行创建过程
-await ensureFile(INCREMENT_FILE, JSON.stringify([]));
-//await ensureFile(INCREMENT_FILE, '');
-import fs from 'fs/promises';
-import path from 'path';
+}
 
-// 日志文件路径
-const LOG_DIR = path.resolve(process.cwd(), 'logs');
-const LOG_FILE_PATH = path.join(LOG_DIR, 'error.log');
-*/
 // 写入日志
 export const writeLog = async (level, message) => {
   try {
@@ -89,42 +50,7 @@ export const writeLog = async (level, message) => {
     console.error(`[日志写入失败] ${error.message}`);
   }
 };
-/*
 
-const DATA_PATH = path.resolve(__dirname, './data/Document');  // 使用绝对路径
-const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');  // 增量文件路径
-console.log(DATA_PATH);  // 输出存储路径，调试用
-console.log(INCREMENT_FILE);  // 输出增量文件路径，调试用
-export const logInfo = (message) => {
-  console.log(message);  // 或者任何你想要的日志输出方式
-};
-// 确保目录存在
-const dir = path.join(process.cwd(), "data");
-const logFilePath = path.join(dir, "scripts/error.log");
-const ensureDirectoryExists = async (dir) => {
-  try {
-    await fs.mkdir(dir, { recursive: true });
-  } catch (error) {
-    console.error(`[目录创建失败] ${error.message}`);
-  }
-};
-
-const writeLog = async (type, message) => {
-  const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] [${type}] ${message}\n`;
-  // 确保日志文件所在目录存在
-  await ensureDirectoryExists(path.dirname(logFilePath)); // 确保父目录存在
-  // 写入日志文件
-  await fs.appendFile(logFilePath, logMessage, 'utf8');
-  // 控制台输出
-  console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
-};
-*/
-/*
-// 调用
-await writeLog("INFO", "这是一个信息日志");
-await writeLog("ERROR", "这是一个错误日志");
-*/
 // 读取 JSON 文件
 const readJsonFile = async (filePath) => {
   try {
@@ -176,60 +102,24 @@ const saveYearlyData = async (fileName, date, newData) => {
   }
 };
 
-//const fs = require('fs').promises;
-// 增量数据文件路径
-//const INCREMENT_FILE = '/home/runner/work/Calendar/Calendar/Document/Document/Increment.json';
 // 读取增量数据
 const readIncrementData = async () => {
   try {
-    // 检查增量数据文件是否存在
-    const fileExists = await fs.access(INCREMENT_FILE).then(() => true).catch(() => false);
-    if (!fileExists) {
-      console.log(`增量数据文件不存在，路径: ${INCREMENT_FILE}，初始化为空对象`);
-      return {};  // 如果文件不存在，返回空对象
-    }
     const data = await fs.readFile(INCREMENT_FILE, 'utf8');
-    if (data) {
-      console.log(`增量数据文件路径: ${INCREMENT_FILE}，内容: ${data}`);
-      return JSON.parse(data);  // 如果文件中有数据，返回解析后的对象
-    }
-    // 如果文件为空，返回空对象
-    console.log(`增量数据文件为空，路径: ${INCREMENT_FILE}，返回空对象`);
-    return {};  
+    return JSON.parse(data); // 如果文件中没有数据，返回空对象
   } catch (error) {
-    console.error(`读取增量数据失败，路径: ${INCREMENT_FILE}`, error);
-    return {};  // 如果文件读取失败，返回空对象
+    console.error('读取增量数据失败:', error);
+    return {}; // 如果文件不存在则返回空对象
   }
 };
-
 // 保存增量数据
 const saveIncrementData = async (date) => {
-  try {
-    // 打印传递过来的日期数据
-    console.log(`传递过来的日期数据: ${date}`);
-    const incrementData = await readIncrementData();
-    console.log(`增量数据保存前, 路径: ${INCREMENT_FILE}, 内容: ${JSON.stringify(incrementData, null, 2)}`);
-    // 将当前日期标记为已查询
-    incrementData[date] = true;
-    // 确保正确写入文件
-    await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
-    // 读取文件内容确认保存是否成功
-    const newData = await fs.readFile(INCREMENT_FILE, 'utf8');
-    console.log(`增量数据保存后, 路径: ${INCREMENT_FILE}, 内容: ${newData}`);
-  } catch (error) {
-    console.error(`保存增量数据失败，路径: ${INCREMENT_FILE}`, error);
-  }
+  const incrementData = await readIncrementData();
+  incrementData[date] = true; // 将当前日期标记为已查询
+  console.log('增量数据保存前:', incrementData);  // 日志输出查看数据
+  await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
+  console.log('增量数据保存后:', incrementData);  // 确认保存后的数据
 };
-/*
-// 测试代码：假设保存某个日期
-let testDate = '2025-02-14';
-saveIncrementData(testDate).then(() => {
-  console.log('增量数据操作完成');
-});
-*/
-
-
-
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
