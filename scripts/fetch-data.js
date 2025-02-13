@@ -19,7 +19,6 @@ const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工�
 // 增量数据文件路径
 const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
 const LOG_FILE = path.resolve(DATA_PATH, 'Document/file/error.log');  // 使用绝对路径来指向文件
-const fs = require('fs');
 fs.access(INCREMENT_FILE, fs.constants.W_OK, (err) => {
   if (err) {
     console.error(`没有写入权限: ${err.message}`);
