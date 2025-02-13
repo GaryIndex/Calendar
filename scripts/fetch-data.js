@@ -103,21 +103,47 @@ const readJsonFile = async (filePath) => {
 };
 
 // 数据按年份存储
+// 数据按年份存储
 const saveYearlyData = async (fileName, date, newData) => {
-  const year = date.split('-')[0];
-  const filePath = path.join(DATA_PATH, `${fileName}`);
-  let existingData = await readJsonFile(filePath);
-  // 仅保留最新查询的同一年数据
-  Object.keys(existingData).forEach((key) => {
-    if (key.startsWith(year)) {
-      delete existingData[key];
+  const year = date.split('-')[0];  // 获取年份
+  const filePath = path.join(DATA_PATH, fileName);  // 生成完整文件路径
+  // 打印出当前处理的文件路径
+  console.log(`待处理的数据: ${newData}`);
+  console.log(`正在处理文件: ${filePath}`);
+  // 仅对指定文件（如 jieqi.json、holidays.json）执行按年份存储逻辑
+  if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
+    console.log(`检查年份数据：${year} 在文件 ${filePath} 中`);
+    let existingData = await readJsonFile(filePath);
+    console.log('读取现有数据:', existingData);
+    // 检查是否已有相同年份的数据
+    const existingYearData = Object.keys(existingData).find((key) => key.startsWith(year));
+    if (existingYearData) {
+      // 如果已有年份数据，覆盖该年份的内容
+      console.log(`找到年份数据，覆盖现有数据: ${existingYearData}`);
+      existingData[existingYearData][date] = { Reconstruction: [newData] };
+    } else {
+      // 如果没有该年份的数据，则新增该年份的数据
+      console.log(`未找到年份数据，新建年份数据: ${year}`);
+      existingData[date] = { Reconstruction: [newData] };
     }
-  });
-  existingData[date] = { Reconstruction: [newData] };
-  await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
-  await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
+    // 写入数据到文件
+    console.log(`正在将数据写入文件 ${filePath}`);
+    await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
+    await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
+    console.log(`文件 ${filePath} 数据保存成功`);
+  } else {
+    // 对其他文件不做修改，直接按原方式保存
+    console.log(`处理非特殊文件：${fileName}`);
+    let existingData = await readJsonFile(filePath);
+    console.log('读取现有数据:', existingData);
+    existingData[date] = { Reconstruction: [newData] };
+    // 写入数据到文件
+    console.log(`正在将数据写入文件 ${filePath}`);
+    await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
+    await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
+    console.log(`文件 ${filePath} 数据保存成功`);
+  }
 };
-
 // 扁平化 calendar 数据
 const flattenCalendarData = (data) => {
   if (!data || typeof data !== 'object') return {};
