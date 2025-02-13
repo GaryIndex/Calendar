@@ -2,7 +2,7 @@ import fs from 'fs/promises'; // 使用 fs/promises 来处理文件读取
 import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import { logInfo, createEvent } from './fetch-data.js'; // 确保引入了必要的工具
+//import { logInfo, createEvent } from './fetch-data.js'; // 确保引入了必要的工具
 // 确保 icsFilePath 已经定义，指定输出文件路径
 const icsFilePath = './calendar.ics';
 // 使用 import.meta.url 获取当前模块的路径并转换为 __dirname
@@ -366,7 +366,40 @@ const main = async () => {
 };
 main();  // 执行
 
-
+// **创建标准化事件对象**
+export function createEvent({
+  date,
+  title,
+  location = "",
+  isAllDay = true,
+  startTime = "",
+  endTime = "",
+  travelTime = "",
+  repeat = "",
+  alarm = "",
+  attachment = "",
+  url = "",
+  badge = "",
+  description = "",
+  priority = 0,
+}) {
+  return {
+    date,
+    title,
+    location,
+    isAllDay,
+    startTime,
+    endTime,
+    travelTime,
+    repeat,
+    alarm,
+    attachment,
+    url,
+    badge,
+    description,
+    priority,
+  };
+}
 
 
 
