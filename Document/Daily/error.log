@@ -1,0 +1,326 @@
+[2025-02-13T18:12:35.950Z] [INFO] [fetchData] 🚀 开始数据抓取...
+[2025-02-13T18:12:35.954Z] [INFO] [fetchData] 📅 处理日期: 2025-02-11
+[2025-02-13T18:12:36.421Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-13T18:12:36.793Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-13T18:12:36.799Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-13T18:12:36.866Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-13T18:12:36.883Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-13T18:12:36.884Z] [INFO] [calendar.json] 等待扁平化的日历数据: {
+  "errno": 0,
+  "errmsg": "",
+  "data": {
+    "year": 2025,
+    "leapYear": false,
+    "month": 2,
+    "maxDayInMonth": 28,
+    "enMonth": "February",
+    "astro": "水瓶座",
+    "cnWeek": "星期二",
+    "enWeek": "Tuesday",
+    "weekInYear": 7,
+    "day": 11,
+    "dayInYear": 42,
+    "julianDay": 2460717.8333333335,
+    "hour": 8,
+    "minute": 0,
+    "second": 0,
+    "festivals": [],
+    "lunar": {
+      "zodiac": "蛇",
+      "year": 2025,
+      "month": 1,
+      "day": 14,
+      "cnYear": "二零二五",
+      "cnMonth": "正月",
+      "cnDay": "十四",
+      "cyclicalYear": "乙巳",
+      "cyclicalMonth": "戊寅",
+      "cyclicalDay": "辛亥",
+      "hour": "辰时",
+      "maxDayInMonth": 30,
+      "leapMonth": 6,
+      "yuexiang": "小望",
+      "wuhou": "蛰虫始振",
+      "shujiu": "六九",
+      "sanfu": "",
+      "solarTerms": {}
+    },
+    "almanac": {
+      "yi": "移徙 祭祀 开光 祈福 出行 解除 进人口 雇庸 安床 动土 起基 上梁 安门 解除",
+      "ji": "嫁娶 安葬 破土 作梁 纳畜 牧养 行丧 作灶",
+      "chong": "生肖冲(乙巳)蛇",
+      "sha": "煞西",
+      "nayin": "钗钏金",
+      "shiershen": "收神",
+      "xingxiu": "尾宿",
+      "zheng": "火",
+      "shou": "青龙",
+      "pengzubaiji": [
+        "辛不合酱主人不尝",
+        "亥不嫁娶不利新郎"
+      ],
+      "jishenfangwei": {
+        "xi": "坤-西南",
+        "yanggui": "艮-东北",
+        "yingui": "离-正南",
+        "fu": "乾-西北",
+        "cai": "震-正东"
+      },
+      "liuyao": "友引",
+      "jiuxing": "三碧木天玑",
+      "taisui": "巽-东南"
+    }
+  }
+}
+[2025-02-13T18:12:36.884Z] [INFO] [calendar.json] 扁平化后的日历数据: {}
+[2025-02-13T18:12:36.886Z] [INFO] [✅ jieqi.json (2025-02-11) 数据保存成功] undefined
+[2025-02-13T18:12:36.887Z] [INFO] [✅ holidays.json (2025-02-11) 数据保存成功] undefined
+[2025-02-13T18:12:36.888Z] [INFO] [✅ calendar.json (2025-02-11) 数据保存成功] undefined
+[2025-02-13T18:12:36.889Z] [INFO] [✅ astro.json (2025-02-11) 数据保存成功] undefined
+[2025-02-13T18:12:36.890Z] [INFO] [✅ shichen.json (2025-02-11) 数据保存成功] undefined
+[2025-02-13T18:12:36.891Z] [INFO] [fetchData] ✅ 2025-02-11 数据保存成功
+[2025-02-13T18:12:36.891Z] [INFO] [fetchData] 📅 处理日期: 2025-02-12
+[2025-02-13T18:12:37.013Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-13T18:12:37.135Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-13T18:12:37.136Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-13T18:12:37.141Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-13T18:12:37.142Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-13T18:12:37.142Z] [INFO] [calendar.json] 等待扁平化的日历数据: {
+  "errno": 0,
+  "errmsg": "",
+  "data": {
+    "year": 2025,
+    "leapYear": false,
+    "month": 2,
+    "maxDayInMonth": 28,
+    "enMonth": "February",
+    "astro": "水瓶座",
+    "cnWeek": "星期三",
+    "enWeek": "Wednesday",
+    "weekInYear": 7,
+    "day": 12,
+    "dayInYear": 43,
+    "julianDay": 2460718.8333333335,
+    "hour": 8,
+    "minute": 0,
+    "second": 0,
+    "festivals": [
+      "元宵节"
+    ],
+    "lunar": {
+      "zodiac": "蛇",
+      "year": 2025,
+      "month": 1,
+      "day": 15,
+      "cnYear": "二零二五",
+      "cnMonth": "正月",
+      "cnDay": "十五",
+      "cyclicalYear": "乙巳",
+      "cyclicalMonth": "戊寅",
+      "cyclicalDay": "壬子",
+      "hour": "辰时",
+      "maxDayInMonth": 30,
+      "leapMonth": 6,
+      "yuexiang": "望",
+      "wuhou": "蛰虫始振",
+      "shujiu": "六九",
+      "sanfu": "",
+      "solarTerms": {}
+    },
+    "almanac": {
+      "yi": "嫁娶 开光 祈福 求嗣 解除 动土 安床 栽种 开池 掘井 祭祀 破土 启钻",
+      "ji": "入宅 作灶 伐木 安葬 出火 出行 纳畜",
+      "chong": "生肖冲(丙午)马",
+      "sha": "煞南",
+      "nayin": "桑柘木",
+      "shiershen": "开神",
+      "xingxiu": "箕宿",
+      "zheng": "水",
+      "shou": "青龙",
+      "pengzubaiji": [
+        "壬不泱水更难提防",
+        "子不问卜自惹祸殃"
+      ],
+      "jishenfangwei": {
+        "xi": "离-正南",
+        "yanggui": "震-正东",
+        "yingui": "巽-东南",
+        "fu": "巽-东南",
+        "cai": "离-正南"
+      },
+      "liuyao": "先负",
+      "jiuxing": "四绿木天权",
+      "taisui": "坎-正北"
+    }
+  }
+}
+[2025-02-13T18:12:37.142Z] [INFO] [calendar.json] 扁平化后的日历数据: {}
+[2025-02-13T18:12:37.143Z] [INFO] [✅ jieqi.json (2025-02-12) 数据保存成功] undefined
+[2025-02-13T18:12:37.144Z] [INFO] [✅ holidays.json (2025-02-12) 数据保存成功] undefined
+[2025-02-13T18:12:37.145Z] [INFO] [✅ calendar.json (2025-02-12) 数据保存成功] undefined
+[2025-02-13T18:12:37.146Z] [INFO] [✅ astro.json (2025-02-12) 数据保存成功] undefined
+[2025-02-13T18:12:37.147Z] [INFO] [✅ shichen.json (2025-02-12) 数据保存成功] undefined
+[2025-02-13T18:12:37.148Z] [INFO] [fetchData] ✅ 2025-02-12 数据保存成功
+[2025-02-13T18:12:37.148Z] [INFO] [fetchData] 📅 处理日期: 2025-02-13
+[2025-02-13T18:12:37.282Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-13T18:12:37.390Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-13T18:12:37.393Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-13T18:12:37.394Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-13T18:12:37.396Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-13T18:12:37.396Z] [INFO] [calendar.json] 等待扁平化的日历数据: {
+  "errno": 0,
+  "errmsg": "",
+  "data": {
+    "year": 2025,
+    "leapYear": false,
+    "month": 2,
+    "maxDayInMonth": 28,
+    "enMonth": "February",
+    "astro": "水瓶座",
+    "cnWeek": "星期四",
+    "enWeek": "Thursday",
+    "weekInYear": 7,
+    "day": 13,
+    "dayInYear": 44,
+    "julianDay": 2460719.8333333335,
+    "hour": 8,
+    "minute": 0,
+    "second": 0,
+    "festivals": [],
+    "lunar": {
+      "zodiac": "蛇",
+      "year": 2025,
+      "month": 1,
+      "day": 16,
+      "cnYear": "二零二五",
+      "cnMonth": "正月",
+      "cnDay": "十六",
+      "cyclicalYear": "乙巳",
+      "cyclicalMonth": "戊寅",
+      "cyclicalDay": "癸丑",
+      "hour": "辰时",
+      "maxDayInMonth": 30,
+      "leapMonth": 6,
+      "yuexiang": "既望",
+      "wuhou": "鱼陟负冰",
+      "shujiu": "七九",
+      "sanfu": "",
+      "solarTerms": {}
+    },
+    "almanac": {
+      "yi": "祭祀 合帐 裁衣 经络 伐木 作梁 安床 作灶 入殓 安葬 启钻 移柩",
+      "ji": "词讼 出火 入宅",
+      "chong": "生肖冲(丁未)羊",
+      "sha": "煞东",
+      "nayin": "桑柘木",
+      "shiershen": "闭神",
+      "xingxiu": "斗宿",
+      "zheng": "木",
+      "shou": "玄武",
+      "pengzubaiji": [
+        "癸不词讼理弱敌强",
+        "丑不冠带主不还乡"
+      ],
+      "jishenfangwei": {
+        "xi": "巽-东南",
+        "yanggui": "巽-东南",
+        "yingui": "震-正东",
+        "fu": "艮-东北",
+        "cai": "离-正南"
+      },
+      "liuyao": "佛灭",
+      "jiuxing": "五黄土玉衡",
+      "taisui": "坎-正北"
+    }
+  }
+}
+[2025-02-13T18:12:37.396Z] [INFO] [calendar.json] 扁平化后的日历数据: {}
+[2025-02-13T18:12:37.397Z] [INFO] [✅ jieqi.json (2025-02-13) 数据保存成功] undefined
+[2025-02-13T18:12:37.398Z] [INFO] [✅ holidays.json (2025-02-13) 数据保存成功] undefined
+[2025-02-13T18:12:37.399Z] [INFO] [✅ calendar.json (2025-02-13) 数据保存成功] undefined
+[2025-02-13T18:12:37.400Z] [INFO] [✅ astro.json (2025-02-13) 数据保存成功] undefined
+[2025-02-13T18:12:37.401Z] [INFO] [✅ shichen.json (2025-02-13) 数据保存成功] undefined
+[2025-02-13T18:12:37.402Z] [INFO] [fetchData] ✅ 2025-02-13 数据保存成功
+[2025-02-13T18:12:37.402Z] [INFO] [fetchData] 📅 处理日期: 2025-02-14
+[2025-02-13T18:12:37.515Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-13T18:12:37.649Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-13T18:12:37.649Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-13T18:12:37.650Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-13T18:12:37.651Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-13T18:12:37.651Z] [INFO] [calendar.json] 等待扁平化的日历数据: {
+  "errno": 0,
+  "errmsg": "",
+  "data": {
+    "year": 2025,
+    "leapYear": false,
+    "month": 2,
+    "maxDayInMonth": 28,
+    "enMonth": "February",
+    "astro": "水瓶座",
+    "cnWeek": "星期五",
+    "enWeek": "Friday",
+    "weekInYear": 7,
+    "day": 14,
+    "dayInYear": 45,
+    "julianDay": 2460720.8333333335,
+    "hour": 8,
+    "minute": 0,
+    "second": 0,
+    "festivals": [
+      "情人节"
+    ],
+    "lunar": {
+      "zodiac": "蛇",
+      "year": 2025,
+      "month": 1,
+      "day": 17,
+      "cnYear": "二零二五",
+      "cnMonth": "正月",
+      "cnDay": "十七",
+      "cyclicalYear": "乙巳",
+      "cyclicalMonth": "戊寅",
+      "cyclicalDay": "甲寅",
+      "hour": "辰时",
+      "maxDayInMonth": 30,
+      "leapMonth": 6,
+      "yuexiang": "立待",
+      "wuhou": "鱼陟负冰",
+      "shujiu": "七九",
+      "sanfu": "",
+      "solarTerms": {}
+    },
+    "almanac": {
+      "yi": "裁衣 伐木 作梁 纳财 交易 立券",
+      "ji": "诸事不宜",
+      "chong": "生肖冲(戊申)猴",
+      "sha": "煞北",
+      "nayin": "大溪水",
+      "shiershen": "建神",
+      "xingxiu": "牛宿",
+      "zheng": "金",
+      "shou": "玄武",
+      "pengzubaiji": [
+        "甲不开仓财物耗散",
+        "寅不祭祀神鬼不尝"
+      ],
+      "jishenfangwei": {
+        "xi": "艮-东北",
+        "yanggui": "坤-西南",
+        "yingui": "艮-东北",
+        "fu": "坎-正北",
+        "cai": "艮-东北"
+      },
+      "liuyao": "大安",
+      "jiuxing": "六白金开阳",
+      "taisui": "坎-正北"
+    }
+  }
+}
+[2025-02-13T18:12:37.652Z] [INFO] [calendar.json] 扁平化后的日历数据: {}
+[2025-02-13T18:12:37.653Z] [INFO] [✅ jieqi.json (2025-02-14) 数据保存成功] undefined
+[2025-02-13T18:12:37.653Z] [INFO] [✅ holidays.json (2025-02-14) 数据保存成功] undefined
+[2025-02-13T18:12:37.654Z] [INFO] [✅ calendar.json (2025-02-14) 数据保存成功] undefined
+[2025-02-13T18:12:37.655Z] [INFO] [✅ astro.json (2025-02-14) 数据保存成功] undefined
+[2025-02-13T18:12:37.656Z] [INFO] [✅ shichen.json (2025-02-14) 数据保存成功] undefined
+[2025-02-13T18:12:37.656Z] [INFO] [fetchData] ✅ 2025-02-14 数据保存成功
+[2025-02-13T18:12:37.657Z] [INFO] [fetchData] 🎉 所有数据抓取完成！
