@@ -140,12 +140,17 @@ const readJsonFile = async (filePath) => {
   }
 };
 
-const saveYearlyData = async (fileName, date, newData) => {
+const saveYearlyData = async (fileName, date, newData, today) => {
   const year = date.split('-')[0];  // 获取年份
   const month = date.split('-')[1]; // 获取月份
   const filePath = path.join(DATA_PATH, fileName);  // 生成完整文件路径
   console.log(`正在处理文件: ${filePath}`);
-  // 根据不同文件名（如 jieqi.json、holidays.json）执行按年份存储逻辑
+  // 检查当前日期是否为今天，避免重复写入当天的数据
+  if (date === today) {
+    console.log(`跳过当天数据重复写入: ${date}`);
+    return; // 如果是当天日期，直接跳过，避免重复写入
+  }
+  // 根据不同文件名（如 jieqi.json、holidays.json、astro.json）执行按年份存储逻辑
   if (fileName === 'jieqi.json' || fileName === 'holidays.json' || fileName === 'astro.json') {
     console.log(`检查年份数据：${year} 在文件 ${filePath} 中`);
     let existingData = await readJsonFile(filePath);
@@ -268,11 +273,11 @@ const fetchData = async () => {
       ]);
       const processedCalendarData = flattenCalendarData(calendarData);
       // 数据扁平化
-      await saveYearlyData('jieqi.json', dateStr, jieqiData);
-      await saveYearlyData('holidays.json', dateStr, holidaysData);
-      await saveYearlyData('calendar.json', dateStr, processedCalendarData);
-      await saveYearlyData('astro.json', dateStr, astroData);
-      await saveYearlyData('shichen.json', dateStr, shichenData);
+      await saveYearlyData('jieqi.json', dateStr, jieqiData, today);
+      await saveYearlyData('holidays.json', dateStr, holidaysData, today);
+      await saveYearlyData('calendar.json', dateStr, processedCalendarData, today);
+      await saveYearlyData('astro.json', dateStr, astroData, today);
+      await saveYearlyData('shichen.json', dateStr, shichenData, today);
       // 记录已查询的日期
       await saveIncrementData(dateStr);
       await writeLog('INFO', `✅ ${dateStr} 数据保存成功`);
