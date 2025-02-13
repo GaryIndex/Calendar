@@ -16,7 +16,9 @@ const LOG_FILE = path.resolve(DATA_PATH, 'Daily/error.log');  // 使用绝对路
 // 输出路径以调试
 console.log(DATA_PATH);
 console.log(INCREMENT_FILE);
-
+export const logInfo = (message) => {
+  console.log(message);  // 这里可以扩展为更复杂的日志管理
+}
 // 确保目录和文件存在
 const ensureDirectoryExists = async (dirPath) => {
   try {
