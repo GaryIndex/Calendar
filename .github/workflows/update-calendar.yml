@@ -22,7 +22,7 @@ jobs:
 
       - name: 📂 确保数据目录和文件存在
         run: |
-          mkdir -p data/Document
+          mkdir -p Document
           for file in calendar.json astro.json shichen.json jieqi.json holidays.json; do
             if [ ! -f "Document/$file" ]; then
               echo "[]" > "data/Document/$file"
