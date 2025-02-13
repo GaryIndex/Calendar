@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir -p data/Document
           for file in calendar.json astro.json shichen.json jieqi.json holidays.json; do
-            if [ ! -f "data/Document/$file" ]; then
+            if [ ! -f "Document/$file" ]; then
               echo "[]" > "data/Document/$file"
             fi
           done
