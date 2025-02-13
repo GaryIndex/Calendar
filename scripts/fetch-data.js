@@ -160,8 +160,6 @@ const flattenCalendarData = (data) => {
   delete flatData.jishenfangwei;
   return { errno, errmsg, ...flatData };
 };
-const processedCalendarData = flattenCalendarData(calendarData);
-console.log("扁平化后的数据:", processedCalendarData);
 
 // 数据抓取
 const fetchData = async () => {
