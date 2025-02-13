@@ -4,6 +4,39 @@ import axios from "axios";
 import moment from "moment-timezone";
 import deepmerge from "deepmerge";
 import chalk from 'chalk';
+
+
+import path from 'path';
+import fs from 'fs/promises';
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
+
+// 数据存储路径，使用仓库根目录作为基础路径
+const ROOT_DIR = path.resolve(__dirname, '../../'); // 设定仓库根目录
+const DATA_PATH = path.resolve(ROOT_DIR, './data/Document'); // 以仓库根目录为基础的路径
+const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json'); // 存储 Increment.json 文件的路径
+const LOG_FILE = path.join(ROOT_DIR, 'data/scripts/error.log'); // 使用仓库根目录路径定义 log 文件路径
+// 输出路径以调试
+console.log(DATA_PATH);
+console.log(INCREMENT_FILE);
+console.log(LOG_FILE);
+// 确保目录和文件存在
+const ensureFile = async (filePath, defaultContent = '') => {
+  // 创建目录（如果不存在）
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  // 如果文件不存在，则创建并写入默认内容
+  try {
+    await fs.access(filePath);
+  } catch {
+    await fs.writeFile(filePath, defaultContent, 'utf-8');
+    console.log(`${path.basename(filePath)} 文件已创建。`);
+  }
+};
+// 执行创建过程
+await ensureFile(INCREMENT_FILE, JSON.stringify([])); // 创建 Increment.json 文件
+await ensureFile(LOG_FILE, ''); // 创建 log 文件（如果没有的话）
+
+/*
 // 获取当前模块的目录路径
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
 // 数据存储路径
@@ -28,8 +61,7 @@ const ensureFile = async (filePath, defaultContent = '') => {
 };
 // 执行创建过程
 await ensureFile(INCREMENT_FILE, JSON.stringify([]));
-await ensureFile(LOG_FILE, '');
-/*
+//await ensureFile(INCREMENT_FILE, '');
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -50,11 +82,9 @@ const ensureDirectoryExists = async (dir) => {
 export const writeLog = async (level, message) => {
   try {
     await ensureDirectoryExists(LOG_DIR); // 确保 logs 目录存在
-
     const timestamp = new Date().toISOString(); // 获取当前时间
     const logMessage = `[${timestamp}] [${level}] ${message}\n`;
-
-    await fs.appendFile(LOG_FILE_PATH, logMessage); // 追加写入日志
+    await fs.appendFile(LOG_FILE, logMessage); // 追加写入日志
     console.log(logMessage.trim()); // 控制台输出
   } catch (error) {
     console.error(`[日志写入失败] ${error.message}`);
