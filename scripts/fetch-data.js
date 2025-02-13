@@ -140,26 +140,36 @@ const readJsonFile = async (filePath) => {
   }
 };
 
-// 数据按年份存储
-const saveYearlyData = async (fileName, date, newData) => {
+const saveYearlyAndMonthlyData = async (fileName, date, newData) => {
   const year = date.split('-')[0];  // 获取年份
+  const month = date.split('-')[1]; // 获取月份
   const filePath = path.join(DATA_PATH, fileName);  // 生成完整文件路径
-  // 打印出当前处理的文件路径
   console.log(`正在处理文件: ${filePath}`);
-  // 仅对指定文件（如 jieqi.json、holidays.json）执行按年份存储逻辑
-  if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
+  // 根据不同文件名（如 jieqi.json、holidays.json）执行按年份存储逻辑
+  if (fileName === 'jieqi.json' || fileName === 'holidays.json' || fileName === 'astro.json') {
     console.log(`检查年份数据：${year} 在文件 ${filePath} 中`);
     let existingData = await readJsonFile(filePath);
     console.log('读取现有数据:', existingData);
     // 检查是否已有相同年份的数据
     const existingYearData = Object.keys(existingData).find((key) => key.startsWith(year));
     if (existingYearData) {
-      // 如果已有年份数据，覆盖该年份的内容
+      // 如果已有年份数据，覆盖该年份的数据
       console.log(`找到年份数据，覆盖现有数据: ${existingYearData}`);
       existingData[existingYearData][date] = { Reconstruction: [newData] };
     } else {
       // 如果没有该年份的数据，则新增该年份的数据
       console.log(`未找到年份数据，新建年份数据: ${year}`);
+      existingData[date] = { Reconstruction: [newData] };
+    }
+    // 处理按月存储的逻辑
+    const existingMonthData = Object.keys(existingData).find((key) => key.startsWith(year) && key.slice(5, 7) === month);
+    if (existingMonthData) {
+      // 如果已有相同月份的数据，覆盖该月份的数据
+      console.log(`找到月份数据，覆盖现有数据: ${existingMonthData}`);
+      existingData[existingMonthData][date] = { Reconstruction: [newData] };
+    } else {
+      // 如果没有该月份的数据，则新增该月份的数据
+      console.log(`未找到月份数据，新建月份数据: ${month}`);
       existingData[date] = { Reconstruction: [newData] };
     }
     // 写入数据到文件
