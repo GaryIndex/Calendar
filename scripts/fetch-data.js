@@ -16,6 +16,9 @@ const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log'); // 使用仓库根�
 //const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
 //const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log');
 const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
+
+
+// 增量数据文件路径
 const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
 const LOG_FILE = path.resolve(DATA_PATH, 'Document/file/error.log');  // 使用绝对路径来指向文件
 // 输出路径以调试
@@ -187,18 +190,20 @@ const readIncrementData = async () => {
     // 检查增量数据文件是否存在
     const fileExists = await fs.access(INCREMENT_FILE).then(() => true).catch(() => false);
     if (!fileExists) {
-      console.log('增量数据文件不存在，初始化为空对象');
+      console.log(`增量数据文件不存在，路径: ${INCREMENT_FILE}，初始化为空对象`);
       return {};  // 如果文件不存在，返回空对象
     }
     const data = await fs.readFile(INCREMENT_FILE, 'utf8');
     if (data) {
+      console.log(`增量数据文件路径: ${INCREMENT_FILE}，内容: ${data}`);
+      // 确保返回的是对象
       return JSON.parse(data);  // 如果文件中有数据，返回解析后的对象
     }
     // 如果文件为空，返回空对象
-    console.log('增量数据文件为空，返回空对象');
+    console.log(`增量数据文件为空，路径: ${INCREMENT_FILE}，返回空对象`);
     return {};  
   } catch (error) {
-    console.error('读取增量数据失败:', error);
+    console.error(`读取增量数据失败，路径: ${INCREMENT_FILE}`, error);
     return {};  // 如果文件读取失败，返回空对象
   }
 };
@@ -207,16 +212,21 @@ const readIncrementData = async () => {
 const saveIncrementData = async (date) => {
   try {
     const incrementData = await readIncrementData();
-    console.log('增量数据保存前:', incrementData);  // 日志输出查看数据
+    console.log(`增量数据保存前, 路径: ${INCREMENT_FILE}, 内容: ${JSON.stringify(incrementData, null, 2)}`);
     // 将当前日期标记为已查询
     incrementData[date] = true;
     // 确保正确写入文件
     await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
-    console.log('增量数据保存后:', incrementData);  // 确认保存后的数据
+    console.log(`增量数据保存后, 路径: ${INCREMENT_FILE}, 内容: ${JSON.stringify(incrementData, null, 2)}`);
   } catch (error) {
-    console.error('保存增量数据失败:', error);
+    console.error(`保存增量数据失败，路径: ${INCREMENT_FILE}`, error);
   }
 };
+// 测试代码：假设保存某个日期
+const testDate = '2025-02-14';
+saveIncrementData(testDate).then(() => {
+  console.log('增量数据操作完成');
+});
 // 测试代码：假设保存某个日期
 const testDate = '2025-02-14';
 saveIncrementData(testDate).then(() => {
