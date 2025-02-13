@@ -23,7 +23,7 @@ const ensureFile = async (filePath, defaultContent = '') => {
     await fs.access(filePath);
   } catch {
     await fs.writeFile(filePath, defaultContent, 'utf-8');
-    console.log(`${path.basename(filePath)} 文件已创建。`);
+    console.log(`${path.basename(filePath)} 哇哈哈文件已创建。`);
   }
 };
 // 执行创建过程
@@ -32,6 +32,7 @@ await ensureFile(LOG_FILE, ''); // 创建 log 文件（如果没有的话）
 export const logInfo = (message) => {
   console.log(message);  // 这里可以扩展为更复杂的日志管理
 };
+
 /*
 // 获取当前模块的目录路径
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
