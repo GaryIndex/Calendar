@@ -140,41 +140,26 @@ const readJsonFile = async (filePath) => {
   }
 };
 
-const saveYearlyData = async (fileName, date, newData, today) => {
+// 数据按年份存储
+const saveYearlyData = async (fileName, date, newData) => {
   const year = date.split('-')[0];  // 获取年份
-  const month = date.split('-')[1]; // 获取月份
   const filePath = path.join(DATA_PATH, fileName);  // 生成完整文件路径
+  // 打印出当前处理的文件路径
   console.log(`正在处理文件: ${filePath}`);
-  // 检查当前日期是否为今天，避免重复写入当天的数据
-  if (date === today) {
-    console.log(`跳过当天数据重复写入: ${date}`);
-    return; // 如果是当天日期，直接跳过，避免重复写入
-  }
-  // 根据不同文件名（如 jieqi.json、holidays.json、astro.json）执行按年份存储逻辑
-  if (fileName === 'jieqi.json' || fileName === 'holidays.json' || fileName === 'astro.json') {
+  // 仅对指定文件（如 jieqi.json、holidays.json）执行按年份存储逻辑
+  if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
     console.log(`检查年份数据：${year} 在文件 ${filePath} 中`);
     let existingData = await readJsonFile(filePath);
     console.log('读取现有数据:', existingData);
     // 检查是否已有相同年份的数据
     const existingYearData = Object.keys(existingData).find((key) => key.startsWith(year));
     if (existingYearData) {
-      // 如果已有年份数据，覆盖该年份的数据
+      // 如果已有年份数据，覆盖该年份的内容
       console.log(`找到年份数据，覆盖现有数据: ${existingYearData}`);
       existingData[existingYearData][date] = { Reconstruction: [newData] };
     } else {
       // 如果没有该年份的数据，则新增该年份的数据
       console.log(`未找到年份数据，新建年份数据: ${year}`);
-      existingData[date] = { Reconstruction: [newData] };
-    }
-    // 处理按月存储的逻辑
-    const existingMonthData = Object.keys(existingData).find((key) => key.startsWith(year) && key.slice(5, 7) === month);
-    if (existingMonthData) {
-      // 如果已有相同月份的数据，覆盖该月份的数据
-      console.log(`找到月份数据，覆盖现有数据: ${existingMonthData}`);
-      existingData[existingMonthData][date] = { Reconstruction: [newData] };
-    } else {
-      // 如果没有该月份的数据，则新增该月份的数据
-      console.log(`未找到月份数据，新建月份数据: ${month}`);
       existingData[date] = { Reconstruction: [newData] };
     }
     // 写入数据到文件
@@ -195,19 +180,17 @@ const saveYearlyData = async (fileName, date, newData, today) => {
     console.log(`文件 ${filePath} 数据保存成功`);
   }
 };
-/*
+
 // 读取增量数据
-const incrementData = await readIncrementData();  // 读取增量数据文件（例如 increment.json）
-for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
-  const dateStr = currentDate.format('YYYY-MM-DD');
-  // 如果当前日期已经处理过，则跳过该日期
-  if (incrementData[dateStr]) {
-    await writeLog('INFO', `⏩ 跳过已查询的日期: ${dateStr}`);
-    continue;
+const readIncrementData = async () => {
+  try {
+    const data = await fs.readFile(INCREMENT_FILE, 'utf8');
+    return JSON.parse(data); // 如果文件中没有数据，返回空对象
+  } catch (error) {
+    console.error('读取增量数据失败:', error);
+    return {}; // 如果文件不存在则返回空对象
   }
-  // 继续执行数据抓取逻辑
-  //...
-}
+};
 // 保存增量数据
 const saveIncrementData = async (date) => {
   const incrementData = await readIncrementData();
@@ -216,87 +199,6 @@ const saveIncrementData = async (date) => {
   await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
   console.log('增量数据保存后:', incrementData);  // 确认保存后的数据
 };
-*/
-// 读取增量数据
-export const readIncrementData = async () => {
-  try {
-    const data = await readFile(INCREMENT_FILE, 'utf-8');
-    return JSON.parse(data); // 假设数据是以 JSON 格式存储
-  } catch (error) {
-    logInfo('⚠️ 无法读取增量数据文件');
-    return {}; // 如果读取失败，返回空对象
-  }
-};
-
-// 保存增量数据
-export const saveIncrementData = async (dateStr) => {
-  try {
-    // 读取当前的增量数据
-    const incrementData = await readIncrementData();
-    // 更新增量数据，增加新的查询日期
-    incrementData[dateStr] = true;
-    // 将更新后的数据写回增量文件
-    await writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf-8');
-    logInfo(`✅ 增量数据已保存: ${dateStr}`);
-  } catch (error) {
-    logInfo(`⚠️ 保存增量数据失败: ${error.message}`);
-  }
-};
-
-// 完整的增量数据检查和保存逻辑
-export const processIncrementData = async (dateStr) => {
-  // 读取增量数据
-  const incrementData = await readIncrementData();
-  // 检查该日期是否已经被处理过
-  if (incrementData[dateStr]) {
-    logInfo(`⏩ 跳过已查询的日期: ${dateStr}`);
-    return false; // 如果日期已经处理过，返回 false
-  }
-  // 如果日期没有被处理过，则更新增量数据并保存
-  await saveIncrementData(dateStr);
-  return true; // 返回 true，表示该日期需要处理
-};
-/*
-// API 请求，带重试机制
-const fetchDataFromApi = async (url, params = {}, retries = 3, dateStr = '') => {
-  try {
-    const response = await axios.get(url, { params });
-    if (typeof response.data !== 'object') {
-      throw new Error(`API 数据格式错误: ${JSON.stringify(response.data).slice(0, 100)}...`);
-    }
-    await writeLog('INFO', `✅ API 请求成功: ${url}`);
-    // API请求成功后，调用 saveIncrementData
-    if (dateStr) {
-      await saveIncrementData(dateStr);
-    }
-    return response.data;
-  } catch (error) {
-    await writeLog('ERROR', `❌ API 请求失败: ${url} | 剩余重试次数: ${retries} | 错误: ${error.message}`);
-    if (retries > 0) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      return fetchDataFromApi(url, params, retries - 1, dateStr);  // 递归重试
-    }
-    return {};  // 失败时返回空对象
-  }
-};
-*/
-// 扁平化 calendar 数据
-const flattenCalendarData = (data) => {
-  if (!data || typeof data !== 'object') return {};
-  const { errno, errmsg, data: rawData } = data;
-  if (!rawData) return {};
-  const { lunar, almanac, ...flatData } = rawData;
-  flatData.festivals = (rawData.festivals || []).join(',');
-  flatData.pengzubaiji = (almanac?.pengzubaiji || []).join(',');
-  flatData.liuyao = almanac?.liuyao || '';
-  flatData.jiuxing = almanac?.jiuxing || '';
-  flatData.taisui = almanac?.taisui || '';
-  Object.assign(flatData, lunar, almanac);
-  Object.assign(flatData, almanac?.jishenfangwei);
-  delete flatData.jishenfangwei;
-  return { errno, errmsg, ...flatData };
-};
-
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
@@ -315,23 +217,38 @@ const fetchDataFromApi = async (url, params = {}, retries = 3) => {
     return {};  // 失败时返回空对象
   }
 };
+// 扁平化 calendar 数据
+const flattenCalendarData = (data) => {
+  if (!data || typeof data !== 'object') return {};
+  const { errno, errmsg, data: rawData } = data;
+  if (!rawData) return {};
+  const { lunar, almanac, ...flatData } = rawData;
+  flatData.festivals = (rawData.festivals || []).join(',');
+  flatData.pengzubaiji = (almanac?.pengzubaiji || []).join(',');
+  flatData.liuyao = almanac?.liuyao || '';
+  flatData.jiuxing = almanac?.jiuxing || '';
+  flatData.taisui = almanac?.taisui || '';
+  Object.assign(flatData, lunar, almanac);
+  Object.assign(flatData, almanac?.jishenfangwei);
+  delete flatData.jishenfangwei;
+  return { errno, errmsg, ...flatData };
+};
 
+// 数据抓取
 const fetchData = async () => {
   await writeLog('INFO', '🚀 开始数据抓取...');
   await ensureDirectoryExists(DATA_PATH);
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
   const startDate = moment('2025-02-11').tz('Asia/Shanghai');
-  // 遍历日期
+  const incrementData = await readIncrementData();
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD');
-    // 检查增量数据，跳过已查询的日期
-    const shouldProcess = await processIncrementData(dateStr);
-    if (!shouldProcess) {
+    if (incrementData[dateStr]) {
+      await writeLog('INFO', `⏩ 跳过已查询的日期: ${dateStr}`);
       continue;
     }
     await writeLog('INFO', `📅 处理日期: ${dateStr}`);
     try {
-      // 使用 Promise.all 获取所有数据
       const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
         fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr }),
         fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr }),
@@ -339,15 +256,14 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
-      // 扁平化处理
       const processedCalendarData = flattenCalendarData(calendarData);
-      // 保存数据到相应文件
-      await saveYearlyData('jieqi.json', dateStr, jieqiData, today);
-      await saveYearlyData('holidays.json', dateStr, holidaysData, today);
-      await saveYearlyData('calendar.json', dateStr, processedCalendarData, today);
-      await saveYearlyData('astro.json', dateStr, astroData, today);
-      await saveYearlyData('shichen.json', dateStr, shichenData, today);
-      // 记录增量数据
+      // 数据扁平化
+      await saveYearlyData('jieqi.json', dateStr, jieqiData);
+      await saveYearlyData('holidays.json', dateStr, holidaysData);
+      await saveYearlyData('calendar.json', dateStr, processedCalendarData);
+      await saveYearlyData('astro.json', dateStr, astroData);
+      await saveYearlyData('shichen.json', dateStr, shichenData);
+      // 记录已查询的日期
       await saveIncrementData(dateStr);
       await writeLog('INFO', `✅ ${dateStr} 数据保存成功`);
     } catch (error) {
@@ -356,6 +272,10 @@ const fetchData = async () => {
   }
   await writeLog('INFO', '🎉 所有数据抓取完成！');
 };
+// 执行数据抓取
+fetchData().catch(async (error) => {
+  await writeLog('ERROR', `🔥 数据抓取失败: ${error.message}`);
+});
 // **创建标准化事件对象**
 export function createEvent({
   date,
