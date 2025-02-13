@@ -213,6 +213,8 @@ const readIncrementData = async () => {
 // 保存增量数据
 const saveIncrementData = async (date) => {
   try {
+    // 打印传递过来的日期数据
+    console.log(`传递过来的日期数据: ${date}`);
     const incrementData = await readIncrementData();
     console.log(`增量数据保存前, 路径: ${INCREMENT_FILE}, 内容: ${JSON.stringify(incrementData, null, 2)}`);
     // 将当前日期标记为已查询
@@ -226,11 +228,13 @@ const saveIncrementData = async (date) => {
     console.error(`保存增量数据失败，路径: ${INCREMENT_FILE}`, error);
   }
 };
+/*
 // 测试代码：假设保存某个日期
 let testDate = '2025-02-14';
 saveIncrementData(testDate).then(() => {
   console.log('增量数据操作完成');
 });
+*/
 
 
 
