@@ -286,7 +286,7 @@ const fetchData = async () => {
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
     const dateStr = currentDate.format('YYYY-MM-DD'); // 当前日期字符串
     // 如果该日期已经被查询过，则跳过
-    if (incrementData[dateStr]) {
+    if (readIncrementData[dateStr]) {
       await writeLog('INFO', `⏩ 跳过已查询的日期: ${dateStr}`);
       continue;
     }
