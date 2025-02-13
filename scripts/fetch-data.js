@@ -12,9 +12,12 @@ const DATA_PATH = path.resolve(ROOT_DIR, 'Document'); // 以仓库根目录为�
 const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json'); // 存储 Increment.json 文件的路径
 const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log'); // 使用仓库根目录路径定义 log 文件路径
 */
-const DATA_PATH = path.resolve(process.cwd(), 'Document');
-const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
-const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log');
+//const DATA_PATH = path.resolve(process.cwd(), 'Document');
+//const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
+//const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log');
+const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
+const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/file/Increment.json');  // 使用绝对路径来指向文件
+const LOG_FILE = path.resolve(DATA_PATH, 'Document/file/error.log');  // 使用绝对路径来指向文件
 // 输出路径以调试
 console.log(DATA_PATH);
 console.log(INCREMENT_FILE);
