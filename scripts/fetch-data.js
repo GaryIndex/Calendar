@@ -142,18 +142,29 @@ const readJsonFile = async (filePath) => {
 
 // 数据按年份存储
 const saveYearlyData = async (fileName, date, newData) => {
-  const year = date.split('-')[0];
-  const filePath = path.join(DATA_PATH, `${fileName}`);
-  let existingData = await readJsonFile(filePath);
-  // 仅保留最新查询的同一年数据
-  Object.keys(existingData).forEach((key) => {
-    if (key.startsWith(year)) {
-      delete existingData[key];
+  const year = date.split('-')[0];  // 获取年份
+  const filePath = path.join(DATA_PATH, fileName);
+  // 仅对指定文件（如 jieqi.json、holidays.json）执行按年份存储逻辑
+  if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
+    let existingData = await readJsonFile(filePath);
+    // 检查是否已有相同年份的数据
+    const existingYearData = Object.keys(existingData).find((key) => key.startsWith(year));
+    if (existingYearData) {
+      // 如果已有年份数据，覆盖该年份的内容
+      existingData[existingYearData][date] = { Reconstruction: [newData] };
+    } else {
+      // 如果没有该年份的数据，则新增该年份的数据
+      existingData[date] = { Reconstruction: [newData] };
     }
-  });
-  existingData[date] = { Reconstruction: [newData] };
-  await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
-  await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
+    await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
+    await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
+  } else {
+    // 对其他文件不做修改，直接按原方式保存
+    let existingData = await readJsonFile(filePath);
+    existingData[date] = { Reconstruction: [newData] };
+    await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
+    await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
+  }
 };
 
 // 读取增量数据
@@ -232,10 +243,9 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
       const processedCalendarData = flattenCalendarData(calendarData);
-      // 按年份存储 jieqi.json、holidays.json
+      // 数据扁平化
       await saveYearlyData('jieqi.json', dateStr, jieqiData);
       await saveYearlyData('holidays.json', dateStr, holidaysData);
-      // 其他数据存储
       await saveYearlyData('calendar.json', dateStr, processedCalendarData);
       await saveYearlyData('astro.json', dateStr, astroData);
       await saveYearlyData('shichen.json', dateStr, shichenData);
