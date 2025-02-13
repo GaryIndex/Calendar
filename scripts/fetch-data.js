@@ -44,13 +44,6 @@ export const logInfo = (message) => {
 };
 
 
-fs.access(INCREMENT_FILE, fs.constants.W_OK, (err) => {
-  if (err) {
-    console.error(`没有写入权限: ${err.message}`);
-  } else {
-    console.log('文件可以写入');
-  }
-});
 /*
 // 获取当前模块的目录路径
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
