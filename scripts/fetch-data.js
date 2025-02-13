@@ -10,9 +10,10 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM �
 export const logInfo = (message) => {
   console.log(message);  // 这里可以扩展为更复杂的日志管理
 };
-const DATA_PATH = path.resolve(__dirname, './data/Document');
-const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
-const LOG_FILE = path.join(process.cwd(), 'data/scripts/error.log');
+const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
+const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
+const LOG_FILE = path.resolve(DATA_PATH, 'Document/file/error.log');  // 使用绝对路径来指向文件
+// 输出路径以调试
 console.log(DATA_PATH);
 console.log(INCREMENT_FILE);
 //export const logInfo = console.log;
