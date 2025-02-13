@@ -19,13 +19,7 @@ const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工�
 // 增量数据文件路径
 const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
 const LOG_FILE = path.resolve(DATA_PATH, 'Document/file/error.log');  // 使用绝对路径来指向文件
-fs.access(INCREMENT_FILE, fs.constants.W_OK, (err) => {
-  if (err) {
-    console.error(`没有写入权限: ${err.message}`);
-  } else {
-    console.log('文件可以写入');
-  }
-});
+
 // 输出路径以调试
 console.log(DATA_PATH);
 console.log(INCREMENT_FILE);
@@ -49,6 +43,14 @@ export const logInfo = (message) => {
   console.log(message);  // 这里可以扩展为更复杂的日志管理
 };
 
+
+fs.access(INCREMENT_FILE, fs.constants.W_OK, (err) => {
+  if (err) {
+    console.error(`没有写入权限: ${err.message}`);
+  } else {
+    console.log('文件可以写入');
+  }
+});
 /*
 // 获取当前模块的目录路径
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
