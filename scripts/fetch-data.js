@@ -185,19 +185,28 @@ const saveYearlyData = async (fileName, date, newData) => {
 const readIncrementData = async () => {
   try {
     const data = await fs.readFile(INCREMENT_FILE, 'utf8');
-    return JSON.parse(data); // 如果文件中没有数据，返回空对象
+    if (data) {
+      return JSON.parse(data);  // 如果文件中有数据，返回解析后的对象
+    }
+    return {};  // 如果文件为空，返回空对象
   } catch (error) {
     console.error('读取增量数据失败:', error);
-    return {}; // 如果文件不存在则返回空对象
+    return {};  // 如果文件不存在或者读取错误，则返回空对象
   }
 };
+
 // 保存增量数据
 const saveIncrementData = async (date) => {
-  const incrementData = await readIncrementData();
-  incrementData[date] = true; // 将当前日期标记为已查询
-  console.log('增量数据保存前:', incrementData);  // 日志输出查看数据
-  await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
-  console.log('增量数据保存后:', incrementData);  // 确认保存后的数据
+  try {
+    const incrementData = await readIncrementData();
+    incrementData[date] = true; // 将当前日期标记为已查询
+    console.log('增量数据保存前:', incrementData);  // 日志输出查看数据
+    // 确保正确写入文件
+    await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
+    console.log('增量数据保存后:', incrementData);  // 确认保存后的数据
+  } catch (error) {
+    console.error('保存增量数据失败:', error);
+  }
 };
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
