@@ -185,7 +185,10 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
+      //const processedCalendarData = flattenCalendarData(calendarData);
       const processedCalendarData = flattenCalendarData(calendarData);
+      console.log('等待扁平化的日历数据:', calendarData);
+      console.log('扁平化后的日历数据:', processedCalendarData);
       // 按年份存储 jieqi.json、holidays.json
       await saveYearlyData('jieqi.json', dateStr, jieqiData);
       await saveYearlyData('holidays.json', dateStr, holidaysData);
