@@ -274,6 +274,103 @@ const loadData = async () => {
   }
 };
 
+
+// 合并事件数据，按日期合并相同日期的事件
+const mergeEvents = (events) => {
+  const mergedEvents = {};
+  events.forEach(event => {
+    // 如果该日期还没有记录，初始化一个新的事件
+    if (!mergedEvents[event.date]) {
+      mergedEvents[event.date] = {
+        date: event.date,
+        title: event.title,
+        location: event.location,
+        isAllDay: event.isAllDay,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        travelTime: event.travelTime,
+        repeat: event.repeat,
+        alarm: event.alarm,
+        attachment: event.attachment,
+        url: event.url,
+        badge: event.badge,
+        description: event.description,
+        priority: event.priority,
+      };
+    } else {
+      // 如果该日期已有记录，则合并标题和备注
+      const mergedEvent = mergedEvents[event.date];
+      // 合并标题，使用 `|` 连接
+      mergedEvent.title = `${mergedEvent.title}|${event.title}`;
+      // 合并描述
+      mergedEvent.description = `${mergedEvent.description}|${event.description}`;
+      // 比较优先级，优先级越小，越优先
+      if (event.priority < mergedEvent.priority) {
+        mergedEvent.priority = event.priority;
+      }
+    }
+  });
+  // 返回合并后的事件数据
+  return Object.values(mergedEvents);
+};
+// 生成 ICS 文件
+const generateICS = async (events) => {
+  logInfo(`📝 正在生成 ICS 文件...`);
+  // 先合并事件
+  const mergedEvents = mergeEvents(events);
+  // 生成 ICS 内容
+  const icsData = mergedEvents.map(event => {
+    // 打印每个事件的详细数据
+    logInfo(`🎯 生成 ICS 事件: ${JSON.stringify(event)}`);
+    // 格式化时间，确保即使没有值也能正常处理
+    const startTimeFormatted = event.startTime ? event.startTime.replace(":", "") + "00" : "000000";  // 默认值
+    const endTimeFormatted = event.endTime ? event.endTime.replace(":", "") + "00" : "235959";      // 默认值
+    // 生成 ICS 事件内容
+    return `
+BEGIN:VEVENT
+SUMMARY:${event.title}
+LOCATION:${event.location || ''}  // 添加 location 字段
+DTSTART:${event.date.replace(/-/g, '')}T${startTimeFormatted}
+DTEND:${event.date.replace(/-/g, '')}T${endTimeFormatted}
+DESCRIPTION:${typeof event.description === 'string' ? event.description : JSON.stringify(event.description)}
+ATTACHMENT:${event.attachment || ''}  // 确保处理 attachment 字段
+URL:${event.url || ''}  // 添加 url 字段
+BADGE:${event.badge || ''}  // 添加 badge 字段
+ISALLDAY:${event.isAllDay || false}  // 添加 isAllDay 字段
+TRAVELTIME:${event.travelTime || ''}  // 添加 travelTime 字段
+REPEAT:${event.repeat || ''}  // 添加 repeat 字段
+ALARM:${event.alarm || ''}  // 添加 alarm 字段
+END:VEVENT`;
+  }).join("\n");
+  // 打印生成的 ICS 内容（调试用）
+  logInfo(`生成的 ICS 数据: \n${icsData}`);
+  // 将 ICS 数据写入文件
+  await fs.writeFile(icsFilePath, `BEGIN:VCALENDAR\nVERSION:2.0\n${icsData}\nEND:VCALENDAR`);
+  logInfo(`✅ ICS 文件生成成功: ${icsFilePath}`);
+};
+// 调用数据加载和 ICS 生成过程
+const main = async () => {
+  const allEvents = await loadData();  // 获取合并后的 allEvents
+  if (allEvents) {
+    await generateICS(allEvents);  // 生成 ICS 文件
+  }
+};
+main();  // 执行
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 // **生成 ICS 文件**
 const generateICS = async (events) => {
   logInfo(`📝 正在生成 ICS 文件...`);
@@ -304,3 +401,4 @@ const main = async () => {
   }
 };
 main();  // 执行
+*/
