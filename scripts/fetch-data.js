@@ -4,22 +4,31 @@ import axios from "axios";
 import moment from "moment-timezone";
 import deepmerge from "deepmerge";
 import chalk from 'chalk';
+
 // 获取当前模块的目录路径
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
+
 // 数据存储路径
-export const logInfo = (message) => {
-  console.log(message);  // 这里可以扩展为更复杂的日志管理
-};
 const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
 const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
 const LOG_FILE = path.resolve(DATA_PATH, 'Daily/error.log');  // 使用绝对路径来指向文件
+
 // 输出路径以调试
 console.log(DATA_PATH);
 console.log(INCREMENT_FILE);
-//export const logInfo = console.log;
+
 // 确保目录和文件存在
+const ensureDirectoryExists = async (dirPath) => {
+  try {
+    await fs.mkdir(dirPath, { recursive: true });
+  } catch (error) {
+    console.error(`创建目录失败: ${dirPath}`, error);
+  }
+};
+
+// 确保文件存在
 const ensureFile = async (filePath, defaultContent = '') => {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await ensureDirectoryExists(path.dirname(filePath));  // 确保目录存在
   try {
     await fs.access(filePath);
   } catch {
@@ -27,30 +36,15 @@ const ensureFile = async (filePath, defaultContent = '') => {
     console.log(`${path.basename(filePath)} 文件已创建。`);
   }
 };
+
 // 执行创建过程
 await ensureFile(INCREMENT_FILE, JSON.stringify([]));
 await ensureFile(LOG_FILE, '');
-/*
-import fs from 'fs/promises';
-import path from 'path';
 
-// 日志文件路径
-const LOG_DIR = path.resolve(process.cwd(), 'logs');
-const LOG_FILE_PATH = path.join(LOG_DIR, 'error.log');
-
-// 确保日志目录存在
-const ensureDirectoryExists = async (dir) => {
-  try {
-    await fs.mkdir(dir, { recursive: true });
-  } catch (error) {
-    console.error(`[日志目录创建失败] ${error.message}`);
-  }
-};
-*/
 // 写入日志
 export const writeLog = async (level, message) => {
   try {
-    await ensureDirectoryExists(DATA_PATH); // 确保 logs 目录存在
+    await ensureDirectoryExists(path.dirname(LOG_FILE)); // 确保 logs 目录存在
     const timestamp = new Date().toISOString(); // 获取当前时间
     const logMessage = `[${timestamp}] [${level}] ${message}\n`;
     await fs.appendFile(LOG_FILE, logMessage); // 追加写入日志
@@ -59,43 +53,7 @@ export const writeLog = async (level, message) => {
     console.error(`[日志写入失败] ${error.message}`);
   }
 };
-/*
 
-const DATA_PATH = path.resolve(__dirname, './data/Document');  // 使用绝对路径
-const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');  // 增量文件路径
-console.log(DATA_PATH);  // 输出存储路径，调试用
-console.log(INCREMENT_FILE);  // 输出增量文件路径，调试用
-export const logInfo = (message) => {
-  console.log(message);  // 或者任何你想要的日志输出方式
-};
-// 确保目录存在
-const dir = path.join(process.cwd(), "data");
-const logFilePath = path.join(dir, "scripts/error.log");
-const ensureDirectoryExists = async (dir) => {
-  try {
-    await fs.mkdir(dir, { recursive: true });
-  } catch (error) {
-    console.error(`[目录创建失败] ${error.message}`);
-  }
-};
-
-const writeLog = async (type, message) => {
-  const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] [${type}] ${message}\n`;
-  // 确保日志文件所在目录存在
-  await ensureDirectoryExists(path.dirname(logFilePath)); // 确保父目录存在
-  // 写入日志文件
-  await fs.appendFile(logFilePath, logMessage, 'utf8');
-  // 控制台输出
-  console.log(type === "INFO" ? chalk.green(logMessage.trim()) : chalk.red(logMessage.trim()));
-};
-*/
-/*
-// 调用
-await writeLog("INFO", "这是一个信息日志");
-await writeLog("ERROR", "这是一个错误日志");
-*/
-//export { writeLog };
 // 读取增量同步文件
 const readIncrementData = async () => {
   try {
@@ -105,6 +63,7 @@ const readIncrementData = async () => {
     return {}; // 文件不存在则返回空对象
   }
 };
+
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
@@ -213,6 +172,7 @@ const fetchData = async () => {
   }
   await writeLog('INFO', '🎉 所有数据抓取完成！');
 };
+
 // 执行数据抓取
 fetchData().catch(async (error) => {
   await writeLog('ERROR', `🔥 数据抓取失败: ${error.message}`);
