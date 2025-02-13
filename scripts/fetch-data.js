@@ -215,19 +215,23 @@ const saveIncrementData = async (date) => {
   console.log('增量数据保存后:', incrementData);  // 确认保存后的数据
 };
 // API 请求，带重试机制
-const fetchDataFromApi = async (url, params = {}, retries = 3) => {
+const fetchDataFromApi = async (url, params = {}, retries = 3, dateStr = '') => {
   try {
     const response = await axios.get(url, { params });
     if (typeof response.data !== 'object') {
       throw new Error(`API 数据格式错误: ${JSON.stringify(response.data).slice(0, 100)}...`);
     }
     await writeLog('INFO', `✅ API 请求成功: ${url}`);
+    // API请求成功后，调用 saveIncrementData
+    if (dateStr) {
+      await saveIncrementData(dateStr);
+    }
     return response.data;
   } catch (error) {
     await writeLog('ERROR', `❌ API 请求失败: ${url} | 剩余重试次数: ${retries} | 错误: ${error.message}`);
     if (retries > 0) {
       await new Promise(resolve => setTimeout(resolve, 2000));
-      return fetchDataFromApi(url, params, retries - 1);
+      return fetchDataFromApi(url, params, retries - 1, dateStr);  // 递归重试
     }
     return {};  // 失败时返回空对象
   }
@@ -251,8 +255,6 @@ const flattenCalendarData = (data) => {
 
 // 数据抓取
 const fetchData = async () => {
-  await writeLog('INFO', '🚀 开始数据抓取...');
-  await ensureDirectoryExists(DATA_PATH);
   const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
   const startDate = moment('2025-02-11').tz('Asia/Shanghai');
   const incrementData = await readIncrementData();
@@ -264,22 +266,23 @@ const fetchData = async () => {
     }
     await writeLog('INFO', `📅 处理日期: ${dateStr}`);
     try {
+      // API 请求时，传递 dateStr 参数
       const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
-        fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr }),
-        fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr }),
-        fetchDataFromApi('https://api.timelessq.com/time/shichen', { date: dateStr }),
-        fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
-        fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
+        fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr }, 3, dateStr),
+        fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr }, 3, dateStr),
+        fetchDataFromApi('https://api.timelessq.com/time/shichen', { date: dateStr }, 3, dateStr),
+        fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }, 3, dateStr),
+        fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0], {}, 3, dateStr)
       ]);
-      const processedCalendarData = flattenCalendarData(calendarData);
       // 数据扁平化
+      const processedCalendarData = flattenCalendarData(calendarData);
+      // 保存数据
       await saveYearlyData('jieqi.json', dateStr, jieqiData, today);
       await saveYearlyData('holidays.json', dateStr, holidaysData, today);
       await saveYearlyData('calendar.json', dateStr, processedCalendarData, today);
       await saveYearlyData('astro.json', dateStr, astroData, today);
       await saveYearlyData('shichen.json', dateStr, shichenData, today);
       // 记录已查询的日期
-      await saveIncrementData(dateStr);
       await writeLog('INFO', `✅ ${dateStr} 数据保存成功`);
     } catch (error) {
       await writeLog('ERROR', `⚠️ ${dateStr} 处理失败: ${error.message}`);
@@ -287,10 +290,6 @@ const fetchData = async () => {
   }
   await writeLog('INFO', '🎉 所有数据抓取完成！');
 };
-// 执行数据抓取
-fetchData().catch(async (error) => {
-  await writeLog('ERROR', `🔥 数据抓取失败: ${error.message}`);
-});
 // **创建标准化事件对象**
 export function createEvent({
   date,
