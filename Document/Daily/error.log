@@ -324,3 +324,33 @@
 [2025-02-13T18:12:37.656Z] [INFO] [✅ shichen.json (2025-02-14) 数据保存成功] undefined
 [2025-02-13T18:12:37.656Z] [INFO] [fetchData] ✅ 2025-02-14 数据保存成功
 [2025-02-13T18:12:37.657Z] [INFO] [fetchData] 🎉 所有数据抓取完成！
+[2025-02-13T18:37:48.521Z] [INFO] [fetchData] 🚀 开始数据抓取...
+[2025-02-13T18:37:48.525Z] [INFO] [fetchData] 📅 处理日期: 2025-02-11
+[2025-02-13T18:37:49.506Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-13T18:37:49.507Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-13T18:37:49.603Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-13T18:37:49.659Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-13T18:37:49.664Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-13T18:37:49.665Z] [ERROR] [fetchData] ⚠️ 2025-02-11 处理失败: flattenAstroData is not defined
+[2025-02-13T18:37:49.666Z] [INFO] [fetchData] 📅 处理日期: 2025-02-12
+[2025-02-13T18:37:49.860Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-13T18:37:49.861Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-13T18:37:49.862Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-13T18:37:49.864Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-13T18:37:49.868Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-13T18:37:49.869Z] [ERROR] [fetchData] ⚠️ 2025-02-12 处理失败: flattenAstroData is not defined
+[2025-02-13T18:37:49.869Z] [INFO] [fetchData] 📅 处理日期: 2025-02-13
+[2025-02-13T18:37:50.063Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-13T18:37:50.064Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-13T18:37:50.066Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-13T18:37:50.066Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-13T18:37:50.067Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-13T18:37:50.067Z] [ERROR] [fetchData] ⚠️ 2025-02-13 处理失败: flattenAstroData is not defined
+[2025-02-13T18:37:50.068Z] [INFO] [fetchData] 📅 处理日期: 2025-02-14
+[2025-02-13T18:37:50.261Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-13T18:37:50.264Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-13T18:37:50.264Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-13T18:37:50.265Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-13T18:37:50.270Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-13T18:37:50.271Z] [ERROR] [fetchData] ⚠️ 2025-02-14 处理失败: flattenAstroData is not defined
+[2025-02-13T18:37:50.271Z] [INFO] [fetchData] 🎉 所有数据抓取完成！
