@@ -6,9 +6,11 @@ import { logInfo, createEvent } from './fetch-data.js'; // 确保引入了必要
 // 确保 icsFilePath 已经定义，指定输出文件路径
 const icsFilePath = './calendar.ics';
 // 使用 import.meta.url 获取当前模块的路径并转换为 __dirname
-const __filename = new URL(import.meta.url).pathname;
-const __dirname = path.dirname(__filename);
-const DATA_PATH = path.join(__dirname, './Document');
+import path from 'path';
+// 获取项目根目录
+const ROOT_DIR = path.resolve(__dirname, '../../');  // 向上两级目录
+// 数据路径基于项目根目录
+const DATA_PATH = path.join(ROOT_DIR, 'Document');  // 假设 Document 文件夹在根目录下
 export const dataPaths = {
   holidays: path.resolve(DATA_PATH, 'holidays.json'),
   jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
