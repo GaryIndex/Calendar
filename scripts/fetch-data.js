@@ -144,21 +144,59 @@ const saveYearlyData = async (fileName, date, newData) => {
     console.log(`文件 ${filePath} 数据保存成功`);
   }
 };
-// 扁平化 calendar 数据
+// 扁平化数据
 const flattenCalendarData = (data) => {
   if (!data || typeof data !== 'object') return {};
   const { errno, errmsg, data: rawData } = data;
   if (!rawData) return {};
-  const { lunar, almanac, ...flatData } = rawData;
-  flatData.festivals = (rawData.festivals || []).join(',');
+  const { lunar, almanac, festivals, ...flatData } = rawData;
+  // 处理缺失字段的默认值
+  flatData.festivals = (festivals || []).join(',');
   flatData.pengzubaiji = (almanac?.pengzubaiji || []).join(',');
   flatData.liuyao = almanac?.liuyao || '';
   flatData.jiuxing = almanac?.jiuxing || '';
   flatData.taisui = almanac?.taisui || '';
-  Object.assign(flatData, lunar, almanac);
-  Object.assign(flatData, almanac?.jishenfangwei);
+  // 处理 lunar 和 almanac 的数据合并
+  if (lunar) {
+    Object.assign(flatData, lunar);
+  }
+  if (almanac) {
+    Object.assign(flatData, almanac);
+  }
+  // 检查 jishenfangwei 是否存在
+  if (almanac?.jishenfangwei) {
+    Object.assign(flatData, almanac.jishenfangwei);
+  }
+  // 删除不需要的字段
   delete flatData.jishenfangwei;
-  return { errno, errmsg, ...flatData };
+  // 构建符合第二个结构的对象
+  return {
+    [rawData.date]: {
+      Reconstruction: [
+        {
+          errno,
+          errmsg,
+          data: [
+            {
+              date: rawData.date,
+              hours: rawData.hours,
+              hour: rawData.hour,
+              yi: rawData.yi,
+              ji: rawData.ji,
+              chong: rawData.chong,
+              sha: rawData.sha,
+              festivals: flatData.festivals,
+              pengzubaiji: flatData.pengzubaiji,
+              liuyao: flatData.liuyao,
+              jiuxing: flatData.jiuxing,
+              taisui: flatData.taisui,
+              ...flatData
+            }
+          ]
+        }
+      ]
+    }
+  };
 };
 
 // 数据抓取
