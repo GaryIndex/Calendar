@@ -16,7 +16,7 @@ const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log'); // 使用仓库根�
 //const INCREMENT_FILE = path.join(DATA_PATH, 'Increment/Increment.json');
 //const LOG_FILE = path.join(DATA_PATH, 'scripts/error.log');
 const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
-const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/file/Increment.json');  // 使用绝对路径来指向文件
+const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
 const LOG_FILE = path.resolve(DATA_PATH, 'Document/file/error.log');  // 使用绝对路径来指向文件
 // 输出路径以调试
 console.log(DATA_PATH);
@@ -130,6 +130,32 @@ const writeLog = async (type, message) => {
 await writeLog("INFO", "这是一个信息日志");
 await writeLog("ERROR", "这是一个错误日志");
 */
+// 读取 JSON 文件
+const readJsonFile = async (filePath) => {
+  try {
+    const data = await fs.readFile(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch {
+    return {}; // 文件不存在则返回空对象
+  }
+};
+
+// 数据按年份存储
+const saveYearlyData = async (fileName, date, newData) => {
+  const year = date.split('-')[0];
+  const filePath = path.join(DATA_PATH, `${fileName}`);
+  let existingData = await readJsonFile(filePath);
+  // 仅保留最新查询的同一年数据
+  Object.keys(existingData).forEach((key) => {
+    if (key.startsWith(year)) {
+      delete existingData[key];
+    }
+  });
+  existingData[date] = { Reconstruction: [newData] };
+  await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
+  await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
+};
+
 //export { writeLog };
 // 读取增量同步文件
 const readIncrementData = async () => {
@@ -158,40 +184,6 @@ const fetchDataFromApi = async (url, params = {}, retries = 3) => {
     return {};  // 失败时返回空对象
   }
 };
-
-// 保存增量同步数据
-const saveIncrementData = async (date) => {
-  const incrementData = await readIncrementData();
-  incrementData[date] = true;
-  await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
-};
-
-// 读取 JSON 文件
-const readJsonFile = async (filePath) => {
-  try {
-    const data = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch {
-    return {}; // 文件不存在则返回空对象
-  }
-};
-
-// 数据按年份存储
-const saveYearlyData = async (fileName, date, newData) => {
-  const year = date.split('-')[0];
-  const filePath = path.join(DATA_PATH, `${fileName}`);
-  let existingData = await readJsonFile(filePath);
-  // 仅保留最新查询的同一年数据
-  Object.keys(existingData).forEach((key) => {
-    if (key.startsWith(year)) {
-      delete existingData[key];
-    }
-  });
-  existingData[date] = { Reconstruction: [newData] };
-  await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
-  await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
-};
-
 // 扁平化 calendar 数据
 const flattenCalendarData = (data) => {
   if (!data || typeof data !== 'object') return {};
@@ -252,6 +244,12 @@ const fetchData = async () => {
 fetchData().catch(async (error) => {
   await writeLog('ERROR', `🔥 数据抓取失败: ${error.message}`);
 });
+// 保存增量同步数据
+const saveIncrementData = async (date) => {
+  const incrementData = await readIncrementData();
+  incrementData[date] = true;
+  await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
+};
 // **创建标准化事件对象**
 export function createEvent({
   date,
