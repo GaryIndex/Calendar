@@ -179,6 +179,7 @@ const fetchData = async () => {
 fetchData().catch(async (error) => {
   await writeLog('ERROR', `🔥 数据抓取失败: ${error.message}`);
 });
+/*
 // **创建标准化事件对象**
 export function createEvent({
   date,
@@ -213,3 +214,4 @@ export function createEvent({
     priority,
   };
 }
+*/
