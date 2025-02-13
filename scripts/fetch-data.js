@@ -227,11 +227,6 @@ let testDate = '2025-02-14';
 saveIncrementData(testDate).then(() => {
   console.log('增量数据操作完成');
 });
-// 测试代码：假设保存某个日期
-const testDate = '2025-02-14';
-saveIncrementData(testDate).then(() => {
-  console.log('增量数据操作完成');
-});
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
