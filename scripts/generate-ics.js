@@ -8,7 +8,7 @@ const icsFilePath = './calendar.ics';
 // 使用 import.meta.url 获取当前模块的路径并转换为 __dirname
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
-const DATA_PATH = path.join(__dirname, './data/Document');
+const DATA_PATH = path.join(__dirname, './Document');
 export const dataPaths = {
   holidays: path.resolve(DATA_PATH, 'holidays.json'),
   jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
