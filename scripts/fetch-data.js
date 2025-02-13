@@ -64,16 +64,15 @@ import path from 'path';
 // 日志文件路径
 const LOG_DIR = path.resolve(process.cwd(), 'logs');
 const LOG_FILE_PATH = path.join(LOG_DIR, 'error.log');
-
-// 确保日志目录存在
+*/
 const ensureDirectoryExists = async (dir) => {
   try {
     await fs.mkdir(dir, { recursive: true });
   } catch (error) {
     console.error(`[日志目录创建失败] ${error.message}`);
   }
-};
-*/
+}
+
 // 写入日志
 export const writeLog = async (level, message) => {
   try {
