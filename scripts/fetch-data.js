@@ -195,7 +195,7 @@ const saveYearlyData = async (fileName, date, newData, today) => {
     console.log(`文件 ${filePath} 数据保存成功`);
   }
 };
-
+/*
 // 读取增量数据
 const incrementData = await readIncrementData();  // 读取增量数据文件（例如 increment.json）
 for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
@@ -215,6 +215,46 @@ const saveIncrementData = async (date) => {
   console.log('增量数据保存前:', incrementData);  // 日志输出查看数据
   await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
   console.log('增量数据保存后:', incrementData);  // 确认保存后的数据
+};
+*/
+// 读取增量数据
+export const readIncrementData = async () => {
+  try {
+    const data = await readFile(INCREMENT_FILE, 'utf-8');
+    return JSON.parse(data); // 假设数据是以 JSON 格式存储
+  } catch (error) {
+    logInfo('⚠️ 无法读取增量数据文件');
+    return {}; // 如果读取失败，返回空对象
+  }
+};
+
+// 保存增量数据
+export const saveIncrementData = async (dateStr) => {
+  try {
+    // 读取当前的增量数据
+    const incrementData = await readIncrementData();
+    // 更新增量数据，增加新的查询日期
+    incrementData[dateStr] = true;
+    // 将更新后的数据写回增量文件
+    await writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf-8');
+    logInfo(`✅ 增量数据已保存: ${dateStr}`);
+  } catch (error) {
+    logInfo(`⚠️ 保存增量数据失败: ${error.message}`);
+  }
+};
+
+// 完整的增量数据检查和保存逻辑
+export const processIncrementData = async (dateStr) => {
+  // 读取增量数据
+  const incrementData = await readIncrementData();
+  // 检查该日期是否已经被处理过
+  if (incrementData[dateStr]) {
+    logInfo(`⏩ 跳过已查询的日期: ${dateStr}`);
+    return false; // 如果日期已经处理过，返回 false
+  }
+  // 如果日期没有被处理过，则更新增量数据并保存
+  await saveIncrementData(dateStr);
+  return true; // 返回 true，表示该日期需要处理
 };
 /*
 // API 请求，带重试机制
@@ -278,21 +318,20 @@ const fetchDataFromApi = async (url, params = {}, retries = 3) => {
 
 const fetchData = async () => {
   await writeLog('INFO', '🚀 开始数据抓取...');
-  await ensureDirectoryExists(DATA_PATH); // 确保目录存在
-  const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD'); // 当前日期
-  const startDate = moment('2025-02-11').tz('Asia/Shanghai'); // 起始日期
-  const incrementData = await readIncrementData(); // 读取已抓取日期数据
-  // 循环遍历从 startDate 到 today 的日期
+  await ensureDirectoryExists(DATA_PATH);
+  const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
+  const startDate = moment('2025-02-11').tz('Asia/Shanghai');
+  // 遍历日期
   for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
-    const dateStr = currentDate.format('YYYY-MM-DD'); // 当前日期字符串
-    // 如果该日期已经被查询过，则跳过
-    if (readIncrementData[dateStr]) {
-      await writeLog('INFO', `⏩ 跳过已查询的日期: ${dateStr}`);
+    const dateStr = currentDate.format('YYYY-MM-DD');
+    // 检查增量数据，跳过已查询的日期
+    const shouldProcess = await processIncrementData(dateStr);
+    if (!shouldProcess) {
       continue;
     }
     await writeLog('INFO', `📅 处理日期: ${dateStr}`);
     try {
-      // 使用 Promise.all 批量请求多个 API
+      // 使用 Promise.all 获取所有数据
       const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
         fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr }),
         fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr }),
@@ -300,20 +339,18 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
-      // 数据扁平化（如果需要）
+      // 扁平化处理
       const processedCalendarData = flattenCalendarData(calendarData);
-      // 保存数据到不同的文件中
+      // 保存数据到相应文件
       await saveYearlyData('jieqi.json', dateStr, jieqiData, today);
       await saveYearlyData('holidays.json', dateStr, holidaysData, today);
       await saveYearlyData('calendar.json', dateStr, processedCalendarData, today);
       await saveYearlyData('astro.json', dateStr, astroData, today);
       await saveYearlyData('shichen.json', dateStr, shichenData, today);
-      // 记录已查询的日期（更新增量数据）—— API 请求成功后才记录增量数据
+      // 记录增量数据
       await saveIncrementData(dateStr);
-      // 写日志表示数据抓取成功
       await writeLog('INFO', `✅ ${dateStr} 数据保存成功`);
     } catch (error) {
-      // 处理异常情况
       await writeLog('ERROR', `⚠️ ${dateStr} 处理失败: ${error.message}`);
     }
   }
