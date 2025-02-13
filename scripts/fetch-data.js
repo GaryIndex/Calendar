@@ -84,14 +84,6 @@ import path from 'path';
 const LOG_DIR = path.resolve(process.cwd(), 'logs');
 const LOG_FILE_PATH = path.join(LOG_DIR, 'error.log');
 */
-const ensureDirectoryExists = async (dir) => {
-  try {
-    await fs.mkdir(dir, { recursive: true });
-  } catch (error) {
-    console.error(`[日志目录创建失败] ${error.message}`);
-  }
-}
-
 // 写入日志
 export const writeLog = async (level, message) => {
   try {
@@ -218,16 +210,30 @@ const readIncrementData = async () => {
 };
 
 // 保存增量数据
+import fs from 'fs/promises';
+import path from 'path';
+
+// 保存增量数据
 const saveIncrementData = async (date) => {
   try {
     // 打印传递过来的日期数据
     console.log(`传递过来的日期数据: ${date}`);
+    // 读取增量数据
     const incrementData = await readIncrementData();
     console.log(`增量数据保存前, 路径: ${INCREMENT_FILE}, 内容: ${JSON.stringify(incrementData, null, 2)}`);
     // 将当前日期标记为已查询
     incrementData[date] = true;
+    // 检查文件的写入权限
+    try {
+      await fs.access(INCREMENT_FILE, fs.constants.W_OK); // 检查是否有写入权限
+      console.log('写入权限检查通过，准备写入文件');
+    } catch (error) {
+      console.error(`没有写入权限，路径: ${INCREMENT_FILE}`, error);
+      return; // 如果没有权限，直接返回
+    }
     // 确保正确写入文件
     await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2), 'utf8');
+    console.log(`增量数据保存后, 路径: ${INCREMENT_FILE}, 内容: ${JSON.stringify(incrementData, null, 2)}`);
     // 读取文件内容确认保存是否成功
     const newData = await fs.readFile(INCREMENT_FILE, 'utf8');
     console.log(`增量数据保存后, 路径: ${INCREMENT_FILE}, 内容: ${newData}`);
