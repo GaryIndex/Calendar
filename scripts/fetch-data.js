@@ -140,7 +140,7 @@ const readJsonFile = async (filePath) => {
   }
 };
 
-const saveYearlyAndMonthlyData = async (fileName, date, newData) => {
+const saveYearlyData = async (fileName, date, newData) => {
   const year = date.split('-')[0];  // 获取年份
   const month = date.split('-')[1]; // 获取月份
   const filePath = path.join(DATA_PATH, fileName);  // 生成完整文件路径
