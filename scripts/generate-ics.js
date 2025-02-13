@@ -11,7 +11,8 @@ const icsFilePath = './calendar.ics';
 //const ROOT_DIR = path.resolve(__dirname, '../../');  // 向上两级目录
 // 数据路径基于项目根目录
 //const DATA_PATH = path.join(ROOT_DIR, 'Document');  // 假设 Document 文件夹在根目录下
-const DATA_PATH = './Document';  // 指向仓库根目录下的 'data' 文件夹
+//const DATA_PATH = './Document';  // 指向仓库根目录下的 'data' 文件夹
+const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
 export const dataPaths = {
   holidays: path.resolve(DATA_PATH, 'holidays.json'),
   jieqi: path.resolve(DATA_PATH, 'jieqi.json'),
