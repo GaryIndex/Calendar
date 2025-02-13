@@ -77,7 +77,7 @@ const ensureDirectoryExists = async (dir) => {
 // 写入日志
 export const writeLog = async (level, message) => {
   try {
-    await ensureDirectoryExists(LOG_DIR); // 确保 logs 目录存在
+    await ensureDirectoryExists(ROOT_DIR); // 确保 logs 目录存在
     const timestamp = new Date().toISOString(); // 获取当前时间
     const logMessage = `[${timestamp}] [${level}] ${message}\n`;
     await fs.appendFile(LOG_FILE, logMessage); // 追加写入日志
