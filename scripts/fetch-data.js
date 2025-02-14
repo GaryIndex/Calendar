@@ -55,10 +55,10 @@ export const writeLog = async (level, filename, message) => {
   }
 };
 */
-const newItems = [{}, {}, {}]; // 示例数据
-const validDate = '2025-02-15'; // 示例日期
+//const newItems = [{}, {}, {}]; // 示例数据
+//const validDate = '2025-02-15'; // 示例日期
 // 将 newItems 中的元素推送到 targetArray 中
-targetArray.push(...newItems);
+//targetArray.push(...newItems);
 // 写入日志的封装函数
 const writeLog = async (level, filename, message) => {
   try {
@@ -303,12 +303,12 @@ const saveYearlyData = async (fileName, date, startDate) => {
       const newItems = flattenData(data)
         .filter(item => !existingHashes.has(stableStringify(item)));
       if (newItems.length > 0) {
-        targetArray.push(...newItems);
-        const normalizedData = {};
-        const someFunction = async () => {
-        await writeLog('DEBUG', 'saveYearlyData', `新增 ${newItems.length} 条数据到 ${validDate}`);
-        };
-        someFunction();  // 调用
+        //targetArray.push(...newItems);
+        //const normalizedData = {};
+        //const someFunction = async () => {
+        //await writeLog('DEBUG', 'saveYearlyData', `新增 ${newItems.length} 条数据到 ${validDate}`);
+        //};
+        //someFunction();  // 调用
       }
     });
     await writeLog('PERF', 'saveYearlyData', `合并耗时: ${Date.now() - mergeStart}ms`);
