@@ -200,11 +200,11 @@ const fetchData = async () => {
       await writeLog('INFO', 'jieqi.json', `扁平化后的节气数据: ${JSON.stringify(processedJieqiData, null, 2)}`);
       await writeLog('INFO', 'holidays.json', `扁平化后的节假日数据: ${JSON.stringify(processedHolidaysData, null, 2)}`);
       // 保存数据
-      await saveYearlyData('jieqi.json', dateStr, processedJieqiData);
-      await saveYearlyData('holidays.json', dateStr, processedHolidaysData);
-      await saveYearlyData('calendar.json', dateStr, processedCalendarData);
-      await saveYearlyData('astro.json', dateStr, processedAstroData);
-      await saveYearlyData('shichen.json', dateStr, processedShichenData);
+      await saveYearlyData('jieqi.json', today, processedJieqiData);
+      await saveYearlyData('holidays.json', today, processedHolidaysData);
+      await saveYearlyData('calendar.json', today, processedCalendarData);
+      await saveYearlyData('astro.json', today, processedAstroData);
+      await saveYearlyData('shichen.json', today, processedShichenData);
       // 记录已查询的日期
       await saveIncrementData(dateStr);
       await writeLog('INFO', 'fetchData', `✅ ${dateStr} 数据保存成功`);
