@@ -1,0 +1,225 @@
+[2025-02-14T21:02:34.053Z] [INFO] [fetchData] 🚀 开始数据抓取...
+[2025-02-14T21:02:34.057Z] [INFO] [fetchData] 📅 处理日期: 2025-02-11
+[2025-02-14T21:02:34.753Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:02:34.772Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:02:34.777Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:02:34.844Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:02:34.848Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:02:34.848Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-11": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:02:34.849Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:02:34.850Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:34.851Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-11
+[2025-02-14T21:02:34.851Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:34.851Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:02:34.851Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:34.852Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:34.852Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:02:34.853Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:34.853Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:34.853Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:34.854Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:34.854Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:02:34.854Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:34.855Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-11
+[2025-02-14T21:02:34.855Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:34.855Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:34.855Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:34.856Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:34.856Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:02:34.856Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:34.856Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-11
+[2025-02-14T21:02:34.856Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:34.857Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:02:34.857Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:34.857Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:34.858Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:02:34.858Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:34.858Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-11
+[2025-02-14T21:02:34.858Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:34.859Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:02:34.859Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:34.859Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:34.860Z] [INFO] [fetchData] ✅ 2025-02-11 数据保存成功
+[2025-02-14T21:02:34.861Z] [INFO] [fetchData] 📅 处理日期: 2025-02-12
+[2025-02-14T21:02:35.023Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:02:35.025Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:02:35.028Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:02:35.030Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:02:35.044Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:02:35.045Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-12": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:02:35.045Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:02:35.046Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.046Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-12
+[2025-02-14T21:02:35.046Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:35.046Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.047Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.047Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:35.048Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:02:35.048Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.048Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.048Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.049Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:35.049Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:02:35.050Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.050Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-12
+[2025-02-14T21:02:35.050Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.051Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.051Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 3 个日期项
+[2025-02-14T21:02:35.053Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:02:35.054Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.054Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-12
+[2025-02-14T21:02:35.054Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:35.054Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.055Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.055Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:35.055Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:02:35.056Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.056Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-12
+[2025-02-14T21:02:35.056Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.057Z] [PERF] [saveYearlyData] 排序耗时: 1ms
+[2025-02-14T21:02:35.057Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 3 个日期项
+[2025-02-14T21:02:35.058Z] [INFO] [fetchData] ✅ 2025-02-12 数据保存成功
+[2025-02-14T21:02:35.058Z] [INFO] [fetchData] 📅 处理日期: 2025-02-13
+[2025-02-14T21:02:35.220Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:02:35.224Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:02:35.224Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:02:35.228Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:02:35.237Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:02:35.239Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-13": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:02:35.239Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:02:35.240Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.240Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-13
+[2025-02-14T21:02:35.240Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:35.241Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:02:35.241Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.242Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:35.242Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:02:35.242Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.243Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.243Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.243Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:35.243Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:02:35.244Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.244Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-13
+[2025-02-14T21:02:35.245Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:02:35.245Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.245Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 4 个日期项
+[2025-02-14T21:02:35.246Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:02:35.246Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.246Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-13
+[2025-02-14T21:02:35.246Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:35.247Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:02:35.247Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.248Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:35.248Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:02:35.248Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.249Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-13
+[2025-02-14T21:02:35.249Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:02:35.249Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.250Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 4 个日期项
+[2025-02-14T21:02:35.250Z] [INFO] [fetchData] ✅ 2025-02-13 数据保存成功
+[2025-02-14T21:02:35.251Z] [INFO] [fetchData] 📅 处理日期: 2025-02-14
+[2025-02-14T21:02:35.413Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:02:35.414Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:02:35.417Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:02:35.418Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:02:35.428Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:02:35.428Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-14": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:02:35.428Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:02:35.429Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.429Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-14
+[2025-02-14T21:02:35.429Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:35.429Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.430Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.430Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:35.431Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:02:35.431Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.431Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.431Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.432Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:35.432Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:02:35.432Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.433Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-14
+[2025-02-14T21:02:35.433Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:02:35.433Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.433Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 5 个日期项
+[2025-02-14T21:02:35.434Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:02:35.434Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.434Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-14
+[2025-02-14T21:02:35.434Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:35.434Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.435Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.435Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 2 个日期项
+[2025-02-14T21:02:35.435Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:02:35.436Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.436Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-14
+[2025-02-14T21:02:35.436Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.437Z] [PERF] [saveYearlyData] 排序耗时: 1ms
+[2025-02-14T21:02:35.437Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 5 个日期项
+[2025-02-14T21:02:35.438Z] [INFO] [fetchData] ✅ 2025-02-14 数据保存成功
+[2025-02-14T21:02:35.438Z] [INFO] [fetchData] 📅 处理日期: 2025-02-15
+[2025-02-14T21:02:35.600Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:02:35.602Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:02:35.603Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:02:35.605Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:02:35.618Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:02:35.618Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-15": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:02:35.619Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:02:35.619Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.620Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:35.620Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.620Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.620Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 1 个日期项
+[2025-02-14T21:02:35.621Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:02:35.621Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.621Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.621Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.622Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 1 个日期项
+[2025-02-14T21:02:35.622Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:02:35.623Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.623Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.623Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.624Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 5 个日期项
+[2025-02-14T21:02:35.624Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:02:35.624Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.624Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:02:35.625Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:02:35.625Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.625Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 1 个日期项
+[2025-02-14T21:02:35.625Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:02:35.627Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:02:35.627Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:02:35.627Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:02:35.628Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 5 个日期项
+[2025-02-14T21:02:35.628Z] [INFO] [fetchData] ✅ 2025-02-15 数据保存成功
+[2025-02-14T21:02:35.628Z] [INFO] [fetchData] 🎉 所有数据抓取完成！
