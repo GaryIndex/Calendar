@@ -75,3 +75,37 @@ const flattenCalendarData = (data, dateStr) => {
     }
   };
 };
+// 扁平化 astro.json 数据的函数
+const flattenAstroData = (astroData, dateStr) => {
+  const data = astroData.data;
+  // 创建一个包含扁平化数据的对象，符合目标结构
+  const flattenedData = {
+    [dateStr]: {
+      "Reconstruction": [
+        {
+          "errno": astroData.errno,
+          "errmsg": astroData.errmsg,
+          "name": data.name,
+          "range": data.range,
+          "zxtd": data.zxtd,
+          "sssx": data.sssx,
+          "zggw": data.zggw,
+          "yysx": data.yysx,
+          "zdtz": data.zdtz,
+          "zgxx": data.zgxx,
+          "xyys": data.xyys,
+          "jssw": data.jssw,
+          "xyhm": data.xyhm,
+          "kyjs": data.kyjs,
+          "bx": data.bx,
+          "yd": data.yd,
+          "qd": data.qd,
+          "jbtz": data.jbtz,
+          "jttz": data.jttz,
+          "xsfg": data.xsfg,
+          "gxmd": data.gxmd,
+          "zj": data.zj
+        }
+      ]
+    }
+  };
