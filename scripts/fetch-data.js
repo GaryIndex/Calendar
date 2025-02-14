@@ -10,7 +10,7 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM �
 
 // 数据存储路径
 const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
-const INCREMENT_FILE = path.resolve(DATA_PATH, 'Document/Increment.json');  // 使用绝对路径来指向文件
+const INCREMENT_FILE = path.resolve(DATA_PATH, 'Daily/Increment.json');  // 使用绝对路径来指向文件
 const LOG_FILE = path.resolve(DATA_PATH, 'Daily/error.log');  // 使用绝对路径来指向文件
 
 // 输出路径以调试
