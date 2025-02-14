@@ -166,7 +166,7 @@ const saveYearlyData = async (fileName, date, startDate) => {
   await writeLog('INFO', 'saveYearlyData', `接收参数: ${fileName}, ${date}, ${startDate}`);
   // 读取现有数据
   let existingData = await readJsonFile(filePath);
-  if (Array.isArray(existingData) existingData = {}; // 转换数组为对象
+  if (Array.isArray(existingData)) existingData = {}; // 转换数组为对象
   await writeLog('DEBUG', 'saveYearlyData', `现有数据: ${JSON.stringify(existingData)}`);
   // 根据文件类型处理数据
   if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
