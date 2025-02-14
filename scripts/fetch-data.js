@@ -362,25 +362,29 @@ const saveYearlyData = async (fileName, date, startDate) => {
   }
 };
 // 通用的处理原始数据的函数
-export const processData = (originalData, dateStr) => {
-  // 判断是否为节假日数据（根据是否存在 isOffDay 字段）
-  const isHolidayData = 'isOffDay' in originalData;
-  // 动态构建结果项
-  const resultItem = {
-    // 保留 errno/errmsg（仅当原始数据中存在时）
-    ...(originalData.errno !== undefined && { errno: originalData.errno }),
-    ...(originalData.errmsg !== undefined && { errmsg: originalData.errmsg }),
-    data: isHolidayData 
-      ? { // 节假日数据：仅保留 date/name/isOffDay
-          date: originalData.date,
-          name: originalData.name,
-          isOffDay: originalData.isOffDay
-        }
-      : originalData // 其他数据：保持原始结构
-  };
+export const processData = (dataType, originalData, dateStr) => {
+  // 定义最终要放入data字段的内容
+  let processedData;
+  // 仅当数据类型为节假日时进行字段过滤
+  if (dataType === 'holidays') {
+    processedData = {
+      date: originalData.date,
+      name: originalData.name,
+      isOffDay: originalData.isOffDay
+    };
+  } else {
+    // 其他数据类型保持原始结构
+    processedData = originalData;
+  }
+  // 构建统一响应结构
   return {
     [dateStr]: {
-      Reconstruction: [resultItem]
+      Reconstruction: [{
+        // 条件保留错误码（仅当原始数据存在时）
+        ...(originalData.errno !== undefined && { errno: originalData.errno }),
+        ...(originalData.errmsg !== undefined && { errmsg: originalData.errmsg }),
+        data: processedData
+      }]
     }
   };
 };
@@ -422,11 +426,11 @@ const fetchData = async () => {
       //await writeLog('INFO', 'jieqi.json', `原始节气数据: ${JSON.stringify(jieqiData, null, 2)}`);
       await writeLog('INFO', 'holidays.json', `原始节假日数据: ${JSON.stringify(holidaysData, null, 2)}`);
       // 使用通用的处理函数来处理原始数据（扁平化）
-      const processedCalendarData = processData(calendarData, dateStr);
-      const processedAstroData = processData(astroData, dateStr);
-      const processedShichenData = processData(shichenData, dateStr);
-      const processedJieqiData = processData(jieqiData, dateStr);
-      const processedHolidaysData = processData(holidaysData, dateStr);
+      const processedCalendarData = processData('calendar', calendarData, dateStr);
+      const processedAstroData = processData('astro', astroData, dateStr);
+      const processedShichenData = processData('shichen', shichenData, dateStr);
+      const processedJieqiData = processData('jieqi',cjieqiData, dateStr);
+      const processedHolidaysData = processData('holidays', holidaysData, dateStr);
       //await writeLog('INFO', 'calendar.json', `扁平化后的日历数据: ${JSON.stringify(processedCalendarData, null, 2)}`);
       //await writeLog('INFO', 'astro.json', `扁平化后的星座数据: ${JSON.stringify(processedAstroData, null, 2)}`);
       //await writeLog('INFO', 'shichen.json', `扁平化后的时辰数据: ${JSON.stringify(processedShichenData, null, 2)}`);
