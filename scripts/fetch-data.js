@@ -417,13 +417,7 @@ const fetchData = async () => {
       const processedShichenData = processData(shichenData, dateStr);
       const processedJieqiData = processData(cjieqiData, dateStr);
       const processedHolidaysData = processData(holidaysData, dateStr);
-      /*
-      const processedCalendarData = await processData('calendar', calendarData, dateStr);
-      const processedAstroData = await processData('astro', astroData, dateStr);
-      const processedShichenData = await processData('shichen', shichenData, dateStr);
-      const processedJieqiData = await processData('jieqi', cjieqiData || {}, dateStr);
-      const processedHolidaysData = await processData('holidays', holidaysData, dateStr);
-      */
+      
       await writeLog('INFO', 'calendar.json', `扁平化后的日历数据: ${JSON.stringify(processedCalendarData, null, 2)}`);
       await writeLog('INFO', 'astro.json', `扁平化后的星座数据: ${JSON.stringify(processedAstroData, null, 2)}`);
       await writeLog('INFO', 'shichen.json', `扁平化后的时辰数据: ${JSON.stringify(processedShichenData, null, 2)}`);
