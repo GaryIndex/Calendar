@@ -369,7 +369,7 @@ export const processData = (originalData, dateStr) => {
         {
           errno: originalData.errno,
           errmsg: originalData.errmsg,
-          data: originalData.data // 保持原始数据不变
+          data: originalData // 保持原始数据不变
         }
       ]
     }
