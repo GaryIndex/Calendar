@@ -363,15 +363,24 @@ const saveYearlyData = async (fileName, date, startDate) => {
 };
 // 通用的处理原始数据的函数
 export const processData = (originalData, dateStr) => {
+  // 判断是否为节假日数据（根据是否存在 isOffDay 字段）
+  const isHolidayData = 'isOffDay' in originalData;
+  // 动态构建结果项
+  const resultItem = {
+    // 保留 errno/errmsg（仅当原始数据中存在时）
+    ...(originalData.errno !== undefined && { errno: originalData.errno }),
+    ...(originalData.errmsg !== undefined && { errmsg: originalData.errmsg }),
+    data: isHolidayData 
+      ? { // 节假日数据：仅保留 date/name/isOffDay
+          date: originalData.date,
+          name: originalData.name,
+          isOffDay: originalData.isOffDay
+        }
+      : originalData // 其他数据：保持原始结构
+  };
   return {
     [dateStr]: {
-      Reconstruction: [
-        {
-          errno: originalData.errno,
-          errmsg: originalData.errmsg,
-          data: originalData // 保持原始数据不变
-        }
-      ]
+      Reconstruction: [resultItem]
     }
   };
 };
