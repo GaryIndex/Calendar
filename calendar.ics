@@ -4,51 +4,6 @@ VERSION:2.0
 BEGIN:VEVENT
 SUMMARY: 
 LOCATION:  // 添加 location 字段
-DTSTART:20250211T000000
-DTEND:20250211T235959
-DESCRIPTION:平年  | [object Object]
-ATTACHMENT:  // 确保处理 attachment 字段
-URL:  // 添加 url 字段
-BADGE:  // 添加 badge 字段
-ISALLDAY:true  // 添加 isAllDay 字段
-TRAVELTIME:  // 添加 travelTime 字段
-REPEAT:  // 添加 repeat 字段
-ALARM:  // 添加 alarm 字段
-END:VEVENT
-
-BEGIN:VEVENT
-SUMMARY: 
-LOCATION:  // 添加 location 字段
-DTSTART:20250212T000000
-DTEND:20250212T235959
-DESCRIPTION:平年  | [object Object]
-ATTACHMENT:  // 确保处理 attachment 字段
-URL:  // 添加 url 字段
-BADGE:  // 添加 badge 字段
-ISALLDAY:true  // 添加 isAllDay 字段
-TRAVELTIME:  // 添加 travelTime 字段
-REPEAT:  // 添加 repeat 字段
-ALARM:  // 添加 alarm 字段
-END:VEVENT
-
-BEGIN:VEVENT
-SUMMARY: 
-LOCATION:  // 添加 location 字段
-DTSTART:20250213T000000
-DTEND:20250213T235959
-DESCRIPTION:平年  | [object Object]
-ATTACHMENT:  // 确保处理 attachment 字段
-URL:  // 添加 url 字段
-BADGE:  // 添加 badge 字段
-ISALLDAY:true  // 添加 isAllDay 字段
-TRAVELTIME:  // 添加 travelTime 字段
-REPEAT:  // 添加 repeat 字段
-ALARM:  // 添加 alarm 字段
-END:VEVENT
-
-BEGIN:VEVENT
-SUMMARY: 
-LOCATION:  // 添加 location 字段
 DTSTART:20250214T000000
 DTEND:20250214T235959
 DESCRIPTION:平年  | [object Object]
