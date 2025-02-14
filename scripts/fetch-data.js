@@ -202,15 +202,18 @@ const processDatas = async (fileName, date, startDate, calendarData, astroData, 
 // 调用封装函
 */
 // 稳定序列化函数（解决键顺序问题）
+// 稳定序列化函数（解决键顺序问题）
 const stableStringify = (obj) => {
   if (typeof obj !== 'object' || obj === null) return JSON.stringify(obj);
   return JSON.stringify(obj, Object.keys(obj).sort());
 };
+
 // 日期格式标准化（兼容单数字月份/日期）
 const normalizeDateKey = (key) => {
   const parts = key.split('-').map(part => part.padStart(2, '0'));
   return parts.slice(0, 3).join('-');
 };
+
 const saveYearlyData = async (fileName, date, startDate) => {
   const filePath = path.join(DATA_PATH, fileName);
   try {
@@ -218,6 +221,7 @@ const saveYearlyData = async (fileName, date, startDate) => {
       inputDate: date,
       startDateType: typeof startDate
     });
+
     // 参数校验
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       throw new Error(`非法日期参数格式: ${date}`);
@@ -301,32 +305,35 @@ const saveYearlyData = async (fileName, date, startDate) => {
     // 处理新数据
     const normalizedData = digData(startDate);
     await writeLog('DEBUG', 'saveYearlyData', '解析结果', normalizedData);
-    // 合并数据到正确位置
+    // 合并数据到正确位置（使用 Promise.all + map）
     const mergeStart = Date.now();
-    normalizedData.forEach(({ targetDate, data }) => {
-      const validDate = normalizeDateKey(targetDate);
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(validDate)) return;
-      if (!existingData[validDate]) {
-        existingData[validDate] = { Reconstruction: [] };
-      }
-      const targetArray = existingData[validDate].Reconstruction;
-      const existingHashes = new Set(
-        targetArray.map(item => stableStringify(item))
-      );
-      const flattenData = (items) => {
-        return items.flatMap(item => {
-          if (item?.Reconstruction) return flattenData(item.Reconstruction);
-          if (Array.isArray(item)) return flattenData(item);
-          return item?.errno === 0 ? item : null;
-        }).filter(Boolean);
-      };
-      const newItems = flattenData(data)
-        .filter(item => !existingHashes.has(stableStringify(item)));
-      if (newItems.length > 0) {
-        targetArray.push(...newItems);
-        await writeLog('DEBUG', 'saveYearlyData', `新增 ${newItems.length} 条数据到 ${validDate}`);
-      }
-    });
+    await Promise.all(
+      normalizedData.map(async ({ targetDate, data }) => {
+        const validDate = normalizeDateKey(targetDate);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(validDate)) return;
+
+        if (!existingData[validDate]) {
+          existingData[validDate] = { Reconstruction: [] };
+        }
+        const targetArray = existingData[validDate].Reconstruction;
+        const existingHashes = new Set(
+          targetArray.map(item => stableStringify(item))
+        );
+        const flattenData = (items) => {
+          return items.flatMap(item => {
+            if (item?.Reconstruction) return flattenData(item.Reconstruction);
+            if (Array.isArray(item)) return flattenData(item);
+            return item?.errno === 0 ? item : null;
+          }).filter(Boolean);
+        };
+        const newItems = flattenData(data)
+          .filter(item => !existingHashes.has(stableStringify(item)));
+        if (newItems.length > 0) {
+          targetArray.push(...newItems);
+          await writeLog('DEBUG', 'saveYearlyData', `新增 ${newItems.length} 条数据到 ${validDate}`);
+        }
+      })
+    );
     await writeLog('PERF', 'saveYearlyData', `合并耗时: ${Date.now() - mergeStart}ms`);
     // 按日排序（1-31）并格式化日期键
     const sortStart = Date.now();
