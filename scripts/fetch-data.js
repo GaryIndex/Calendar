@@ -102,46 +102,45 @@ const readJsonFile = async (filePath) => {
 };
 
 // 数据按年份存储
-// 数据按年份存储
 const saveYearlyData = async (fileName, date, startDate) => {
   const year = date.split('-')[0];  // 获取年份
   const filePath = path.join(DATA_PATH, fileName);  // 生成完整文件路径
-  // 打印出当前处理的文件路径
-  //console.log('待处理的数据:', JSON.stringify(startDate, null, 2));
-  console.log(`正在处理文件: ${filePath}`);
+  // 打印详细信息，替换为 writeLog 打印
+  await writeLog('INFO', 'saveYearlyData', `正在处理文件: ${filePath}`);
   // 仅对指定文件（如 jieqi.json、holidays.json）执行按年份存储逻辑
   if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
-    console.log(`检查年份数据：${year} 在文件 ${filePath} 中`);
+    await writeLog('INFO', 'saveYearlyData', `检查年份数据：${year} 在文件 ${filePath} 中`);
     let existingData = await readJsonFile(filePath);
-    console.log('读取现有数据:', existingData);
+    await writeLog('INFO', 'saveYearlyData', `读取现有数据: ${JSON.stringify(existingData, null, 2)}`);
     // 检查是否已有相同年份的数据
     const existingYearData = Object.keys(existingData).find((key) => key.startsWith(year));
     if (existingYearData) {
-      // 如果已有年份数据，覆盖该年份的内容
-      console.log(`找到年份数据，覆盖现有数据: ${existingYearData}`);
+      // 如果已有年份数据，覆盖现有数据中最新的日期
+      await writeLog('INFO', 'saveYearlyData', `找到年份数据，覆盖现有数据: ${existingYearData}`);
+      // 覆盖该年份中对应日期的数据
       existingData[existingYearData][date] = { Reconstruction: [startDate] };
     } else {
       // 如果没有该年份的数据，则新增该年份的数据
-      console.log(`未找到年份数据，新建年份数据: ${year}`);
+      await writeLog('INFO', 'saveYearlyData', `未找到年份数据，新建年份数据: ${year}`);
       existingData[date] = { Reconstruction: [startDate] };
     }
     // 写入数据到文件
-    console.log(`正在将数据写入文件 ${filePath}`);
+    await writeLog('INFO', 'saveYearlyData', `正在将数据写入文件 ${filePath}`);
     await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
-    await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
-    console.log(`文件 ${filePath} 数据保存成功`);
+    await writeLog('INFO', 'saveYearlyData', `✅ ${fileName} (${date}) 数据保存成功`);
   } else {
     // 对其他文件不做修改，直接按原方式保存
-    console.log(`处理非特殊文件：${fileName}`);
+    await writeLog('INFO', 'saveYearlyData', `处理非特殊文件：${fileName}`);
     let existingData = await readJsonFile(filePath);
-    console.log('读取现有数据:', existingData);
+    await writeLog('INFO', 'saveYearlyData', `读取现有数据: ${JSON.stringify(existingData, null, 2)}`);
     existingData[date] = { Reconstruction: [startDate] };
     // 写入数据到文件
-    console.log(`正在将数据写入文件 ${filePath}`);
+    await writeLog('INFO', 'saveYearlyData', `正在将数据写入文件 ${filePath}`);
     await fs.writeFile(filePath, JSON.stringify(existingData, null, 2), 'utf8');
-    await writeLog('INFO', `✅ ${fileName} (${date}) 数据保存成功`);
-    console.log(`文件 ${filePath} 数据保存成功`);
+    await writeLog('INFO', 'saveYearlyData', `✅ ${fileName} (${date}) 数据保存成功`);
   }
+  // 打印保存成功的信息
+  await writeLog('INFO', 'saveYearlyData', `文件 ${filePath} 数据保存成功`);
 };
 
 // dataProcessor.js
