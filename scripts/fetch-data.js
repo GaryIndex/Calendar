@@ -162,43 +162,43 @@ const saveYearlyData = async (fileName, date, startDate) => {
 */
 const saveYearlyData = async (fileName, date, startDate) => {
   const filePath = path.join(DATA_PATH, fileName);
-  // 调试日志
   await writeLog('INFO', 'saveYearlyData', `接收参数: ${fileName}, ${date}, ${startDate}`);
-  // 读取现有数据
-  let existingData = await readJsonFile(filePath);
-  if (Array.isArray(existingData)) existingData = {}; // 转换数组为对象
+  // 读取现有数据（处理空文件和数组格式）
+  let existingData = await readJsonFile(filePath) || {};
+  if (Array.isArray(existingData)) existingData = {};
   await writeLog('DEBUG', 'saveYearlyData', `现有数据: ${JSON.stringify(existingData)}`);
   // 根据文件类型处理数据
   if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
     /* 按年份存储逻辑 */
     const targetYear = date.split('-')[0];
-    // 删除同一年份所有现有数据
     Object.keys(existingData)
       .filter(k => k.startsWith(`${targetYear}-`))
       .forEach(k => delete existingData[k]);
-    // 添加新数据
-    existingData[date] = { Reconstruction: [startDate] };
   } else if (fileName === 'astro.json') {
     /* 按月存储逻辑 */
     const [year, month] = date.split('-');
-    const yearMonth = `${year}-${month}`;
-    // 删除同年同月所有现有数据
     Object.keys(existingData)
       .filter(k => {
         const [ey, em] = k.split('-');
         return ey === year && em === month;
       })
       .forEach(k => delete existingData[k]);
-    // 添加新数据
-    existingData[date] = { Reconstruction: [startDate] };
-  } else {
-    /* 默认逻辑（calendar.json，shichen.json 等）*/
-    // 直接覆盖或新增
-    existingData[date] = { Reconstruction: [startDate] };
   }
-  // 写入文件
-  await fs.writeFile(filePath, JSON.stringify(existingData, null, 2));
-  await writeLog('INFO', 'saveYearlyData', `✅ ${fileName} 数据更新成功`);
+  // 统一处理数据写入（保持原有数据结构）
+  if (!existingData[date]) {
+    existingData[date] = { Reconstruction: [] };
+  }
+  // 检查要添加的数据是否已存在
+  const isDuplicate = existingData[date].Reconstruction.some(item => 
+    JSON.stringify(item) === JSON.stringify(startDate)
+  );
+  if (!isDuplicate) {
+    existingData[date].Reconstruction.push(startDate);
+    await fs.writeFile(filePath, JSON.stringify(existingData, null, 2));
+    await writeLog('INFO', 'saveYearlyData', `✅ ${fileName} 数据更新成功`);
+  } else {
+    await writeLog('WARNING', 'saveYearlyData', `⏩ ${fileName} 数据已存在，跳过更新`);
+  }
 };
 // 通用的处理原始数据的函数
 export const processData = (originalData, dateStr) => {
