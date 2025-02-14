@@ -285,6 +285,7 @@ const saveYearlyData = async (fileName, date, startDate) => {
         .filter(item => !existingHashes.has(stableStringify(item)));
       if (newItems.length > 0) {
         targetArray.push(...newItems);
+        const normalizedData = {};
         await writeLog('DEBUG', 'saveYearlyData', `新增 ${newItems.length} 条数据到 ${validDate}`);
       }
     });
