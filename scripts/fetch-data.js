@@ -160,72 +160,159 @@ const saveYearlyData = async (fileName, date, startDate) => {
 
 // dataProcessor.js
 */
+//const path = require('path');
+//const fs = require('fs').promises;
+// 稳定序列化函数（解决键顺序问题）
+const stableStringify = (obj) => {
+  if (typeof obj !== 'object' || obj === null) return JSON.stringify(obj);
+  return JSON.stringify(obj, Object.keys(obj).sort());
+};
+// 日期格式标准化（兼容单数字月份/日期）
+const normalizeDateKey = (key) => {
+  const parts = key.split('-').map(part => part.padStart(2, '0'));
+  return parts.slice(0, 3).join('-');
+};
 const saveYearlyData = async (fileName, date, startDate) => {
   const filePath = path.join(DATA_PATH, fileName);
-  await writeLog('INFO', 'saveYearlyData', `接收参数: ${fileName}, ${date}, ${startDate}`);
-  // 读取并规范化现有数据
-  let existingData = await readJsonFile(filePath) || {};
-  if (Array.isArray(existingData)) existingData = {};
-  // 数据深度提取器
-  const extractPayload = (data) => {
-    // 处理多层嵌套结构
-    if (data?.[date]?.Reconstruction) return data[date].Reconstruction;
-    if (data?.Reconstruction) return data.Reconstruction;
-    if (Array.isArray(data)) return data;
-    return [data];
-  };
-  // 按文件类型处理数据
-  if (['jieqi.json', 'holidays.json'].includes(fileName)) {
-    // 按年清理数据
-    const year = date.split('-')[0];
-    Object.keys(existingData)
-      .filter(k => k.startsWith(year))
-      .forEach(k => delete existingData[k]);
-  } else if (fileName === 'astro.json') {
-    // 按月清理数据
-    const [year, month] = date.split('-');
-    Object.keys(existingData)
-      .filter(k => k.startsWith(`${year}-${month}`))
-      .forEach(k => delete existingData[k]);
-  }
-  // 初始化目标数据结构
-  if (!existingData[date]) {
-    existingData[date] = { Reconstruction: [] };
-  }
-  // 处理数据嵌套并合并
-  const targetArray = existingData[date].Reconstruction;
-  const newData = extractPayload(startDate)
-    .flatMap(item => {
-      if (item?.[date]?.Reconstruction) return item[date].Reconstruction;
-      if (item?.Reconstruction) return item.Reconstruction;
-      return item;
-    })
-    .filter(Boolean);
-  // 数据去重
-  const uniqueData = newData.filter(newItem => 
-    !targetArray.some(existingItem => 
-      JSON.stringify(existingItem) === JSON.stringify(newItem)
-    )
-  );
-  // 更新数据
-  if (uniqueData.length > 0) {
-    targetArray.push(...uniqueData);
-    // 日期排序逻辑
-    existingData = Object.keys(existingData)
+  try {
+    await writeLog('DEBUG', 'saveYearlyData', `开始处理 ${fileName}`, {
+      inputDate: date,
+      startDateType: typeof startDate
+    });
+    // 参数校验
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      throw new Error(`非法日期参数格式: ${date}`);
+    }
+    // 读取并规范化现有数据
+    let existingData = {};
+    try {
+      const rawData = await fs.readFile(filePath, 'utf8');
+      existingData = JSON.parse(rawData) || {};
+      if (Array.isArray(existingData)) existingData = {};
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    // 深度数据挖掘器（带缓存机制）
+    const digData = (inputData) => {
+      const results = [];
+      const processed = new WeakSet();
+      const processItem = (item) => {
+        if (!item || processed.has(item)) return;
+        processed.add(item);
+        // 发现有效日期键
+        const dateKeys = Object.keys(item)
+          .filter(k => /^\d{4}-\d{1,2}-\d{1,2}$/.test(k))
+          .map(normalizeDateKey);
+        if (dateKeys.length > 0) {
+          dateKeys.forEach(dateKey => {
+            const reconstruction = item[dateKey]?.Reconstruction;
+            if (Array.isArray(reconstruction)) {
+              results.push({
+                targetDate: dateKey,
+                data: reconstruction
+              });
+            }
+          });
+          return;
+        }
+        // 处理嵌套结构
+        if (item.Reconstruction) {
+          results.push({
+            targetDate: normalizeDateKey(date),
+            data: item.Reconstruction
+          });
+        } else if (item.errno !== undefined) {
+          results.push({
+            targetDate: normalizeDateKey(date),
+            data: [item]
+          });
+        }
+      };
+      const traverse = (data) => {
+        if (Array.isArray(data)) {
+          data.forEach(item => {
+            if (typeof item === 'object' && item !== null) {
+              processItem(item);
+              traverse(item);
+            }
+          });
+        } else if (typeof data === 'object' && data !== null) {
+          processItem(data);
+          Object.values(data).forEach(traverse);
+        }
+      };
+      traverse(inputData);
+      return results;
+    };
+    // 按文件类型清理旧数据
+    const cleanStrategy = () => {
+      if (['jieqi.json', 'holidays.json'].includes(fileName)) {
+        const year = date.split('-')[0];
+        Object.keys(existingData)
+          .filter(k => k.startsWith(`${year}-`))
+          .forEach(k => delete existingData[k]);
+      } else if (fileName === 'astro.json') {
+        const [year, month] = date.split('-');
+        Object.keys(existingData)
+          .filter(k => k.startsWith(`${year}-${month.padStart(2, '0')}`))
+          .forEach(k => delete existingData[k]);
+      }
+    };
+    cleanStrategy();
+    // 处理新数据
+    const normalizedData = digData(startDate);
+    await writeLog('DEBUG', 'saveYearlyData', '解析结果', normalizedData);
+    // 合并数据到正确位置
+    const mergeStart = Date.now();
+    normalizedData.forEach(({ targetDate, data }) => {
+      const validDate = normalizeDateKey(targetDate);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(validDate)) return;
+      if (!existingData[validDate]) {
+        existingData[validDate] = { Reconstruction: [] };
+      }
+      const targetArray = existingData[validDate].Reconstruction;
+      const existingHashes = new Set(
+        targetArray.map(item => stableStringify(item))
+      );
+      const flattenData = (items) => {
+        return items.flatMap(item => {
+          if (item?.Reconstruction) return flattenData(item.Reconstruction);
+          if (Array.isArray(item)) return flattenData(item);
+          return item?.errno === 0 ? item : null;
+        }).filter(Boolean);
+      };
+      const newItems = flattenData(data)
+        .filter(item => !existingHashes.has(stableStringify(item)));
+      if (newItems.length > 0) {
+        targetArray.push(...newItems);
+        await writeLog('DEBUG', 'saveYearlyData', `新增 ${newItems.length} 条数据到 ${validDate}`);
+      }
+    });
+    await writeLog('PERF', 'saveYearlyData', `合并耗时: ${Date.now() - mergeStart}ms`);
+    // 按日排序（1-31）并格式化日期键
+    const sortStart = Date.now();
+    const sortedKeys = Object.keys(existingData)
+      .map(normalizeDateKey)
       .sort((a, b) => {
         const aDay = parseInt(a.split('-')[2], 10);
         const bDay = parseInt(b.split('-')[2], 10);
-        return aDay - bDay;
-      })
-      .reduce((sorted, key) => {
-        sorted[key] = existingData[key];
-        return sorted;
-      }, {});
-
-    await fs.writeFile(filePath, JSON.stringify(existingData, null, 2));
-    await writeLog('INFO', 'saveYearlyData', `✅ ${fileName} 新增 ${uniqueData.length} 条数据`);
-  } else {
-    await writeLog('WARNING', 'saveYearlyData', `⏩ ${fileName} 无新增数据`);
+        return aDay - bDay || a.localeCompare(b);
+      });
+    const sortedData = sortedKeys.reduce((acc, key) => {
+      acc[key] = existingData[key];
+      return acc;
+    }, {});
+    await writeLog('PERF', 'saveYearlyData', `排序耗时: ${Date.now() - sortStart}ms`);
+    // 写入文件
+    await fs.writeFile(filePath, JSON.stringify(sortedData, null, 2));
+    await writeLog('INFO', 'saveYearlyData', `✅ ${fileName} 更新完成，共 ${sortedKeys.length} 个日期项`);
+  } catch (error) {
+    await writeLog('ERROR', 'saveYearlyData', `💥 处理失败: ${error.message}`, {
+      stack: error.stack,
+      fileName,
+      date
+    });
+    throw error;
   }
 };
 // 通用的处理原始数据的函数
