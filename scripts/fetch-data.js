@@ -433,11 +433,11 @@ const fetchData = async () => {
       //await writeLog('INFO', 'jieqi.json', `原始节气数据: ${JSON.stringify(jieqiData, null, 2)}`);
       await writeLog('INFO', 'holidays.json', `原始节假日数据: ${JSON.stringify(holidaysData, null, 2)}`);
       // 使用通用的处理函数来处理原始数据（扁平化）
-      const processedCalendarData = processData('calendar', calendarData, dateStr);
-      const processedAstroData = processData('astro', astroData, dateStr);
-      const processedShichenData = processData('shichen', shichenData, dateStr);
-      const processedJieqiData = processData('jieqi', cjieqiData, dateStr);
-      const processedHolidaysData = processData('holidays', holidaysData, dateStr);
+      const processedCalendarData = processData(calendarData, dateStr);
+      const processedAstroData = processData(astroData, dateStr);
+      const processedShichenData = processData(shichenData, dateStr);
+      const processedJieqiData = processData(cjieqiData, dateStr);
+      const processedHolidaysData = processData(holidaysData, dateStr);
       /*
       const processedCalendarData = await processData('calendar', calendarData, dateStr);
       const processedAstroData = await processData('astro', astroData, dateStr);
