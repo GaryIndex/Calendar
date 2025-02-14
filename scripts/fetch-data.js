@@ -182,6 +182,7 @@ const saveYearlyData = async (fileName, date, startDate) => {
 */
 //const path = require('path');
 //const fs = require('fs').promises;
+/*
 // 封装调用 saveYearlyData 的函数
 const processDatas = async (fileName, date, startDate, calendarData, astroData, shichenData, jieqiData, holidaysData) => {
   try {
@@ -199,7 +200,7 @@ const processDatas = async (fileName, date, startDate, calendarData, astroData, 
   }
 };
 // 调用封装函
-
+*/
 // 稳定序列化函数（解决键顺序问题）
 const stableStringify = (obj) => {
   if (typeof obj !== 'object' || obj === null) return JSON.stringify(obj);
@@ -395,12 +396,13 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
+      /*
       // 使用封装函数处理数据
       await processData(fileName, date, startDate, calendarData, astroData, shichenData, jieqiData, holidaysData);
     } catch (error) {
       console.error('数据获取或处理失败：', error.message);
     }
-    /*
+*/
       // 打印原始数据到日志
       await writeLog('INFO', 'calendar.json', `原始日历数据: ${JSON.stringify(calendarData, null, 2)}`);
       await writeLog('INFO', 'astro.json', `原始星座数据: ${JSON.stringify(astroData, null, 2)}`);
@@ -414,7 +416,6 @@ const fetchData = async () => {
       const processedShichenData = processData(shichenData, dateStr);
       const processedJieqiData = processData(jieqiData, dateStr);
       const processedHolidaysData = processData(holidaysData, dateStr);
-      */
       await writeLog('INFO', 'calendar.json', `扁平化后的日历数据: ${JSON.stringify(processedCalendarData, null, 2)}`);
       await writeLog('INFO', 'astro.json', `扁平化后的星座数据: ${JSON.stringify(processedAstroData, null, 2)}`);
       await writeLog('INFO', 'shichen.json', `扁平化后的时辰数据: ${JSON.stringify(processedShichenData, null, 2)}`);
