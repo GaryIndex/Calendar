@@ -444,14 +444,14 @@ const fetchData = async () => {
       const processedShichenData = await processData('shichen', shichenData, dateStr);
       const processedJieqiData = await processData('jieqi', cjieqiData || {}, dateStr);
       const processedHolidaysData = await processData('holidays', holidaysData, dateStr);
-      
-      //await writeLog('INFO', 'calendar.json', `扁平化后的日历数据: ${JSON.stringify(processedCalendarData, null, 2)}`);
-      //await writeLog('INFO', 'astro.json', `扁平化后的星座数据: ${JSON.stringify(processedAstroData, null, 2)}`);
-      //await writeLog('INFO', 'shichen.json', `扁平化后的时辰数据: ${JSON.stringify(processedShichenData, null, 2)}`);
-      //await writeLog('INFO', 'jieqi.json', `扁平化后的节气数据: ${JSON.stringify(processedJieqiData, null, 2)}`);
-      //await writeLog('INFO', 'holidays.json', `扁平化后的节假日数据: ${JSON.stringify(processedHolidaysData, null, 2)}`);
+      */
+      await writeLog('INFO', 'calendar.json', `扁平化后的日历数据: ${JSON.stringify(processedCalendarData, null, 2)}`);
+      await writeLog('INFO', 'astro.json', `扁平化后的星座数据: ${JSON.stringify(processedAstroData, null, 2)}`);
+      await writeLog('INFO', 'shichen.json', `扁平化后的时辰数据: ${JSON.stringify(processedShichenData, null, 2)}`);
+      await writeLog('INFO', 'jieqi.json', `扁平化后的节气数据: ${JSON.stringify(processedJieqiData, null, 2)}`);
+      await writeLog('INFO', 'holidays.json', `扁平化后的节假日数据: ${JSON.stringify(processedHolidaysData, null, 2)}`);
       // 保存数据
-*/
+
       await saveYearlyData('jieqi.json', today, processedJieqiData);
       await saveYearlyData('holidays.json', today, processedHolidaysData);
       await saveYearlyData('calendar.json', today, processedCalendarData);
