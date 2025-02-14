@@ -136,5 +136,6 @@ let flattenedShichenData = originalData.data.reduce((acc, item) => {
   });
   return acc;
 }, {});
-
+// 导出函数和数据
+export { flattenCalendarData, flattenAstroData, flattenedShichenData };
 console.log(flattenedShichenData);
