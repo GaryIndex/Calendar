@@ -163,41 +163,65 @@ const saveYearlyData = async (fileName, date, startDate) => {
 const saveYearlyData = async (fileName, date, startDate) => {
   const filePath = path.join(DATA_PATH, fileName);
   await writeLog('INFO', 'saveYearlyData', `接收参数: ${fileName}, ${date}, ${startDate}`);
-  // 读取现有数据（处理空文件和数组格式）
+  // 读取现有数据并规范化格式
   let existingData = await readJsonFile(filePath) || {};
-  if (Array.isArray(existingData)) existingData = {};
-  await writeLog('DEBUG', 'saveYearlyData', `现有数据: ${JSON.stringify(existingData)}`);
-  // 根据文件类型处理数据
+  if (Array.isArray(existingData)) existingData = {}; // 确保是对象结构
+  // 深度提取有效数据（关键修改点）
+  const extractRealData = (input) => {
+    // 处理多层嵌套结构
+    if (input?.[date]?.Reconstruction) {
+      return input[date].Reconstruction;
+    }
+    if (input?.Reconstruction) {
+      return input.Reconstruction;
+    }
+    return input;
+  };
+  // 根据文件类型清理旧数据
   if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
-    /* 按年份存储逻辑 */
     const targetYear = date.split('-')[0];
     Object.keys(existingData)
       .filter(k => k.startsWith(`${targetYear}-`))
       .forEach(k => delete existingData[k]);
   } else if (fileName === 'astro.json') {
-    /* 按月存储逻辑 */
     const [year, month] = date.split('-');
     Object.keys(existingData)
-      .filter(k => {
-        const [ey, em] = k.split('-');
-        return ey === year && em === month;
-      })
+      .filter(k => k.startsWith(`${year}-${month}`))
       .forEach(k => delete existingData[k]);
   }
-  // 统一处理数据写入（保持原有数据结构）
+  // 初始化数据结构（关键修改点）
   if (!existingData[date]) {
     existingData[date] = { Reconstruction: [] };
   }
-  // 检查要添加的数据是否已存在
-  const isDuplicate = existingData[date].Reconstruction.some(item => 
-    JSON.stringify(item) === JSON.stringify(startDate)
+  // 处理数据嵌套问题
+  const realData = extractRealData(startDate);
+  const targetArray = existingData[date].Reconstruction;
+  // 扁平化处理数据
+  const processData = (data) => {
+    if (Array.isArray(data)) {
+      return data.flatMap(item => processData(item));
+    }
+    if (data?.[date]?.Reconstruction) {
+      return processData(data[date].Reconstruction);
+    }
+    if (data?.Reconstruction) {
+      return processData(data.Reconstruction);
+    }
+    return data;
+  };
+  // 合并新数据（带去重）
+  const normalizedNewData = processData(realData);
+  const uniqueData = normalizedNewData.filter(newItem => 
+    !targetArray.some(existingItem => 
+      JSON.stringify(existingItem) === JSON.stringify(newItem)
+    )
   );
-  if (!isDuplicate) {
-    existingData[date].Reconstruction.push(startDate);
+  if (uniqueData.length > 0) {
+    targetArray.push(...uniqueData);
     await fs.writeFile(filePath, JSON.stringify(existingData, null, 2));
-    await writeLog('INFO', 'saveYearlyData', `✅ ${fileName} 数据更新成功`);
+    await writeLog('INFO', 'saveYearlyData', `✅ ${fileName} 新增 ${uniqueData.length} 条数据`);
   } else {
-    await writeLog('WARNING', 'saveYearlyData', `⏩ ${fileName} 数据已存在，跳过更新`);
+    await writeLog('WARNING', 'saveYearlyData', `⏩ ${fileName} 无新增数据`);
   }
 };
 // 通用的处理原始数据的函数
