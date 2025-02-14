@@ -1,3 +1,4 @@
+import fs from 'fs';
 //calendar扁平化
 const flattenCalendarData = (data, dateStr) => {
   if (!data || typeof data !== 'object') return {};
@@ -109,3 +110,25 @@ const flattenAstroData = (astroData, dateStr) => {
       ]
     }
   };
+// Shichen扁平化
+const originalData = JSON.parse(fs.readFileSync('shichen.json', 'utf8'));
+// 扁平化数据并构建新结构
+const flattenedData = originalData.data.reduce((acc, item) => {
+  const dateStr = item.date.replace(/-/g, '.'); // 将日期格式转换为 YYYY.MM.DD 格式
+  if (!acc[dateStr]) {
+    acc[dateStr] = { Reconstruction: [] };
+  }
+  // 创建一个新的事件对象，并添加到 `Reconstruction` 数组中
+  acc[dateStr].Reconstruction.push({
+    date: item.date,
+    hours: item.hours,
+    hour: item.hour,
+    yi: item.yi,
+    ji: item.ji,
+    chong: item.chong,
+    sha: item.sha,
+    nayin: item.nayin,
+    jiuxing: item.jiuxing
+  });
+  return acc;
+}, {});
