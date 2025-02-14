@@ -362,33 +362,58 @@ const saveYearlyData = async (fileName, date, startDate) => {
   }
 };
 // 通用的处理原始数据的函数
-export const processData = (dataType, originalData, dateStr) => {
-  // 定义最终要放入data字段的内容
+export const processData = async (dataType, originalData, dateStr) => {
+  // 步骤1: 记录原始输入
+  await writeLog(`[START] 开始处理 ${dataType} 类型数据`, { 
+    date: dateStr,
+    originalData: JSON.parse(JSON.stringify(originalData)) // 深拷贝避免数据污染
+  });
+  // 步骤2: 执行核心处理逻辑
   let processedData;
-  // 仅当数据类型为节假日时进行字段过滤
   if (dataType === 'holidays') {
+    await writeLog(`[PROCESS] 开始过滤节假日字段`, {
+      inputFields: Object.keys(originalData)
+    });
     processedData = {
       date: originalData.date,
       name: originalData.name,
       isOffDay: originalData.isOffDay
     };
+    await writeLog(`[PROCESS] 节假日过滤完成`, {
+      keptFields: Object.keys(processedData),
+      filteredData: JSON.parse(JSON.stringify(processedData))
+    });
   } else {
-    // 其他数据类型保持原始结构
-    processedData = originalData;
+    await writeLog(`[PROCESS] 透传 ${dataType} 数据`, {
+      sourceDataField: 'data' in originalData,
+      dataType: typeof originalData.data
+    });
+    processedData = originalData.data;
   }
-  // 构建统一响应结构
-  return {
+  // 步骤3: 构建响应结构
+  const responseItem = {
+    ...(originalData.errno !== undefined && { errno: originalData.errno }),
+    ...(originalData.errmsg !== undefined && { errmsg: originalData.errmsg }),
+    data: processedData
+  };
+  await writeLog(`[STRUCT] 构建响应项`, {
+    hasErrno: 'errno' in responseItem,
+    hasErrmsg: 'errmsg' in responseItem,
+    dataStructure: Object.keys(responseItem.data)
+  });
+  // 步骤4: 生成最终输出
+  const finalOutput = {
     [dateStr]: {
-      Reconstruction: [{
-        // 条件保留错误码（仅当原始数据存在时）
-        ...(originalData.errno !== undefined && { errno: originalData.errno }),
-        ...(originalData.errmsg !== undefined && { errmsg: originalData.errmsg }),
-        data: processedData
-      }]
+      Reconstruction: [responseItem]
     }
   };
+  await writeLog(`[FINISH] 完成数据处理`, {
+    outputDateKey: dateStr,
+    reconstructionItems: finalOutput[dateStr].Reconstruction.length,
+    finalStructure: Object.keys(finalOutput[dateStr])
+  });
+  return finalOutput;
 };
-//import { processData } from './dataProcessor.js';  // 导入通用处理函数
 // 数据抓取
 const fetchData = async () => {
   await writeLog('INFO', 'fetchData', '🚀 开始数据抓取...');
@@ -435,7 +460,7 @@ const fetchData = async () => {
       //await writeLog('INFO', 'astro.json', `扁平化后的星座数据: ${JSON.stringify(processedAstroData, null, 2)}`);
       //await writeLog('INFO', 'shichen.json', `扁平化后的时辰数据: ${JSON.stringify(processedShichenData, null, 2)}`);
       //await writeLog('INFO', 'jieqi.json', `扁平化后的节气数据: ${JSON.stringify(processedJieqiData, null, 2)}`);
-      await writeLog('INFO', 'holidays.json', `扁平化后的节假日数据: ${JSON.stringify(processedHolidaysData, null, 2)}`);
+      //await writeLog('INFO', 'holidays.json', `扁平化后的节假日数据: ${JSON.stringify(processedHolidaysData, null, 2)}`);
       // 保存数据
       await saveYearlyData('jieqi.json', today, processedJieqiData);
       await saveYearlyData('holidays.json', today, processedHolidaysData);
