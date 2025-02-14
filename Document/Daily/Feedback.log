@@ -1,0 +1,1060 @@
+[2025-02-14T21:05:48.609Z] [INFO] [fetchData] 🚀 开始数据抓取...
+[2025-02-14T21:05:48.614Z] [INFO] [fetchData] 📅 处理日期: 2025-02-11
+[2025-02-14T21:05:49.008Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:05:49.398Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:05:49.403Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:05:49.435Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:05:49.447Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:05:49.448Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T21:05:49.448Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-11": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:05:49.449Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:05:49.450Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.450Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-11
+[2025-02-14T21:05:49.450Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:49.451Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:49.451Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.452Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.452Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:05:49.452Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.453Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:49.453Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.453Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.454Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:05:49.454Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.454Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-11
+[2025-02-14T21:05:49.455Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:49.455Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:49.455Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.456Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.456Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:05:49.456Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.457Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-11
+[2025-02-14T21:05:49.457Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:49.457Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:49.457Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.458Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.458Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:05:49.458Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.459Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-11
+[2025-02-14T21:05:49.459Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:49.459Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:49.459Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.460Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.460Z] [INFO] [fetchData] ✅ 2025-02-11 数据保存成功
+[2025-02-14T21:05:49.461Z] [INFO] [fetchData] 📅 处理日期: 2025-02-12
+[2025-02-14T21:05:49.576Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:05:49.701Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:05:49.703Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:05:49.705Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:05:49.706Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:05:49.706Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T21:05:49.706Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-12": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:05:49.707Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:05:49.707Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.707Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-12
+[2025-02-14T21:05:49.707Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:49.708Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:49.708Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.708Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.709Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:05:49.709Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.709Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:49.710Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.710Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.710Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:05:49.711Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.711Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-12
+[2025-02-14T21:05:49.711Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:49.711Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.712Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 3 个日期项
+[2025-02-14T21:05:49.712Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:05:49.713Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.713Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-12
+[2025-02-14T21:05:49.713Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:49.713Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:49.713Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.714Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.714Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:05:49.714Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.715Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-12
+[2025-02-14T21:05:49.715Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:49.715Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.716Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 3 个日期项
+[2025-02-14T21:05:49.716Z] [INFO] [fetchData] ✅ 2025-02-12 数据保存成功
+[2025-02-14T21:05:49.717Z] [INFO] [fetchData] 📅 处理日期: 2025-02-13
+[2025-02-14T21:05:49.827Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:05:49.956Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:05:49.958Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:05:49.960Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:05:49.960Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:05:49.961Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T21:05:49.961Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-13": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:05:49.961Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:05:49.962Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.962Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-13
+[2025-02-14T21:05:49.962Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:49.963Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:49.963Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.963Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.964Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:05:49.964Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.964Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:49.964Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.965Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.965Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:05:49.966Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.966Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-13
+[2025-02-14T21:05:49.966Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:49.966Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.967Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 4 个日期项
+[2025-02-14T21:05:49.967Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:05:49.968Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.968Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-13
+[2025-02-14T21:05:49.968Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:49.968Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:49.968Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.969Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:49.969Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:05:49.969Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:49.970Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-13
+[2025-02-14T21:05:49.970Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:49.970Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:49.971Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 4 个日期项
+[2025-02-14T21:05:49.971Z] [INFO] [fetchData] ✅ 2025-02-13 数据保存成功
+[2025-02-14T21:05:49.972Z] [INFO] [fetchData] 📅 处理日期: 2025-02-14
+[2025-02-14T21:05:50.086Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:05:50.211Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:05:50.212Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:05:50.215Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:05:50.217Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:05:50.217Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T21:05:50.217Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-14": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:05:50.218Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:05:50.218Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.218Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-14
+[2025-02-14T21:05:50.218Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:50.219Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:50.219Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.219Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:50.220Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:05:50.220Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.220Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:50.220Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.221Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:50.221Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:05:50.221Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.221Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-14
+[2025-02-14T21:05:50.222Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:50.222Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.222Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 5 个日期项
+[2025-02-14T21:05:50.223Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:05:50.223Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.223Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-14
+[2025-02-14T21:05:50.223Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:50.224Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:50.224Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.224Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 2 个日期项
+[2025-02-14T21:05:50.224Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:05:50.225Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.225Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-14
+[2025-02-14T21:05:50.225Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:50.226Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.226Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 5 个日期项
+[2025-02-14T21:05:50.227Z] [INFO] [fetchData] ✅ 2025-02-14 数据保存成功
+[2025-02-14T21:05:50.227Z] [INFO] [fetchData] 📅 处理日期: 2025-02-15
+[2025-02-14T21:05:50.338Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T21:05:50.467Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T21:05:50.469Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T21:05:50.470Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T21:05:50.473Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T21:05:50.473Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T21:05:50.473Z] [INFO] [holidays.json] 扁平化后的节假日数据: {
+  "2025-02-15": {
+    "Reconstruction": [
+      {}
+    ]
+  }
+}
+[2025-02-14T21:05:50.474Z] [DEBUG] [saveYearlyData] 开始处理 jieqi.json
+[2025-02-14T21:05:50.474Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.474Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:50.475Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:50.475Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.475Z] [INFO] [saveYearlyData] ✅ jieqi.json 更新完成，共 1 个日期项
+[2025-02-14T21:05:50.476Z] [DEBUG] [saveYearlyData] 开始处理 holidays.json
+[2025-02-14T21:05:50.476Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.476Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:50.476Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.477Z] [INFO] [saveYearlyData] ✅ holidays.json 更新完成，共 1 个日期项
+[2025-02-14T21:05:50.477Z] [DEBUG] [saveYearlyData] 开始处理 calendar.json
+[2025-02-14T21:05:50.477Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.478Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:50.478Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.478Z] [INFO] [saveYearlyData] ✅ calendar.json 更新完成，共 5 个日期项
+[2025-02-14T21:05:50.479Z] [DEBUG] [saveYearlyData] 开始处理 astro.json
+[2025-02-14T21:05:50.479Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.479Z] [DEBUG] [saveYearlyData] 新增 1 条数据到 2025-02-15
+[2025-02-14T21:05:50.480Z] [PERF] [saveYearlyData] 合并耗时: 1ms
+[2025-02-14T21:05:50.480Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.480Z] [INFO] [saveYearlyData] ✅ astro.json 更新完成，共 1 个日期项
+[2025-02-14T21:05:50.480Z] [DEBUG] [saveYearlyData] 开始处理 shichen.json
+[2025-02-14T21:05:50.482Z] [DEBUG] [saveYearlyData] 解析结果
+[2025-02-14T21:05:50.482Z] [PERF] [saveYearlyData] 合并耗时: 0ms
+[2025-02-14T21:05:50.482Z] [PERF] [saveYearlyData] 排序耗时: 0ms
+[2025-02-14T21:05:50.483Z] [INFO] [saveYearlyData] ✅ shichen.json 更新完成，共 5 个日期项
+[2025-02-14T21:05:50.483Z] [INFO] [fetchData] ✅ 2025-02-15 数据保存成功
+[2025-02-14T21:05:50.484Z] [INFO] [fetchData] 🎉 所有数据抓取完成！
