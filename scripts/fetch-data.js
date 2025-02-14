@@ -362,57 +362,39 @@ const saveYearlyData = async (fileName, date, startDate) => {
   }
 };
 // 通用的处理原始数据的函数
-export const processData = async (dataType, originalData, dateStr) => {
-  // 步骤1: 记录原始输入
-  await writeLog(`[START] 开始处理 ${dataType} 类型数据`, { 
-    date: dateStr,
-    originalData: JSON.parse(JSON.stringify(originalData)) // 深拷贝避免数据污染
-  });
-  // 步骤2: 执行核心处理逻辑
-  let processedData;
-  if (dataType === 'holidays') {
-    await writeLog(`[PROCESS] 开始过滤节假日字段`, {
-      inputFields: Object.keys(originalData)
-    });
-    processedData = {
-      date: originalData.date,
-      name: originalData.name,
-      isOffDay: originalData.isOffDay
+export const processData = (dataType, originalData, dateStr) => {
+  // 判断是否为节假日数据
+  const isHolidayData = dataType === 'holidays';
+  // 处理节假日数据
+  if (isHolidayData) {
+    return {
+      [dateStr]: {
+        Reconstruction: [
+          {
+            errno: originalData.errno || 0, // 默认 errno 为 0
+            errmsg: originalData.errmsg || 'success', // 默认 errmsg 为 success
+            data: {
+              date: originalData.date,
+              name: originalData.name,
+              isOffDay: originalData.isOffDay
+            }
+          }
+        ]
+      }
     };
-    await writeLog(`[PROCESS] 节假日过滤完成`, {
-      keptFields: Object.keys(processedData),
-      filteredData: JSON.parse(JSON.stringify(processedData))
-    });
-  } else {
-    await writeLog(`[PROCESS] 透传 ${dataType} 数据`, {
-      sourceDataField: 'data' in originalData,
-      dataType: typeof originalData.data
-    });
-    processedData = originalData.data;
   }
-  // 步骤3: 构建响应结构
-  const responseItem = {
-    ...(originalData.errno !== undefined && { errno: originalData.errno }),
-    ...(originalData.errmsg !== undefined && { errmsg: originalData.errmsg }),
-    data: processedData
-  };
-  await writeLog(`[STRUCT] 构建响应项`, {
-    hasErrno: 'errno' in responseItem,
-    hasErrmsg: 'errmsg' in responseItem,
-    dataStructure: Object.keys(responseItem.data)
-  });
-  // 步骤4: 生成最终输出
-  const finalOutput = {
+  // 处理其他数据源
+  return {
     [dateStr]: {
-      Reconstruction: [responseItem]
+      Reconstruction: [
+        {
+          errno: originalData.errno,
+          errmsg: originalData.errmsg,
+          data: originalData.data || originalData // 兼容无 data 字段的情况
+        }
+      ]
     }
   };
-  await writeLog(`[FINISH] 完成数据处理`, {
-    outputDateKey: dateStr,
-    reconstructionItems: finalOutput[dateStr].Reconstruction.length,
-    finalStructure: Object.keys(finalOutput[dateStr])
-  });
-  return finalOutput;
 };
 // 数据抓取
 const fetchData = async () => {
@@ -451,18 +433,18 @@ const fetchData = async () => {
       //await writeLog('INFO', 'jieqi.json', `原始节气数据: ${JSON.stringify(jieqiData, null, 2)}`);
       await writeLog('INFO', 'holidays.json', `原始节假日数据: ${JSON.stringify(holidaysData, null, 2)}`);
       // 使用通用的处理函数来处理原始数据（扁平化）
-/*
       const processedCalendarData = processData('calendar', calendarData, dateStr);
       const processedAstroData = processData('astro', astroData, dateStr);
       const processedShichenData = processData('shichen', shichenData, dateStr);
       const processedJieqiData = processData('jieqi', cjieqiData, dateStr);
       const processedHolidaysData = processData('holidays', holidaysData, dateStr);
-      */
+      /*
       const processedCalendarData = await processData('calendar', calendarData, dateStr);
       const processedAstroData = await processData('astro', astroData, dateStr);
       const processedShichenData = await processData('shichen', shichenData, dateStr);
       const processedJieqiData = await processData('jieqi', cjieqiData || {}, dateStr);
       const processedHolidaysData = await processData('holidays', holidaysData, dateStr);
+      /*
       //await writeLog('INFO', 'calendar.json', `扁平化后的日历数据: ${JSON.stringify(processedCalendarData, null, 2)}`);
       //await writeLog('INFO', 'astro.json', `扁平化后的星座数据: ${JSON.stringify(processedAstroData, null, 2)}`);
       //await writeLog('INFO', 'shichen.json', `扁平化后的时辰数据: ${JSON.stringify(processedShichenData, null, 2)}`);
