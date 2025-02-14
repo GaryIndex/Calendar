@@ -183,7 +183,7 @@ const saveYearlyData = async (fileName, date, startDate) => {
 //const path = require('path');
 //const fs = require('fs').promises;
 // 封装调用 saveYearlyData 的函数
-const processData = async (fileName, date, startDate, calendarData, astroData, shichenData, jieqiData, holidaysData) => {
+const processDatas = async (fileName, date, startDate, calendarData, astroData, shichenData, jieqiData, holidaysData) => {
   try {
     // 打印原始数据到日志
     await writeLog('INFO', 'calendar.json', `原始日历数据: ${JSON.stringify(calendarData, null, 2)}`);
@@ -396,7 +396,7 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
       // 使用封装函数处理数据
-      await processData(fileName, date, startDate, calendarData, astroData, shichenData, jieqiData, holidaysData);
+      await processDatas(fileName, date, startDate, calendarData, astroData, shichenData, jieqiData, holidaysData);
       /*
       // 打印原始数据到日志
       await writeLog('INFO', 'calendar.json', `原始日历数据: ${JSON.stringify(calendarData, null, 2)}`);
