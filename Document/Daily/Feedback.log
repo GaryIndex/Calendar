@@ -1,0 +1,932 @@
+[2025-02-14T22:59:07.001Z] [INFO] [fetchData] 🚀 开始数据抓取...
+[2025-02-14T22:59:07.005Z] [INFO] [fetchData] 📅 处理日期: 2025-02-11
+[2025-02-14T22:59:07.650Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T22:59:08.105Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T22:59:08.106Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T22:59:08.139Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T22:59:08.140Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T22:59:08.140Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T22:59:08.140Z] [[START] 开始处理 calendar 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.141Z] [[START] 开始处理 astro 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.141Z] [[START] 开始处理 shichen 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.141Z] [ERROR] [fetchData] ⚠️ 2025-02-11 处理失败: cjieqiData is not defined
+[2025-02-14T22:59:08.141Z] [[PROCESS] 透传 calendar 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.141Z] [[PROCESS] 透传 astro 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.142Z] [[PROCESS] 透传 shichen 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.142Z] [INFO] [fetchData] 📅 处理日期: 2025-02-12
+[2025-02-14T22:59:08.143Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.143Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.143Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.146Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.146Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.146Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.249Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T22:59:08.389Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T22:59:08.389Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T22:59:08.390Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T22:59:08.392Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T22:59:08.392Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T22:59:08.392Z] [[START] 开始处理 calendar 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.392Z] [[START] 开始处理 astro 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.392Z] [[START] 开始处理 shichen 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.392Z] [ERROR] [fetchData] ⚠️ 2025-02-12 处理失败: cjieqiData is not defined
+[2025-02-14T22:59:08.393Z] [[PROCESS] 透传 calendar 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.393Z] [[PROCESS] 透传 astro 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.393Z] [[PROCESS] 透传 shichen 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.394Z] [INFO] [fetchData] 📅 处理日期: 2025-02-13
+[2025-02-14T22:59:08.394Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.394Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.394Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.397Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.397Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.397Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.500Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T22:59:08.640Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T22:59:08.641Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T22:59:08.641Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T22:59:08.643Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T22:59:08.643Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T22:59:08.644Z] [[START] 开始处理 calendar 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.644Z] [[START] 开始处理 astro 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.644Z] [[START] 开始处理 shichen 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.644Z] [ERROR] [fetchData] ⚠️ 2025-02-13 处理失败: cjieqiData is not defined
+[2025-02-14T22:59:08.644Z] [[PROCESS] 透传 calendar 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.644Z] [[PROCESS] 透传 astro 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.644Z] [[PROCESS] 透传 shichen 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.645Z] [INFO] [fetchData] 📅 处理日期: 2025-02-14
+[2025-02-14T22:59:08.645Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.645Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.645Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.648Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.649Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.649Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.749Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T22:59:08.892Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T22:59:08.893Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T22:59:08.894Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T22:59:08.895Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T22:59:08.895Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T22:59:08.895Z] [[START] 开始处理 calendar 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.895Z] [[START] 开始处理 astro 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.895Z] [[START] 开始处理 shichen 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:08.895Z] [ERROR] [fetchData] ⚠️ 2025-02-14 处理失败: cjieqiData is not defined
+[2025-02-14T22:59:08.896Z] [[PROCESS] 透传 calendar 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.896Z] [[PROCESS] 透传 astro 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.896Z] [[PROCESS] 透传 shichen 数据] [[object Object]] undefined
+[2025-02-14T22:59:08.896Z] [INFO] [fetchData] 📅 处理日期: 2025-02-15
+[2025-02-14T22:59:08.897Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.897Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.897Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:08.900Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.900Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:08.900Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:09.003Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T22:59:09.142Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T22:59:09.143Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T22:59:09.144Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T22:59:09.145Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T22:59:09.145Z] [INFO] [holidays.json] 原始节假日数据: {
+  "2025-01-01": {
+    "date": "2025-01-01",
+    "name": "元旦",
+    "isOffDay": true
+  },
+  "2025-01-26": {
+    "date": "2025-01-26",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-01-28": {
+    "date": "2025-01-28",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-29": {
+    "date": "2025-01-29",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-30": {
+    "date": "2025-01-30",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-01-31": {
+    "date": "2025-01-31",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-01": {
+    "date": "2025-02-01",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-02": {
+    "date": "2025-02-02",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-03": {
+    "date": "2025-02-03",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-04": {
+    "date": "2025-02-04",
+    "name": "春节",
+    "isOffDay": true
+  },
+  "2025-02-08": {
+    "date": "2025-02-08",
+    "name": "春节",
+    "isOffDay": false
+  },
+  "2025-04-04": {
+    "date": "2025-04-04",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-05": {
+    "date": "2025-04-05",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-06": {
+    "date": "2025-04-06",
+    "name": "清明节",
+    "isOffDay": true
+  },
+  "2025-04-27": {
+    "date": "2025-04-27",
+    "name": "劳动节",
+    "isOffDay": false
+  },
+  "2025-05-01": {
+    "date": "2025-05-01",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-02": {
+    "date": "2025-05-02",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-03": {
+    "date": "2025-05-03",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-04": {
+    "date": "2025-05-04",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-05": {
+    "date": "2025-05-05",
+    "name": "劳动节",
+    "isOffDay": true
+  },
+  "2025-05-31": {
+    "date": "2025-05-31",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-01": {
+    "date": "2025-06-01",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-06-02": {
+    "date": "2025-06-02",
+    "name": "端午节",
+    "isOffDay": true
+  },
+  "2025-09-28": {
+    "date": "2025-09-28",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  },
+  "2025-10-01": {
+    "date": "2025-10-01",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-02": {
+    "date": "2025-10-02",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-03": {
+    "date": "2025-10-03",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-04": {
+    "date": "2025-10-04",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-05": {
+    "date": "2025-10-05",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-06": {
+    "date": "2025-10-06",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-07": {
+    "date": "2025-10-07",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-08": {
+    "date": "2025-10-08",
+    "name": "国庆节、中秋节",
+    "isOffDay": true
+  },
+  "2025-10-11": {
+    "date": "2025-10-11",
+    "name": "国庆节、中秋节",
+    "isOffDay": false
+  }
+}
+[2025-02-14T22:59:09.145Z] [[START] 开始处理 calendar 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:09.145Z] [[START] 开始处理 astro 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:09.145Z] [[START] 开始处理 shichen 类型数据] [[object Object]] undefined
+[2025-02-14T22:59:09.146Z] [ERROR] [fetchData] ⚠️ 2025-02-15 处理失败: cjieqiData is not defined
+[2025-02-14T22:59:09.146Z] [[PROCESS] 透传 calendar 数据] [[object Object]] undefined
+[2025-02-14T22:59:09.146Z] [[PROCESS] 透传 astro 数据] [[object Object]] undefined
+[2025-02-14T22:59:09.146Z] [[PROCESS] 透传 shichen 数据] [[object Object]] undefined
+[2025-02-14T22:59:09.147Z] [INFO] [fetchData] 🎉 所有数据抓取完成！
+[2025-02-14T22:59:09.147Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:09.147Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:09.147Z] [[STRUCT] 构建响应项] [[object Object]] undefined
+[2025-02-14T22:59:09.147Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:09.147Z] [[FINISH] 完成数据处理] [[object Object]] undefined
+[2025-02-14T22:59:09.147Z] [[FINISH] 完成数据处理] [[object Object]] undefined
