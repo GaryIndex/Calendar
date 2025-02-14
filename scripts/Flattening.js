@@ -1,5 +1,6 @@
 import fs from 'fs';
-//calendar扁平化
+
+// calendar 扁平化
 const flattenCalendarData = (data, dateStr) => {
   if (!data || typeof data !== 'object') return {};
   const { errno, errmsg, data: rawData } = data;
@@ -76,11 +77,12 @@ const flattenCalendarData = (data, dateStr) => {
     }
   };
 };
+
 // 扁平化 astro.json 数据的函数
 const flattenAstroData = (astroData, dateStr) => {
   const data = astroData.data;
   // 创建一个包含扁平化数据的对象，符合目标结构
-  const flattenedData = {
+  return {
     [dateStr]: {
       "Reconstruction": [
         {
@@ -110,10 +112,12 @@ const flattenAstroData = (astroData, dateStr) => {
       ]
     }
   };
-// Shichen扁平化
+};
+
+// Shichen 扁平化
 const originalData = JSON.parse(fs.readFileSync('shichen.json', 'utf8'));
 // 扁平化数据并构建新结构
-const flattenedData = originalData.data.reduce((acc, item) => {
+let flattenedShichenData = originalData.data.reduce((acc, item) => {
   const dateStr = item.date.replace(/-/g, '.'); // 将日期格式转换为 YYYY.MM.DD 格式
   if (!acc[dateStr]) {
     acc[dateStr] = { Reconstruction: [] };
@@ -132,3 +136,5 @@ const flattenedData = originalData.data.reduce((acc, item) => {
   });
   return acc;
 }, {});
+
+console.log(flattenedShichenData);
