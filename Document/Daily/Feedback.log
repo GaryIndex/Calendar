@@ -1,0 +1,37 @@
+[2025-02-14T19:23:37.589Z] [INFO] [fetchData] 🚀 开始数据抓取...
+[2025-02-14T19:23:37.593Z] [INFO] [fetchData] 📅 处理日期: 2025-02-11
+[2025-02-14T19:23:38.442Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T19:23:38.659Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T19:23:38.673Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T19:23:38.911Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T19:23:38.924Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T19:23:38.924Z] [ERROR] [fetchData] ⚠️ 2025-02-11 处理失败: fileName is not defined
+[2025-02-14T19:23:38.925Z] [INFO] [fetchData] 📅 处理日期: 2025-02-12
+[2025-02-14T19:23:39.034Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T19:23:39.166Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T19:23:39.167Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T19:23:39.171Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T19:23:39.172Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T19:23:39.172Z] [ERROR] [fetchData] ⚠️ 2025-02-12 处理失败: fileName is not defined
+[2025-02-14T19:23:39.173Z] [INFO] [fetchData] 📅 处理日期: 2025-02-13
+[2025-02-14T19:23:39.282Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T19:23:39.412Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T19:23:39.415Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T19:23:39.418Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T19:23:39.419Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T19:23:39.419Z] [ERROR] [fetchData] ⚠️ 2025-02-13 处理失败: fileName is not defined
+[2025-02-14T19:23:39.420Z] [INFO] [fetchData] 📅 处理日期: 2025-02-14
+[2025-02-14T19:23:39.528Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T19:23:39.660Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T19:23:39.662Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T19:23:39.664Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T19:23:39.666Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T19:23:39.666Z] [ERROR] [fetchData] ⚠️ 2025-02-14 处理失败: fileName is not defined
+[2025-02-14T19:23:39.666Z] [INFO] [fetchData] 📅 处理日期: 2025-02-15
+[2025-02-14T19:23:39.775Z] [INFO] [✅ API 请求成功: https://api.jiejiariapi.com/v1/holidays/2025] undefined
+[2025-02-14T19:23:39.905Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/jieqi] undefined
+[2025-02-14T19:23:39.909Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/shichen] undefined
+[2025-02-14T19:23:39.911Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time/astro] undefined
+[2025-02-14T19:23:39.912Z] [INFO] [✅ API 请求成功: https://api.timelessq.com/time] undefined
+[2025-02-14T19:23:39.912Z] [ERROR] [fetchData] ⚠️ 2025-02-15 处理失败: fileName is not defined
+[2025-02-14T19:23:39.912Z] [INFO] [fetchData] 🎉 所有数据抓取完成！
