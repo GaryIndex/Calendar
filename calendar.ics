@@ -2,11 +2,11 @@ BEGIN:VCALENDAR
 VERSION:2.0
 
 BEGIN:VEVENT
-SUMMARY: 
+SUMMARY: | | | | 
 LOCATION:  // 添加 location 字段
 DTSTART:20250215T000000
 DTEND:20250215T235959
-DESCRIPTION:平年  | [object Object]
+DESCRIPTION:平年  | [object Object]|平年  | [object Object]|平年  | [object Object]|平年  | [object Object]|平年  | [object Object]
 ATTACHMENT:  // 确保处理 attachment 字段
 URL:  // 添加 url 字段
 BADGE:  // 添加 badge 字段
