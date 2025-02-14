@@ -396,8 +396,11 @@ const fetchData = async () => {
         fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
       ]);
       // 使用封装函数处理数据
-      await processDatas(fileName, date, startDate, calendarData, astroData, shichenData, jieqiData, holidaysData);
-      /*
+      await processData(fileName, date, startDate, calendarData, astroData, shichenData, jieqiData, holidaysData);
+    } catch (error) {
+      console.error('数据获取或处理失败：', error.message);
+    }
+    /*
       // 打印原始数据到日志
       await writeLog('INFO', 'calendar.json', `原始日历数据: ${JSON.stringify(calendarData, null, 2)}`);
       await writeLog('INFO', 'astro.json', `原始星座数据: ${JSON.stringify(astroData, null, 2)}`);
