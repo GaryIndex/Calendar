@@ -7,7 +7,7 @@ import chalk from 'chalk';
 
 // 获取当前模块的目录路径
 const __dirname = path.dirname(new URL(import.meta.url).pathname);  // 在 ESM 中获取 __dirname
-//import { flattenCalendarData, flattenAstroData, originalData } from './Flattening.js'; // 确保引入了必要的工具
+import { flattenCalendarData, flattenAstroData, originalData } from './Flattening.js'; // 确保引入了必要的工具
 // 数据存储路径
 const DATA_PATH = path.resolve(process.cwd(), 'Document');  // 获取当前工作目录下的 'data' 文件夹的绝对路径
 const INCREMENT_FILE = path.resolve(DATA_PATH, 'Daily/Increment.json');  // 使用绝对路径来指向文件
@@ -42,7 +42,7 @@ const ensureFile = async (filePath, defaultContent = '') => {
 // 执行创建过程
 await ensureFile(INCREMENT_FILE, JSON.stringify([]));
 await ensureFile(LOG_FILE, '');
-
+/*
 // 写入日志
 export const writeLog = async (level, filename, message) => {
   try {
@@ -51,6 +51,21 @@ export const writeLog = async (level, filename, message) => {
     await fs.appendFile(LOG_FILE, logMessage); // 追加写入日志
     console.log(logMessage.trim()); // 控制台输出
   } catch (error) {
+    console.error(`[日志写入失败] ${error.message}`);
+  }
+};
+*/
+// 写入日志的封装函数
+const writeLog = async (level, filename, message) => {
+  try {
+    const timestamp = new Date().toISOString();  // 获取当前时间
+    const logMessage = `[${timestamp}] [${level}] [${filename}] ${message}\n`;
+    // 追加写入日志到文件
+    await fs.promises.appendFile(LOG_FILE, logMessage);
+    // 控制台输出日志
+    console.log(logMessage.trim());
+  } catch (error) {
+    // 捕获并处理写入日志时的错误
     console.error(`[日志写入失败] ${error.message}`);
   }
 };
