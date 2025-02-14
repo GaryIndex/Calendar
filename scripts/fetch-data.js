@@ -42,7 +42,7 @@ const ensureFile = async (filePath, defaultContent = '') => {
 // 执行创建过程
 await ensureFile(INCREMENT_FILE, JSON.stringify([]));
 await ensureFile(LOG_FILE, '');
-/*
+
 // 写入日志
 export const writeLog = async (level, filename, message) => {
   try {
@@ -54,7 +54,8 @@ export const writeLog = async (level, filename, message) => {
     console.error(`[日志写入失败] ${error.message}`);
   }
 };
-*/
+
+
 //const newItems = [{}, {}, {}]; // 示例数据
 //const validDate = '2025-02-15'; // 示例日期
 // 将 newItems 中的元素推送到 targetArray 中
@@ -73,7 +74,7 @@ const writeLog = async (level, filename, message) => {
     console.error(`[日志写入失败] ${error.message}`);
   }
 };
-
+*/
 // 读取增量同步文件
 const readIncrementData = async () => {
   try {
