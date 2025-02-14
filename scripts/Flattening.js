@@ -115,27 +115,27 @@ const flattenAstroData = (astroData, dateStr) => {
 };
 
 // Shichen 扁平化
+import fs from 'fs';
+// 读取原始数据
 const originalData = JSON.parse(fs.readFileSync('shichen.json', 'utf8'));
-// 扁平化数据并构建新结构
-let flattenedShichenData = originalData.data.reduce((acc, item) => {
-  const dateStr = item.date.replace(/-/g, '.'); // 将日期格式转换为 YYYY.MM.DD 格式
-  if (!acc[dateStr]) {
-    acc[dateStr] = { Reconstruction: [] };
+// 假设传入的日期
+const dateStr = "2025.02.14";  // 你可以动态传入这个日期
+// 创建统一的头部结构，并将日期作为外层键
+let modifiedShichenData = {
+  [dateStr]: {
+    Reconstruction: [
+      {
+        errno: originalData.errno,
+        errmsg: originalData.errmsg,
+        data: originalData.data // 保持原始数据不变
+      }
+    ]
   }
-  // 创建一个新的事件对象，并添加到 `Reconstruction` 数组中
-  acc[dateStr].Reconstruction.push({
-    date: item.date,
-    hours: item.hours,
-    hour: item.hour,
-    yi: item.yi,
-    ji: item.ji,
-    chong: item.chong,
-    sha: item.sha,
-    nayin: item.nayin,
-    jiuxing: item.jiuxing
-  });
-  return acc;
-}, {});
+};
+// 打印修改后的数据
+console.log(modifiedShichenData);
+// 如果你需要保存到文件
+fs.writeFileSync('modified_shichen.json', JSON.stringify(modifiedShichenData, null, 2));
 // 导出函数和数据
 export { flattenCalendarData, flattenAstroData, originalData };
 console.log(flattenedShichenData);
