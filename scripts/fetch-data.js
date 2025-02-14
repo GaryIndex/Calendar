@@ -104,11 +104,14 @@ const readJsonFile = async (filePath) => {
 // 数据按年份存储
 const saveYearlyData = async (fileName, date, startDate) => {
   const year = date.split('-')[0];  // 获取年份
-  const filePath = path.join(DATA_PATH, fileName);  // 生成完整文件路径// 打印传递的三个值
+  const filePath = path.join(DATA_PATH, fileName);  // 生成完整文件路径
+
+  // 打印传递的三个值
   await writeLog('INFO', 'saveYearlyData', `接收到的文件名: ${fileName}`);
   await writeLog('INFO', 'saveYearlyData', `接收到的日期: ${date}`);
   await writeLog('INFO', 'saveYearlyData', `接收到的开始日期: ${startDate}`);
   await writeLog('INFO', 'saveYearlyData', `正在处理文件: ${filePath}`);
+
   // 读取现有数据
   let existingData = await readJsonFile(filePath);
   // 如果数据是空数组，则初始化为空对象
@@ -116,19 +119,27 @@ const saveYearlyData = async (fileName, date, startDate) => {
     existingData = {};
   }
   await writeLog('INFO', 'saveYearlyData', `读取现有数据: ${JSON.stringify(existingData, null, 2)}`);
+
   // 仅对指定文件（如 jieqi.json、holidays.json）执行按年份存储逻辑
   if (fileName === 'jieqi.json' || fileName === 'holidays.json') {
     await writeLog('INFO', 'saveYearlyData', `检查年份数据：${year} 在文件 ${filePath} 中`);
     // 检查是否已有相同年份的数据
     const existingYearData = Object.keys(existingData).find((key) => key.startsWith(year));
     if (existingYearData) {
-      // 如果已有年份数据，覆盖现有数据中最新的日期
-      await writeLog('INFO', 'saveYearlyData', `找到年份数据，覆盖现有数据: ${existingYearData}`);
-      existingData[existingYearData][date] = { Reconstruction: [startDate] };
+      // 如果已有年份数据，比较日期，如果新日期比旧日期大，覆盖现有数据中最新的日期
+      const existingDateKeys = Object.keys(existingData[existingYearData]);
+      const latestExistingDate = existingDateKeys[existingDateKeys.length - 1]; // 获取现有数据中的最新日期
+      // 比较现有日期与传入日期的大小
+      if (new Date(date) > new Date(latestExistingDate)) {
+        await writeLog('INFO', 'saveYearlyData', `找到年份数据，更新现有数据: ${existingYearData}`);
+        existingData[existingYearData][date] = { Reconstruction: [startDate] };
+      } else {
+        await writeLog('INFO', 'saveYearlyData', `现有数据中的日期更新较新，跳过保存`);
+      }
     } else {
       // 如果没有该年份的数据，则新增该年份的数据
       await writeLog('INFO', 'saveYearlyData', `未找到年份数据，新建年份数据: ${year}`);
-      existingData[date] = { Reconstruction: [startDate] };
+      existingData[year] = { [date]: { Reconstruction: [startDate] } };
     }
     // 写入数据到文件
     await writeLog('INFO', 'saveYearlyData', `正在将数据写入文件 ${filePath}`);
