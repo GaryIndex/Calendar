@@ -143,6 +143,79 @@ const saveYearlyData = async (fileName, date, startDate) => {
     console.log(`文件 ${filePath} 数据保存成功`);
   }
 };
+
+// dataProcessor.js
+
+// 通用的处理原始数据的函数
+export const processData = (originalData, dateStr) => {
+  return {
+    [dateStr]: {
+      Reconstruction: [
+        {
+          errno: originalData.errno,
+          errmsg: originalData.errmsg,
+          data: originalData.data // 保持原始数据不变
+        }
+      ]
+    }
+  };
+};
+//import { processData } from './dataProcessor.js';  // 导入通用处理函数
+// 数据抓取
+const fetchData = async () => {
+  await writeLog('INFO', 'fetchData', '🚀 开始数据抓取...');
+  await ensureDirectoryExists(DATA_PATH);
+  const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
+  const startDate = moment('2025-02-11').tz('Asia/Shanghai');
+  const incrementData = await readIncrementData();
+  for (let currentDate = startDate; currentDate.isSameOrBefore(today); currentDate.add(1, 'days')) {
+    const dateStr = currentDate.format('YYYY-MM-DD');
+    if (incrementData[dateStr]) {
+      await writeLog('INFO', 'fetchData', `⏩ 跳过已查询的日期: ${dateStr}`);
+      continue;
+    }
+    await writeLog('INFO', 'fetchData', `📅 处理日期: ${dateStr}`);
+    try {
+      // 并行获取五个文件的数据
+      const [calendarData, astroData, shichenData, jieqiData, holidaysData] = await Promise.all([
+        fetchDataFromApi('https://api.timelessq.com/time', { datetime: dateStr }),
+        fetchDataFromApi('https://api.timelessq.com/time/astro', { keyword: dateStr }),
+        fetchDataFromApi('https://api.timelessq.com/time/shichen', { date: dateStr }),
+        fetchDataFromApi('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
+        fetchDataFromApi('https://api.jiejiariapi.com/v1/holidays/' + dateStr.split('-')[0])
+      ]);
+      // 使用通用的处理函数来处理原始数据
+      const processedCalendarData = processData(calendarData, dateStr);
+      const processedAstroData = processData(astroData, dateStr);
+      const processedShichenData = processData(shichenData, dateStr);
+      const processedJieqiData = processData(jieqiData, dateStr);
+      const processedHolidaysData = processData(holidaysData, dateStr);
+      // 打印扁平化后的数据
+      await writeLog('INFO', 'calendar.json', `扁平化后的日历数据: ${JSON.stringify(processedCalendarData, null, 2)}`);
+      await writeLog('INFO', 'astro.json', `扁平化后的星座数据: ${JSON.stringify(processedAstroData, null, 2)}`);
+      await writeLog('INFO', 'shichen.json', `扁平化后的时辰数据: ${JSON.stringify(processedShichenData, null, 2)}`);
+      await writeLog('INFO', 'jieqi.json', `扁平化后的节气数据: ${JSON.stringify(processedJieqiData, null, 2)}`);
+      await writeLog('INFO', 'holidays.json', `扁平化后的节假日数据: ${JSON.stringify(processedHolidaysData, null, 2)}`);
+      // 保存数据
+      await saveYearlyData('jieqi.json', dateStr, processedJieqiData);
+      await saveYearlyData('holidays.json', dateStr, processedHolidaysData);
+      await saveYearlyData('calendar.json', dateStr, processedCalendarData);
+      await saveYearlyData('astro.json', dateStr, processedAstroData);
+      await saveYearlyData('shichen.json', dateStr, processedShichenData);
+      // 记录已查询的日期
+      await saveIncrementData(dateStr);
+      await writeLog('INFO', 'fetchData', `✅ ${dateStr} 数据保存成功`);
+    } catch (error) {
+      await writeLog('ERROR', 'fetchData', `⚠️ ${dateStr} 处理失败: ${error.message}`);
+    }
+  }
+  await writeLog('INFO', 'fetchData', '🎉 所有数据抓取完成！');
+};
+
+// 执行数据抓取
+fetchData().catch(async (error) => {
+  await writeLog('ERROR', 'fetchData', `🔥 数据抓取失败: ${error.message}`);
+});
 /*
 // 扁平化数据
 const flattenCalendarData = (data, dateStr) => {
@@ -198,7 +271,6 @@ const flattenCalendarData = (data, dateStr) => {
     }
   };
 };
-*/
 // 数据抓取
 const fetchData = async () => {
   await writeLog('INFO', 'fetchData', '🚀 开始数据抓取...');
@@ -259,6 +331,9 @@ const fetchData = async () => {
 fetchData().catch(async (error) => {
   await writeLog('ERROR', 'fetchData', `🔥 数据抓取失败: ${error.message}`);
 });
+
+*/
+
 /*
 // **创建标准化事件对象**
 export function createEvent({
