@@ -363,6 +363,7 @@ const saveYearlyData = async (fileName, date, startDate) => {
 };
 // 通用的处理原始数据的函数
 export const processData = (originalData, dateStr) => {
+  await writeLog('INFO', 'calendar.json', `原始日历数据: ${JSON.stringify(originalData, null, 2)}`);
   return {
     [dateStr]: {
       Reconstruction: [
@@ -406,10 +407,10 @@ const fetchData = async () => {
     }
 */
       // 打印原始数据到日志
-      //await writeLog('INFO', 'calendar.json', `原始日历数据: ${JSON.stringify(calendarData, null, 2)}`);
-      //await writeLog('INFO', 'astro.json', `原始星座数据: ${JSON.stringify(astroData, null, 2)}`);
-      //await writeLog('INFO', 'shichen.json', `原始时辰数据: ${JSON.stringify(shichenData, null, 2)}`);
-      //await writeLog('INFO', 'jieqi.json', `原始节气数据: ${JSON.stringify(jieqiData, null, 2)}`);
+      await writeLog('INFO', 'calendar.json', `原始日历数据: ${JSON.stringify(calendarData, null, 2)}`);
+      await writeLog('INFO', 'astro.json', `原始星座数据: ${JSON.stringify(astroData, null, 2)}`);
+      await writeLog('INFO', 'shichen.json', `原始时辰数据: ${JSON.stringify(shichenData, null, 2)}`);
+      await writeLog('INFO', 'jieqi.json', `原始节气数据: ${JSON.stringify(jieqiData, null, 2)}`);
       await writeLog('INFO', 'holidays.json', `原始节假日数据: ${JSON.stringify(holidaysData, null, 2)}`);
       // 使用通用的处理函数来处理原始数据（扁平化）
       const processedCalendarData = processData(calendarData, dateStr);
