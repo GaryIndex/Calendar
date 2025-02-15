@@ -76,15 +76,19 @@ const writeLog = async (level, filename, message) => {
 };
 */
 // 读取增量同步文件
-const readIncrementData = async () => {
-  try {
-    const data = await fs.readFile(INCREMENT_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch {
-    return {}; // 文件不存在则返回空对象
-  }
+export const processData = (originalData, dateStr) => {
+  return {
+    [dateStr]: {
+      Reconstruction: [
+        {
+          errno: originalData.errno,
+          errmsg: originalData.errmsg,
+          data: originalData// 保持原始数据不变
+        }
+      ]
+    }
+  };
 };
-
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
