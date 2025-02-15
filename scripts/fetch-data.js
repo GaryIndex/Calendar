@@ -76,19 +76,7 @@ const writeLog = async (level, filename, message) => {
 };
 */
 // 读取增量同步文件
-export const processData = (originalData, dateStr) => {
-  return {
-    [dateStr]: {
-      Reconstruction: [
-        {
-          errno: originalData.errno,
-          errmsg: originalData.errmsg,
-          data: originalData// 保持原始数据不变
-        }
-      ]
-    }
-  };
-};
+
 // API 请求，带重试机制
 const fetchDataFromApi = async (url, params = {}, retries = 3) => {
   try {
@@ -367,7 +355,6 @@ const saveYearlyData = async (fileName, date, startDate) => {
 };
 // 通用的处理原始数据的函数
 export const processData = (originalData, dateStr) => {
-  await writeLog('INFO', 'calendar.json', `原始日历数据: ${JSON.stringify(originalData, null, 2)}`);
   return {
     [dateStr]: {
       Reconstruction: [
