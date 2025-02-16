@@ -10,9 +10,9 @@ const DATA_DIR = path.resolve(process.cwd(), 'Document/Daily');
 const INCREMENT_FILE = path.resolve(DATA_DIR, 'Increment.json');
 const LOG_FILE = path.resolve(DATA_DIR, 'Feedback.log');
 const PROXY_POOL = [
-  'http://user:pass@proxy1.example.com:8080',
-  'http://user:pass@proxy2.example.com:8080',
-  'http://user:pass@proxy3.example.com:8080'
+  '95.38.174.119:8080',
+  '102.213.84.250:8080',
+  '58.69.78.115:8081'
 ];
 
 // 日志等级颜色映射
