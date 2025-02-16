@@ -9,7 +9,7 @@ import chalk from 'chalk';
 
 // ==================== 配置模块 ====================
 const CONFIG = {
-  ENABLE_PROXY: true,      // 代理总开关
+  ENABLE_PROXY: false,      // 代理总开关
   ENABLE_LOGGING: true,    // 日志总开关
   PROXY_POOL: [            // 代理服务器列表
     'http://user:pass@proxy1.example.com:8080',
