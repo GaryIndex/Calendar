@@ -47,7 +47,10 @@ jobs:
           fi
 
       - name: 📦 安装依赖
-        run: npm ci
+        run: |
+          npm ci
+          # 预安装 https-proxy-agent
+          npm install https-proxy-agent
 
       - name: 🔄 运行数据获取脚本并生成 ICS 文件
         run: |
@@ -61,7 +64,7 @@ jobs:
         id: check_changes
         run: |
           echo "🔍 检查是否有更改..."
-          if [[ -n "$(git status --porcelain)" ]]; then
+          if [[ -n "$(git diff --exit-code)" ]]; then
             echo "📝 检测到更改"
             echo "changes=true" >> $GITHUB_ENV
           else
