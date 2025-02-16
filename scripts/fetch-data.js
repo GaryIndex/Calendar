@@ -2,7 +2,9 @@
 import path from 'path';
 import fs from 'fs/promises';
 import moment from 'moment-timezone';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+import pkg from 'https-proxy-agent';
+const { HttpsProxyAgent } = pkg;
+//import { HttpsProxyAgent } from 'https-proxy-agent';
 import fetch from 'node-fetch';
 
 // 常量定义
