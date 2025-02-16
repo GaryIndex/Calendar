@@ -16,6 +16,7 @@
     "moment-timezone": "^0.5.34",
     "chalk": "^5.2.0",
     "deepmerge": "^4.2.2"
+    "https-proxy-agent": "^5.0.0"  // 这里是新添加的包
   },
   "devDependencies": {},
   "author": "",
