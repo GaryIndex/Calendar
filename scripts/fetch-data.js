@@ -1,249 +1,186 @@
-// utils.js - 工具模块
+// 工具模块 - 通用配置和工具函数
 import path from 'path';
 import fs from 'fs/promises';
+import axios from 'axios';
 import moment from 'moment-timezone';
-import pkg from 'https-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import chalk from 'chalk';
-const { HttpsProxyAgent } = pkg;
-//import { HttpsProxyAgent } from 'https-proxy-agent';
-import fetch from 'node-fetch';
 
-// 常量定义
-const DATA_DIR = path.resolve(process.cwd(), 'Document/Daily');
-const INCREMENT_FILE = path.resolve(DATA_DIR, 'Increment.json');
-const LOG_FILE = path.resolve(DATA_DIR, 'Feedback.log');
-const PROXY_POOL = [
-  '49.90.23.180',
-  '44.93.28.132',
-  '36.23.76.152'
-];
-
-// 日志等级颜色映射
-const LOG_COLORS = {
-  INFO: 'green',
-  WARN: 'yellow',
-  ERROR: 'red',
-  DEBUG: 'blue'
+// ===================== 全局配置 =====================
+const CONFIG = {
+  USE_PROXY: false,                // 是否启用代理模式
+  REQUEST_TIMEOUT: 5000,           // 请求超时时间（5秒）
+  MAX_RETRIES: 3,                  // 最大重试次数
+  DATA_DIR: path.resolve(process.cwd(), 'Document'), // 数据存储目录
+  LOG_FILE: 'Daily/Feedback.log',  // 日志文件路径
+  INCREMENT_FILE: 'Daily/Increment.json', // 增量记录文件
+  PROXY_POOL: [                    // 代理池配置（需要替换为真实代理）
+    'http://user:pass@proxy1.example.com:8080',
+    'http://user:pass@proxy2.example.com:8080',
+    'http://user:pass@proxy3.example.com:8080'
+  ]
 };
 
-/**
- * 确保目录存在（递归创建）
- * @param {string} dirPath 目录路径
- */
-export const ensureDirExists = async (dirPath) => {
-  try {
-    await fs.mkdir(dirPath, { recursive: true });
-  } catch (error) {
-    if (error.code !== 'EEXIST') throw error;
+// ===================== 工具函数模块 =====================
+// 日志管理
+export class Logger {
+  static async write(level, module, message) {
+    try {
+      const timestamp = moment().tz('Asia/Shanghai').format();
+      const logEntry = `[${timestamp}] [${level}] [${module}] ${message}\n`;
+      await this.ensureFileExists(CONFIG.LOG_FILE);
+      await fs.appendFile(path.join(CONFIG.DATA_DIR, CONFIG.LOG_FILE), logEntry);
+      console.log(chalk.gray(logEntry.trim()));
+    } catch (error) {
+      console.error(chalk.red('日志写入失败:'), error);
+    }
   }
-};
-
-/**
- * 写入格式化日志
- * @param {string} level 日志等级
- * @param {string} module 模块名称
- * @param {string} message 日志信息
- * @param {object} [metadata] 附加元数据
- */
-export const writeLog = async (level, module, message, metadata = {}) => {
-  const timestamp = moment().tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm:ss.SSS');
-  const logEntry = {
-    timestamp,
-    level,
-    module,
-    message,
-    ...metadata
-  };
-  // 添加颜色输出
-  const color = LOG_COLORS[level] || 'white';
-  console.log(chalk[color](`[${timestamp}] [${level}] [${module}] ${message}`));
-  await ensureDirExists(DATA_DIR);
-  await fs.appendFile(LOG_FILE, JSON.stringify(logEntry) + '\n');
-};
-
-/**
- * 读取增量记录文件
- */
-export const readIncrementData = async () => {
-  try {
-    const data = await fs.readFile(INCREMENT_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    if (error.code === 'ENOENT') return {};
-    throw error;
+  static async ensureFileExists(filePath) {
+    const fullPath = path.join(CONFIG.DATA_DIR, filePath);
+    try {
+      await fs.mkdir(path.dirname(fullPath), { recursive: true });
+      await fs.access(fullPath);
+    } catch {
+      await fs.writeFile(fullPath, '');
+    }
   }
-};
-/**
- * 保存增量记录文件
- * @param {object} incrementData 增量数据
- */
-export const saveIncrementData = async (incrementData) => {
-  await fs.writeFile(INCREMENT_FILE, JSON.stringify(incrementData, null, 2));
-};
-// dataFetcher.js - 数据获取模块
-/**
- * 带代理和重试机制的请求函数
- * @param {string} url 请求地址
- * @param {object} [params] 请求参数
- * @param {number} [retries=3] 重试次数
- */
-export const fetchWithRetry = async (url, params = {}, retries = 3) => {
-  const proxy = PROXY_POOL[Math.floor(Math.random() * PROXY_POOL.length)];
-  const agent = new HttpsProxyAgent(proxy);
-  const query = new URLSearchParams(params).toString();
-  const requestUrl = url + (query ? `?${query}` : '');
-  try {
-    const response = await fetch(requestUrl, {
-      agent,
-      timeout: 15000,
+}
+
+// 文件操作
+export class FileManager {
+  static async readJSON(filePath) {
+    try {
+      const data = await fs.readFile(filePath, 'utf8');
+      return JSON.parse(data);
+    } catch {
+      return null;
+    }
+  }
+  static async writeJSON(filePath, data) {
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+  }
+}
+
+// ===================== 数据处理模块 =====================
+// 日期处理
+export class DateUtils {
+  static normalizeDate(dateStr) {
+    return moment(dateStr).format('YYYY-MM-DD');
+  }
+  static isValidDate(dateStr) {
+    return moment(dateStr, 'YYYY-MM-DD', true).isValid();
+  }
+}
+// 数据转换
+export class DataProcessor {
+  static process(rawData, dateStr) {
+    return {
+      [dateStr]: {
+        Reconstruction: [{
+          errno: rawData.errno || 0,
+          errmsg: rawData.errmsg || '',
+          data: rawData
+        }]
+      }
+    };
+  }
+}
+
+// ===================== 网络请求模块 =====================
+export class Fetcher {
+  static async get(url, params = {}) {
+    const options = {
+      timeout: CONFIG.REQUEST_TIMEOUT,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...',
-        'Accept-Encoding': 'gzip, deflate'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...'
       }
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} ${response.statusText}`);
+    };
+    if (CONFIG.USE_PROXY) {
+      const proxy = CONFIG.PROXY_POOL[Math.floor(Math.random() * CONFIG.PROXY_POOL.length)];
+      options.httpsAgent = new HttpsProxyAgent(proxy);
     }
-    const contentType = response.headers.get('content-type');
-    if (!contentType?.includes('application/json')) {
-      throw new Error('Invalid content type received');
+    try {
+      const response = await axios.get(url, { params, ...options });
+      await Logger.write('INFO', 'Fetcher', `请求成功: ${url}`);
+      return response.data;
+    } catch (error) {
+      await Logger.write('ERROR', 'Fetcher', `请求失败: ${url} - ${error.message}`);
+      throw error;
     }
-    return response.json();
-  } catch (error) {
-    if (retries > 0) {
-      await writeLog('WARN', 'fetchWithRetry', 
-        `请求失败: ${error.message}, 剩余重试次数: ${retries}`);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      return fetchWithRetry(url, params, retries - 1);
-    }
-    throw error;
   }
-};
-// dataProcessor.js - 数据处理模块
-/**
- * 标准化日期格式（YYYY-MM-DD）
- * @param {string} dateStr 原始日期字符串
- */
-const normalizeDate = (dateStr) => {
-  const [year, month, day] = dateStr.split('-');
-  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-};
+}
 
-/**
- * 处理原始API数据
- * @param {object} rawData 原始数据
- * @param {string} dateStr 目标日期
- */
-export const processData = (rawData, dateStr) => {
-  if (!rawData || rawData.errno !== 0) {
-    throw new Error(`API返回错误: ${rawData?.errmsg || '未知错误'}`);
-  }
-  return {
-    [normalizeDate(dateStr)]: {
-      metadata: {
-        updatedAt: moment().tz('Asia/Shanghai').format(),
-        dataSource: 'timelessq-api'
-      },
-      data: rawData.data
-    }
-  };
-};
-
-/**
- * 保存年度数据文件
- * @param {string} filename 文件名
- * @param {string} dateStr 日期字符串
- * @param {object} newData 新数据
- */
-export const saveYearlyData = async (filename, dateStr, newData) => {
-  const [year] = dateStr.split('-');
-  const yearDir = path.join(DATA_DIR, year);
-  await ensureDirExists(yearDir);
-  const filePath = path.join(yearDir, filename);
-  const existingData = await readJSONFile(filePath) || {};
-  const mergedData = deepmerge(existingData, newData);
-  // 按日期排序
-  const sortedData = Object.keys(mergedData)
-    .sort((a, b) => moment(a).diff(moment(b)))
-    .reduce((acc, key) => {
-      acc[key] = mergedData[key];
-      return acc;
-    }, {});
-  await fs.writeFile(filePath, JSON.stringify(sortedData, null, 2));
-  await writeLog('INFO', 'saveYearlyData', `数据保存成功: ${filename}`);
-};
-/**
- * 读取JSON文件
- * @param {string} filePath 文件路径
- */
-const readJSONFile = async (filePath) => {
-  try {
-    const data = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    if (error.code === 'ENOENT') return null;
-    throw error;
-  }
-};
-
-/**
- * 主数据获取流程
- */
-export const main = async () => {
-  await writeLog('INFO', 'main', '🚀 启动数据抓取流程');
-  try {
-    const incrementData = await readIncrementData();
-    const today = moment().tz('Asia/Shanghai');
-    const startDate = moment('2025-02-11').tz('Asia/Shanghai');
-    for (
-      let current = startDate.clone();
-      current.isSameOrBefore(today, 'day');
-      current.add(1, 'day')
-    ) {
-      const dateStr = current.format('YYYY-MM-DD');
-      if (incrementData[dateStr]) {
-        await writeLog('INFO', 'main', `⏩ 跳过已处理日期: ${dateStr}`);
-        continue;
-      }
+// ===================== 主业务逻辑模块 =====================
+export class MainProcessor {
+  static async fetchData() {
+    await Logger.write('INFO', 'Main', '开始数据抓取流程');
+    // 读取增量记录
+    const incrementData = await this.loadIncrementData();
+    const today = moment().tz('Asia/Shanghai').format('YYYY-MM-DD');
+    // 按日期循环处理
+    for (let date = moment('2025-02-11'); date.isSameOrBefore(today); date.add(1, 'd')) {
+      const dateStr = date.format('YYYY-MM-DD');
+      if (incrementData[dateStr]) continue;
       try {
-        await writeLog('INFO', 'main', `📅 开始处理日期: ${dateStr}`);
-        // 并行获取所有数据
-        const [calendar, astro, shichen, jieqi, holidays] = await Promise.all([
-          fetchWithRetry('https://api.timelessq.com/time', { datetime: dateStr }),
-          fetchWithRetry('https://api.timelessq.com/time/astro', { keyword: dateStr }),
-          fetchWithRetry('https://api.timelessq.com/time/shichen', { date: dateStr }),
-          fetchWithRetry('https://api.timelessq.com/time/jieqi', { year: current.year() }),
-          fetchWithRetry(`https://api.jiejiariapi.com/v1/holidays/${current.year()}`)
-        ]);
-        // 并行处理保存
-        await Promise.all([
-          saveYearlyData('calendar.json', dateStr, processData(calendar, dateStr)),
-          saveYearlyData('astro.json', dateStr, processData(astro, dateStr)),
-          saveYearlyData('shichen.json', dateStr, processData(shichen, dateStr)),
-          saveYearlyData('jieqi.json', dateStr, processData(jieqi, dateStr)),
-          saveYearlyData('holidays.json', dateStr, processData(holidays, dateStr))
-        ]);
-        // 更新增量记录
+        await this.processDate(dateStr);
         incrementData[dateStr] = true;
-        await saveIncrementData(incrementData);
-        await writeLog('INFO', 'main', `✅ 日期处理完成: ${dateStr}`);
+        await this.saveIncrementData(incrementData);
       } catch (error) {
-        await writeLog('ERROR', 'main', `❌ 日期处理失败: ${dateStr}`, {
-          error: error.message
-        });
+        await Logger.write('ERROR', 'Main', `日期处理失败: ${dateStr} - ${error.message}`);
       }
     }
-    await writeLog('INFO', 'main', '🎉 所有数据处理完成');
+  }
+  static async processDate(dateStr) {
+    await Logger.write('INFO', 'Main', `处理日期: ${dateStr}`);
+    // 并行请求数据
+    const [calendar, astro, shichen, jieqi, holidays] = await Promise.all([
+      Fetcher.get('https://api.timelessq.com/time', { datetime: dateStr }),
+      Fetcher.get('https://api.timelessq.com/time/astro', { keyword: dateStr }),
+      Fetcher.get('https://api.timelessq.com/time/shichen', { date: dateStr }),
+      Fetcher.get('https://api.timelessq.com/time/jieqi', { year: dateStr.split('-')[0] }),
+      Fetcher.get(`https://api.jiejiariapi.com/v1/holidays/${dateStr.split('-')[0]}`)
+    ]);
+    // 处理并保存数据
+    await Promise.all([
+      this.saveData('calendar.json', dateStr, calendar),
+      this.saveData('astro.json', dateStr, astro),
+      this.saveData('shichen.json', dateStr, shichen),
+      this.saveData('jieqi.json', dateStr, jieqi),
+      this.saveData('holidays.json', dateStr, holidays)
+    ]);
+  }
+  static async saveData(filename, dateStr, rawData) {
+    const processed = DataProcessor.process(rawData, dateStr);
+    const year = dateStr.split('-')[0];
+    const filePath = path.join(CONFIG.DATA_DIR, year, filename);
+    // 合并数据
+    const existing = await FileManager.readJSON(filePath) || {};
+    const merged = { ...existing, ...processed };
+    await FileManager.writeJSON(filePath, merged);
+    await Logger.write('INFO', 'DataSave', `${filename} 更新成功`);
+  }
+  static async loadIncrementData() {
+    const filePath = path.join(CONFIG.DATA_DIR, CONFIG.INCREMENT_FILE);
+    return await FileManager.readJSON(filePath) || {};
+  }
+  static async saveIncrementData(data) {
+    const filePath = path.join(CONFIG.DATA_DIR, CONFIG.INCREMENT_FILE);
+    await FileManager.writeJSON(filePath, data);
+  }
+}
+
+// ===================== 启动入口 =====================
+(async () => {
+  try {
+    await Logger.write('INFO', 'Bootstrap', '应用程序启动');
+    await MainProcessor.fetchData();
+    await Logger.write('INFO', 'Bootstrap', '流程执行完成');
   } catch (error) {
-    await writeLog('ERROR', 'main', '🔥 主流程异常终止', {
-      error: error.message,
-      stack: error.stack
-    });
+    await Logger.write('ERROR', 'Bootstrap', `致命错误: ${error.message}`);
     process.exit(1);
   }
-};
-// 启动执行
-main();
+})();
 
 
 
