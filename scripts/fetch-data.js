@@ -295,7 +295,7 @@ class MainProcess {
     try {
       await Logger.info('MainProcess', '🚀 启动数据同步流程');
       const processedDates = await IncrementManager.getProcessedDates();
-      const startDate = moment('2025-02-11');
+      const startDate = moment('2025-02-19');
       const endDate = moment();
       for (
         let date = startDate.clone();
