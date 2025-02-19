@@ -126,7 +126,7 @@ class NetworkClient {
     if (!url) throw new Error(`未知API端点: ${apiName}`);
     // 生成带有参数的完整 URL
     const urlWithParams = this._buildUrlWithParams(url, params);
-    await Logger.error('NetworkClient', `请求失败，完整链接: ${urlWithParams}`, {
+    await Logger.debug('NetworkClient', `请求失败，完整链接: ${urlWithParams}`, {
       params
     });  // 打印请求失败的完整 URL
 
