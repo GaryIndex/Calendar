@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新对话</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 禁用页面滚动 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+        /* 防止输入框聚焦时页面缩放或移动 */
+        input:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-white flex flex-col items-center justify-between relative" style="padding: 0;">
+    <!-- 顶部导航栏 -->
+    <header class="w-full bg-white border-b flex items-center justify-between px-4 py-3 sticky top-0 z-20">
+        <button class="text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </button>
+        <h1 class="text-lg font-semibold">新对话</h1>
+        <button class="text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+        </button>
+    </header>
+
+    <!-- 聊天窗口 -->
+    <div class="w-full flex-1 flex flex-col h-[calc(100vh-120px)] relative z-10">
+        <!-- 对话窗口 -->
+        <div id="chatWindow" class="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-100"></div>
+
+        <!-- 输入区域 -->
+        <div class="w-full bg-white p-3 flex items-center space-x-2 border-t">
+            <!-- 语音输入按钮 -->
+            <button class="text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                </svg>
+            </button>
+
+            <!-- 输入框 -->
+            <input type="text" id="messageInput" class="flex-1 p-2 bg-gray-100 rounded-lg focus:ring-0" placeholder="给 DeepSeek 发消息">
+
+            <!-- 更多功能按钮 -->
+            <button class="text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+            </button>
+
+            <!-- 发送按钮（隐藏，输入后显示） -->
+            <button id="sendButton" class="hidden bg-green-500 text-white px-3 py-1 rounded-lg">
+                发送
+            </button>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="text-gray-500 text-xs text-center py-1">
+        在线人工智能大模型
+    </footer>
+
+    <script>
+        const chatWindow = document.getElementById('chatWindow');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // 输入框输入时显示/隐藏发送按钮
+        messageInput.addEventListener('input', () => {
+            const message = messageInput.value.trim();
+            sendButton.classList.toggle('hidden', !message);
+        });
+
+        // 发送消息函数
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) {
+                // 添加“消息不能为空”提示
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'flex justify-start';
+                emptyMessage.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg max-w-[70%]">消息不能为空</div>`;
+                chatWindow.appendChild(emptyMessage);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                setTimeout(() => {
+                    chatWindow.removeChild(emptyMessage);
+                }, 2000); // 2秒后自动消失
+                return;
+            }
+
+            // 添加用户消息
+            const userMessage = document.createElement('div');
+            userMessage.className = 'flex justify-end';
+            userMessage.innerHTML = `<div class="bg-green-500 text-white p-3 rounded-lg max-w-[70%]">${message}</div>`;
+            chatWindow.appendChild(userMessage);
+
+            // 清空输入框
+            messageInput.value = '';
+            sendButton.classList.add('hidden');
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            // 添加“正在思考”效果
+            const thinkingMessage = document.createElement('div');
+            thinkingMessage.className = 'flex justify-start';
+            thinkingMessage.innerHTML = `
+                <div class="bg-white text-black p-3 rounded-lg max-w-[70%] flex items-center space-x-2 shadow-sm">
+                    <span class="animate-pulse">正在思考</span>
+                    <div class="flex space-x-1">
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            chatWindow.appendChild(thinkingMessage);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            // 模拟服务器响应
+            setTimeout(() => {
+                // 移除“正在思考”消息
+                chatWindow.removeChild(thinkingMessage);
+
+                // 添加服务器回复
+                const serverMessage = document.createElement('div');
+                serverMessage.className = 'flex justify-start';
+                serverMessage.innerHTML = `<div class="bg-white text-black p-3 rounded-lg max-w-[70%] shadow-sm">服务器繁忙，请稍候再试</div>`;
+                chatWindow.appendChild(serverMessage);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, Math.random() * 5000 + 3000); // 随机3-8秒
+        }
+
+        // 点击发送按钮
+        sendButton.addEventListener('click', sendMessage);
+
+        // 回车键发送
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
