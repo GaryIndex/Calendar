@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天窗口</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white rounded-lg shadow-lg flex flex-col h-[80vh]">
+        <!-- 对话窗口 -->
+        <div id="chatWindow" class="flex-1 p-4 overflow-y-auto space-y-4">
+            <!-- 示例对话 -->
+            <div class="flex justify-start">
+                <div class="bg-blue-500 text-white p-3 rounded-lg max-w-[70%]">
+                    你好！有什么我可以帮你的吗？
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <div class="bg-gray-300 text-black p-3 rounded-lg max-w-[70%]">
+                    你好，我想问个问题。
+                </div>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="border-t p-4 flex items-center space-x-2">
+            <!-- 文件上传 -->
+            <label class="cursor-pointer">
+                <input type="file" id="fileInput" class="hidden">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586A4 4 0 1115.172 7z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12l9-9"></path>
+                </svg>
+            </label>
+
+            <!-- 输入框 -->
+            <input type="text" id="messageInput" class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="输入消息...">
+
+            <!-- 发送按钮 -->
+            <button id="sendButton" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                发送
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatWindow = document.getElementById('chatWindow');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // 发送消息函数
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // 添加用户消息
+            const userMessage = document.createElement('div');
+            userMessage.className = 'flex justify-end';
+            userMessage.innerHTML = `<div class="bg-gray-300 text-black p-3 rounded-lg max-w-[70%]">${message}</div>`;
+            chatWindow.appendChild(userMessage);
+
+            // 清空输入框
+            messageInput.value = '';
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            // 模拟服务器响应
+            setTimeout(() => {
+                const serverMessage = document.createElement('div');
+                serverMessage.className = 'flex justify-start';
+                serverMessage.innerHTML = `<div class="bg-blue-500 text-white p-3 rounded-lg max-w-[70%]">服务器繁忙，请稍候再试</div>`;
+                chatWindow.appendChild(serverMessage);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, Math.random() * 5000 + 3000); // 随机3-8秒
+        }
+
+        // 点击发送按钮
+        sendButton.addEventListener('click', sendMessage);
+
+        // 回车键发送
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
