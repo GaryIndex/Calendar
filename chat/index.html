@@ -6,32 +6,23 @@
     <title>AI聊天</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 禁用页面滚动 */
         html, body {
             height: 100%;
             margin: 0;
             overflow: hidden;
         }
-        /* 防止输入框聚焦时页面缩放或移动 */
         input:focus {
             outline: none;
         }
     </style>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-between relative" style="padding: 15px 15px 20px 15px;">
-    <!-- 背景文字 -->
     <div class="absolute inset-0 flex items-center justify-center text-6xl font-bold text-black opacity-50 pointer-events-none">
         AI聊天
     </div>
-
-    <!-- 聊天窗口 -->
     <div class="w-full max-w-2xl bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-65px)] relative z-10">
-        <!-- 对话窗口 -->
         <div id="chatWindow" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
-
-        <!-- 输入区域 -->
         <div class="border-t p-4 flex items-center space-x-2">
-            <!-- 文件上传 -->
             <label class="cursor-pointer">
                 <input type="file" id="fileInput" class="hidden">
                 <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,32 +30,22 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12l9-9"></path>
                 </svg>
             </label>
-
-            <!-- 输入框 -->
             <input type="text" id="messageInput" class="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="输入消息...">
-
-            <!-- 发送按钮 -->
             <button id="sendButton" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
                 发送
             </button>
         </div>
     </div>
-
-    <!-- 页脚 -->
     <footer class="text-gray-600 text-sm mt-2">
         在线人工智能大模型
     </footer>
-
     <script>
         const chatWindow = document.getElementById('chatWindow');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
-
-        // 发送消息函数
         function sendMessage() {
             const message = messageInput.value.trim();
             if (!message) {
-                // 添加“消息不能为空”提示
                 const emptyMessage = document.createElement('div');
                 emptyMessage.className = 'flex justify-start';
                 emptyMessage.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg max-w-[70%]">消息不能为空</div>`;
@@ -72,21 +53,15 @@
                 chatWindow.scrollTop = chatWindow.scrollHeight;
                 setTimeout(() => {
                     chatWindow.removeChild(emptyMessage);
-                }, 2000); // 2秒后自动消失
+                }, 2000);
                 return;
             }
-
-            // 添加用户消息
             const userMessage = document.createElement('div');
             userMessage.className = 'flex justify-end';
             userMessage.innerHTML = `<div class="bg-gray-300 text-black p-3 rounded-lg max-w-[70%]">${message}</div>`;
             chatWindow.appendChild(userMessage);
-
-            // 清空输入框
             messageInput.value = '';
             chatWindow.scrollTop = chatWindow.scrollHeight;
-
-            // 添加“正在思考”效果
             const thinkingMessage = document.createElement('div');
             thinkingMessage.className = 'flex justify-start';
             thinkingMessage.innerHTML = `
@@ -101,13 +76,8 @@
             `;
             chatWindow.appendChild(thinkingMessage);
             chatWindow.scrollTop = chatWindow.scrollHeight;
-
-            // 模拟服务器响应
             setTimeout(() => {
-                // 移除“正在思考”消息
                 chatWindow.removeChild(thinkingMessage);
-
-                // 添加服务器回复
                 const serverMessage = document.createElement('div');
                 serverMessage.className = 'flex justify-start';
                 serverMessage.innerHTML = `<div class="bg-blue-500 text-white p-3 rounded-lg max-w-[70%]">服务器繁忙，请稍候再试</div>`;
@@ -115,11 +85,7 @@
                 chatWindow.scrollTop = chatWindow.scrollHeight;
             }, Math.random() * 5000 + 3000); // 随机3-8秒
         }
-
-        // 点击发送按钮
         sendButton.addEventListener('click', sendMessage);
-
-        // 回车键发送
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendMessage();
