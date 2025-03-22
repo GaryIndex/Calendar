@@ -12,9 +12,13 @@
             margin: 0;
             overflow: hidden;
         }
+        /* 防止输入框聚焦时页面缩放或移动 */
+        input:focus {
+            outline: none;
+        }
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-between relative" style="padding: 15px 15px 150px 15px;">
+<body class="bg-gray-100 flex flex-col items-center justify-between relative" style="padding: 15px 15px 20px 15px;">
     <!-- 背景文字 -->
     <div class="absolute inset-0 flex items-center justify-center text-6xl font-bold text-black opacity-50 pointer-events-none">
         AI聊天
@@ -37,7 +41,7 @@
             </label>
 
             <!-- 输入框 -->
-            <input type="text" id="messageInput" class="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="输入消息...">
+            <input type="text" id="messageInput" class="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="输入消息...">
 
             <!-- 发送按钮 -->
             <button id="sendButton" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
@@ -59,7 +63,18 @@
         // 发送消息函数
         function sendMessage() {
             const message = messageInput.value.trim();
-            if (!message) return;
+            if (!message) {
+                // 添加“消息不能为空”提示
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'flex justify-start';
+                emptyMessage.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg max-w-[70%]">消息不能为空</div>`;
+                chatWindow.appendChild(emptyMessage);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                setTimeout(() => {
+                    chatWindow.removeChild(emptyMessage);
+                }, 2000); // 2秒后自动消失
+                return;
+            }
 
             // 添加用户消息
             const userMessage = document.createElement('div');
