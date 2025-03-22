@@ -5,14 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI聊天</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 禁用页面滚动 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 relative">
+<body class="bg-gray-100 flex items-center justify-center p-4 relative">
     <!-- 背景文字 -->
     <div class="absolute inset-0 flex items-center justify-center text-6xl font-bold text-black opacity-50 pointer-events-none">
         AI聊天
     </div>
 
-    <div class="w-full max-w-2xl bg-white rounded-lg shadow-lg flex flex-col h-[80vh] relative z-10">
+    <div class="w-full max-w-2xl bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-2rem)] relative z-10">
         <!-- 对话窗口 -->
         <div id="chatWindow" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
 
