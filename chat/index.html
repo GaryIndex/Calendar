@@ -14,13 +14,14 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center p-4 relative">
+<body class="bg-gray-100 flex flex-col items-center justify-between relative" style="padding: 15px 15px 20px 15px;">
     <!-- 背景文字 -->
     <div class="absolute inset-0 flex items-center justify-center text-6xl font-bold text-black opacity-50 pointer-events-none">
         AI聊天
     </div>
 
-    <div class="w-full max-w-2xl bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-2rem)] relative z-10">
+    <!-- 聊天窗口 -->
+    <div class="w-full max-w-2xl bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-65px)] relative z-10">
         <!-- 对话窗口 -->
         <div id="chatWindow" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
 
@@ -44,6 +45,11 @@
             </button>
         </div>
     </div>
+
+    <!-- 页脚 -->
+    <footer class="text-gray-600 text-sm mt-2">
+        在线人工智能大模型
+    </footer>
 
     <script>
         const chatWindow = document.getElementById('chatWindow');
